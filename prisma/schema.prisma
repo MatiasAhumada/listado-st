@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  EMPRESA
+  VENDEDOR
+}
+
+enum ProductType {
+  MODULO
+  BATERIA
+  PIN
+  VARIOS
+}
+
+enum ProductQuality {
+  INCELL
+  OLED
+  ORIGINAL
+  SERVICEPACK
+  REMANOFACTURADO
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  role      Role     @default(VENDEDOR)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relación: Una empresa (User) puede tener muchos productos en su listado
+  productos Producto[]
+
+  @@map("users")
+}
+
+model Producto {
+  id        String          @id @default(uuid())
+  name      String
+  type      ProductType
+  quality   ProductQuality? // Opcional porque un "PIN" o "VARIOS" podría no tener calidad
+  available Boolean         @default(true)
+  cost      Float // Costo
+  cash      Float // Precio Efectivo
+  credit    Float // Precio Tarjeta/Crédito
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  // Foreign key a la Empresa (User)
+  companyId String
+  company   User   @relation(fields: [companyId], references: [id])
+
+  @@map("productos")
+}
