@@ -8,7 +8,8 @@ export async function POST(req: NextRequest) {
 
     const { user, token } = await AuthService.login(username, password);
 
-    const response = NextResponse.json({ user });
+    // include token in response body so client can store it when cookies fail
+    const response = NextResponse.json({ user, token });
 
     response.cookies.set({
       name: "auth-token",
@@ -21,7 +22,6 @@ export async function POST(req: NextRequest) {
       maxAge: 60 * 60 * 24, // 1 day
       path: "/",
     });
-
     return response;
   } catch (error: any) {
     return apiErrorHandler({
