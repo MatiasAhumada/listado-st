@@ -9,17 +9,47 @@ export interface User {
 
 interface AuthState {
   user: User | null;
+  token: string | null;
   setUser: (user: User | null) => void;
+  setToken: (token: string | null) => void;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
+      token: null,
       setUser: (user) => set({ user }),
-      logout: () => set({ user: null }),
+      setToken: (token) => {
+        set({ token });
+        // keep axios header in sync when token changes
+        if (token) {
+          import("@/utils/clientAxios.util").then((m) => {
+            m.default.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+          });
+        } else {
+          import("@/utils/clientAxios.util").then((m) => {
+            delete m.default.defaults.headers.common["Authorization"];
+          });
+        }
+      },
+      logout: () => {
+        set({ user: null, token: null });
+        import("@/utils/clientAxios.util").then((m) => {
+          delete m.default.defaults.headers.common["Authorization"];
+        });
+      },
     }),
-    { name: 'auth-storage' }
+    {
+      name: 'auth-storage',
+      onRehydrateStorage: () => (state) => {
+        if (state?.token) {
+          import("@/utils/clientAxios.util").then((m) => {
+            m.default.defaults.headers.common["Authorization"] = `Bearer ${state.token}`;
+          });
+        }
+      },
+    }
   )
 );

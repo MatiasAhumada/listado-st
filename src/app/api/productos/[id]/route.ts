@@ -7,8 +7,14 @@ import httpStatus from "http-status";
 
 const JWT_SECRET = process.env.JWT_SECRET || "super-secret";
 
-function getAuthContext(cookieStore: any) {
-  const token = cookieStore.get("auth-token")?.value;
+function getAuthContext(cookieStore: any, headers?: Headers) {
+  let token = cookieStore.get("auth-token")?.value;
+  if (!token && headers) {
+    const authHeader = headers.get("authorization") || headers.get("Authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      token = authHeader.slice(7);
+    }
+  }
   if (!token) {
     throw new ApiError({ status: httpStatus.UNAUTHORIZED, message: "No autenticado" });
   }
@@ -18,7 +24,7 @@ function getAuthContext(cookieStore: any) {
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const cookieStore = await cookies();
-    const decoded = getAuthContext(cookieStore);
+    const decoded = getAuthContext(cookieStore, req.headers);
     const body = await req.json();
     const { id } = await params;
     
@@ -40,7 +46,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const cookieStore = await cookies();
-    const decoded = getAuthContext(cookieStore);
+    const decoded = getAuthContext(cookieStore, req.headers);
     const { id } = await params;
 
     await ProductoService.delete(id, decoded.role, decoded.id);

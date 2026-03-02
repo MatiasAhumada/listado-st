@@ -15,6 +15,9 @@ export async function POST(req: NextRequest) {
       value: token,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      // if your frontend and API are on different subdomains, you may need
+      // domain: ".example.com",
       maxAge: 60 * 60 * 24, // 1 day
       path: "/",
     });

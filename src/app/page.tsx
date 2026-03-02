@@ -19,7 +19,7 @@ export default function LoginPage() {
   const [isHydrated, setIsHydrated] = useState(false);
   
   const router = useRouter();
-  const { user, setUser } = useAuthStore();
+  const { user, token, setUser, setToken } = useAuthStore();
 
   useEffect(() => {
     setIsHydrated(true);
@@ -37,8 +37,9 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { user } = await loginUsuario({ username, password });
+      const { user, token } = await loginUsuario({ username, password });
       setUser(user);
+      setToken(token);
       clientSuccessHandler(`Bienvenido, ${user.username}`);
       router.push("/dashboard");
     } catch (error) {

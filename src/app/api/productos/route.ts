@@ -7,8 +7,16 @@ import httpStatus from "http-status";
 
 const JWT_SECRET = process.env.JWT_SECRET || "super-secret";
 
-function getAuthContext(cookieStore: any) {
-  const token = cookieStore.get("auth-token")?.value;
+function getAuthContext(cookieStore: any, headers?: Headers) {
+  // prefer cookie but allow Authorization header when the client
+  // stored the token locally (fallback for buggy cookie delivery).
+  let token = cookieStore.get("auth-token")?.value;
+  if (!token && headers) {
+    const authHeader = headers.get("authorization") || headers.get("Authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      token = authHeader.slice(7);
+    }
+  }
   if (!token) {
     throw new ApiError({ status: httpStatus.UNAUTHORIZED, message: "No autenticado" });
   }
@@ -18,7 +26,7 @@ function getAuthContext(cookieStore: any) {
 export async function GET(req: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const decoded = getAuthContext(cookieStore);
+    const decoded = getAuthContext(cookieStore, req.headers);
 
     const { searchParams } = req.nextUrl;
     const filters = {
@@ -40,7 +48,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const decoded = getAuthContext(cookieStore);
+    const decoded = getAuthContext(cookieStore, req.headers);
 
     const body = await req.json();
 
