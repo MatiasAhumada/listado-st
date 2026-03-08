@@ -11,7 +11,8 @@
     "migrate": "prisma migrate dev",
     "reset": "prisma migrate reset",
     "studio": "prisma studio",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts",
+    "seed:production": "tsx prisma/seed-production.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.13.0",
