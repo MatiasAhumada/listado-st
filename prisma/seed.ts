@@ -34,6 +34,18 @@ async function main() {
   });
   console.log(`Created seller user: ${vendedor.username}`);
 
+  // Create TECNICO (Technician)
+  const tecnico = await prisma.user.upsert({
+    where: { username: "tecnico" },
+    update: {},
+    create: {
+      username: "tecnico",
+      password: await hashPassword("tecnico123"),
+      role: Role.TECNICO,
+    },
+  });
+  console.log(`Created technician user: ${tecnico.username}`);
+
   // Create some initial products for the EMPRESA
   console.log("Creating initial products...");
   
@@ -43,8 +55,12 @@ async function main() {
       type: "MODULO",
       quality: "INCELL",
       available: true,
-      cost: 20.5,
+      costTech: 10.0,
+      costTechMargin: 100,
+      cost: 20.0,
+      costMargin: 75,
       cash: 35.0,
+      cashMargin: 14.29,
       credit: 40.0,
       companyId: empresaAdmin.id,
     },
@@ -56,8 +72,12 @@ async function main() {
       type: "BATERIA",
       quality: "ORIGINAL",
       available: true,
+      costTech: 8.0,
+      costTechMargin: 87.5,
       cost: 15.0,
+      costMargin: 66.67,
       cash: 25.0,
+      cashMargin: 20,
       credit: 30.0,
       companyId: empresaAdmin.id,
     },
