@@ -1,8 +1,14 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma, ProductType, ProductQuality } from "@prisma/client";
+import { Prisma, ProductType, ProductQuality, Role } from "@prisma/client";
+
+export type UserRole = Role | "TECNICO";
 
 export class ProductoRepository {
-  static async findAll(isVendedor: boolean, filters?: { type?: string; quality?: string; search?: string }) {
+  static async findAll(
+    userRole: UserRole,
+    companyId: string,
+    filters?: { type?: string; quality?: string; search?: string }
+  ) {
     const where: Prisma.ProductoWhereInput = {};
     
     if (filters?.type && filters.type !== "TODOS") {
@@ -21,7 +27,7 @@ export class ProductoRepository {
       where.name = { contains: filters.search, mode: "insensitive" };
     }
 
-    if (isVendedor) {
+    if (userRole === "VENDEDOR") {
       return prisma.producto.findMany({
         where,
         orderBy: { createdAt: "desc" },
@@ -43,10 +49,50 @@ export class ProductoRepository {
       });
     }
 
+    if (userRole === "TECNICO") {
+      where.companyId = companyId;
+      return prisma.producto.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          name: true,
+          type: true,
+          quality: true,
+          available: true,
+          costTech: true,
+          costTechMargin: true,
+          cost: true,
+          costMargin: true,
+          createdAt: true,
+          updatedAt: true,
+          companyId: true,
+          company: {
+            select: { username: true },
+          },
+        },
+      });
+    }
+
     return prisma.producto.findMany({
       where,
       orderBy: { createdAt: "desc" },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        quality: true,
+        available: true,
+        costTech: true,
+        costTechMargin: true,
+        cost: true,
+        costMargin: true,
+        cash: true,
+        cashMargin: true,
+        credit: true,
+        createdAt: true,
+        updatedAt: true,
+        companyId: true,
         company: {
           select: { username: true },
         },
@@ -69,6 +115,12 @@ export class ProductoRepository {
 
   static async delete(id: string) {
     return prisma.producto.delete({
+      where: { id },
+    });
+  }
+
+  static async findById(id: string) {
+    return prisma.producto.findUnique({
       where: { id },
     });
   }

@@ -13,6 +13,7 @@ datasource db {
 enum Role {
   EMPRESA
   VENDEDOR
+  TECNICO
 }
 
 enum ProductType {
@@ -45,18 +46,21 @@ model User {
 }
 
 model Producto {
-  id        String          @id @default(uuid())
-  name      String
-  type      ProductType
-  quality   ProductQuality? // Opcional porque un "PIN" o "VARIOS" podría no tener calidad
-  available Boolean         @default(true)
-  cost      Float // Costo
-  cash      Float // Precio Efectivo
-  credit    Float // Precio Tarjeta/Crédito
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
+  id               String          @id @default(uuid())
+  name             String
+  type             ProductType
+  quality          ProductQuality?
+  available        Boolean         @default(true)
+  costTech         Float           @default(0)
+  costTechMargin   Float           @default(0)
+  cost             Float
+  costMargin       Float           @default(0)
+  cash             Float
+  cashMargin       Float           @default(0)
+  credit           Float
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 
-  // Foreign key a la Empresa (User)
   companyId String
   company   User   @relation(fields: [companyId], references: [id])
 

@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
       search: searchParams.get("search") || undefined,
     };
 
-    const productos = await ProductoService.getAll(decoded.role, filters);
+    const productos = await ProductoService.getAll(decoded.role as any, decoded.id, filters);
     return NextResponse.json(productos);
   } catch (error: any) {
     return apiErrorHandler({
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       companyId: decoded.id,
     };
 
-    const producto = await ProductoService.create(data, decoded.role);
+    const producto = await ProductoService.create(data, decoded.role as any, decoded.id);
     return NextResponse.json(producto);
   } catch (error: any) {
     return apiErrorHandler({

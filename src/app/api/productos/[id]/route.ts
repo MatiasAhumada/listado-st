@@ -33,7 +33,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       quality: body.quality === "NINGUNA" ? null : body.quality,
     };
 
-    const producto = await ProductoService.update(id, data, decoded.role, decoded.id);
+    const producto = await ProductoService.update(id, data, decoded.role as any, decoded.id);
     return NextResponse.json(producto);
   } catch (error: any) {
     return apiErrorHandler({
@@ -49,7 +49,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     const decoded = getAuthContext(cookieStore, req.headers);
     const { id } = await params;
 
-    await ProductoService.delete(id, decoded.role, decoded.id);
+    await ProductoService.delete(id, decoded.role as any, decoded.id);
     return NextResponse.json({ message: "Producto eliminado exitosamente" });
   } catch (error: any) {
     return apiErrorHandler({

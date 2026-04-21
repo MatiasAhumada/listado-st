@@ -88,6 +88,7 @@ export default function DashboardPage() {
   };
 
   const isEmpresa = user?.role === "EMPRESA";
+  const isTecnico = user?.role === "TECNICO";
 
   const columns = useMemo(() => {
     const baseCols: { key: string; label: string; render?: (item: any) => any; className?: string }[] = [
@@ -109,27 +110,51 @@ export default function DashboardPage() {
       },
     ];
 
+    if (isTecnico) {
+      baseCols.push({
+        key: "costTech",
+        label: "Costo Técnico",
+        render: (item: any) => <span className="font-semibold text-deepspace-500">${Number(item.costTech || 0).toFixed(2)}</span>
+      });
+      baseCols.push({
+        key: "cost",
+        label: "Costo Final",
+        render: (item: any) => <span className="font-semibold text-bluegreen-500">${Number(item.cost || 0).toFixed(2)}</span>
+      });
+    }
+
     if (isEmpresa) {
       baseCols.push({
         key: "cost",
         label: "Costo",
         render: (item: any) => <span className="font-semibold text-deepspace-500">${Number(item.cost).toFixed(2)}</span>
       });
+      baseCols.push({
+        key: "cash",
+        label: "Efectivo",
+        render: (item: any) => <span className="font-bold text-bluegreen-500">${Number(item.cash).toFixed(2)}</span>
+      });
+      baseCols.push({
+        key: "credit",
+        label: "Tarjeta",
+        render: (item: any) => <span className="font-bold text-amber-500">${Number(item.credit).toFixed(2)}</span>
+      });
     }
 
-    baseCols.push({
-      key: "cash",
-      label: "Efectivo",
-      render: (item: any) => <span className="font-bold text-bluegreen-500">${Number(item.cash).toFixed(2)}</span>
-    });
+    if (!isTecnico) {
+      baseCols.push({
+        key: "cash",
+        label: "Efectivo",
+        render: (item: any) => <span className="font-bold text-bluegreen-500">${Number(item.cash || 0).toFixed(2)}</span>
+      });
+      baseCols.push({
+        key: "credit",
+        label: "Tarjeta",
+        render: (item: any) => <span className="font-bold text-amber-500">${Number(item.credit || 0).toFixed(2)}</span>
+      });
+    }
 
-    baseCols.push({
-      key: "credit",
-      label: "Tarjeta",
-      render: (item: any) => <span className="font-bold text-amber-500">${Number(item.credit).toFixed(2)}</span>
-    });
-
-    if (isEmpresa) {
+    if (isTecnico || isEmpresa) {
       baseCols.push({
         key: "actions",
         label: "Acciones",
@@ -139,16 +164,18 @@ export default function DashboardPage() {
             <Button size="icon" variant="ghost" className="hover:bg-bluegreen-100/50 hover:text-bluegreen-600" onClick={(e) => { e.stopPropagation(); setProductToEdit(item); setModalOpen(true); }}>
               <Edit size={16} className="text-bluegreen-500" />
             </Button>
-            <Button size="icon" variant="ghost" className="hover:bg-red-50 hover:text-red-600" onClick={(e) => { e.stopPropagation(); setProductToDelete(item); setDeleteModalOpen(true); }}>
-              <Trash size={16} className="text-red-500" />
-            </Button>
+            {isEmpresa && (
+              <Button size="icon" variant="ghost" className="hover:bg-red-50 hover:text-red-600" onClick={(e) => { e.stopPropagation(); setProductToDelete(item); setDeleteModalOpen(true); }}>
+                <Trash size={16} className="text-red-500" />
+              </Button>
+            )}
           </div>
         )
       });
     }
 
     return baseCols;
-  }, [isEmpresa]);
+  }, [isEmpresa, isTecnico]);
 
   if (!isHydrated || !user) return null;
 
@@ -216,7 +243,7 @@ export default function DashboardPage() {
                   </SelectContent>
                 </Select>
 
-                {isEmpresa && (
+                {(isEmpresa || isTecnico) && (
                   <Button onClick={() => { setProductToEdit(null); setModalOpen(true); }} className="gap-2 bg-gradient-to-r from-bluegreen-500 to-bluegreen-400 hover:shadow-lg hover:shadow-bluegreen-400/30 transition-all font-bold text-white rounded-xl px-4">
                     <Plus size={18} />
                     Nuevo
@@ -229,13 +256,14 @@ export default function DashboardPage() {
       </main>
 
       {/* Modals */}
-      {isEmpresa && (
+      {(isEmpresa || isTecnico) && (
         <>
           <AddProductModal 
             open={modalOpen} 
             onOpenChange={setModalOpen} 
             onSuccess={fetchData}
             initialData={productToEdit}
+            userRole={isTecnico ? "TECNICO" : "EMPRESA"}
           />
           <GenericModal
             open={deleteModalOpen}
