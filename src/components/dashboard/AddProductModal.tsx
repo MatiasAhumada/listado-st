@@ -69,24 +69,18 @@ export function AddProductModal({ open, onOpenChange, onSuccess, initialData, us
           cashMargin: 0,
         });
       } else if (isEmpresa) {
-        const baseCostVal = initialData.costTech || initialData.cost || 0;
-        let costMarginVal = 0;
         let cashMarginVal = 0;
 
-        if (initialData.cost > 0 && baseCostVal > 0) {
-          costMarginVal = Math.round(((initialData.cost / baseCostVal - 1) * 100));
-        }
         if (initialData.cash > 0 && initialData.cost > 0) {
           cashMarginVal = Math.round(((initialData.cash / initialData.cost - 1) * 100));
         }
 
-        if (!MARGIN_OPTIONS.includes(costMarginVal)) costMarginVal = 0;
         if (!MARGIN_OPTIONS.includes(cashMarginVal)) cashMarginVal = 0;
 
         setPricing({
-          costTech: baseCostVal,
+          costTech: 0,
           costTechMargin: 0,
-          costMargin: costMarginVal,
+          costMargin: 0,
           cashMargin: cashMarginVal,
         });
       }
@@ -101,8 +95,11 @@ export function AddProductModal({ open, onOpenChange, onSuccess, initialData, us
   }, [pricing.costTech, pricing.costTechMargin]);
 
   const computedCash = useMemo(() => {
+    if (isEmpresa && initialData?.cost) {
+      return initialData.cost * (1 + pricing.cashMargin / 100);
+    }
     return computedCost * (1 + pricing.cashMargin / 100);
-  }, [computedCost, pricing.cashMargin]);
+  }, [computedCost, pricing.cashMargin, isEmpresa, initialData]);
 
   const handleSave = async () => {
     if (!form.name) return clientErrorHandler("El nombre es requerido");
@@ -128,8 +125,6 @@ export function AddProductModal({ open, onOpenChange, onSuccess, initialData, us
       } else if (isEmpresa) {
         payload = {
           ...payload,
-          costTech: pricing.costTech > 0 ? pricing.costTech : initialData?.costTech,
-          costMargin: pricing.costMargin,
           cashMargin: pricing.cashMargin,
         };
       }
@@ -137,7 +132,7 @@ export function AddProductModal({ open, onOpenChange, onSuccess, initialData, us
       if (isEditing) {
         await updateProducto(initialData.id, payload);
         clientSuccessHandler("Producto actualizado con éxito");
-      } else {
+      } else if (isTecnico) {
         await createProducto(payload);
         clientSuccessHandler("Producto creado con éxito");
       }
@@ -264,7 +259,7 @@ export function AddProductModal({ open, onOpenChange, onSuccess, initialData, us
             <>
               {isEmpresa && (
                 <div className="space-y-2 p-4 bg-skybase-900/40 rounded-xl border border-skybase-700/50 shadow-sm">
-                  <Label className="text-deepspace-500 font-bold">Costo del Técnico</Label>
+                  <Label className="text-deepspace-500 font-bold">Costo Base</Label>
                   <div className="flex items-center gap-2">
                     <span className="flex items-center text-skybase-200 font-black text-xl">$</span>
                     <Input
@@ -272,33 +267,11 @@ export function AddProductModal({ open, onOpenChange, onSuccess, initialData, us
                       min={0}
                       readOnly
                       className="w-full bg-skybase-800/50 border-skybase-700/50 text-lg font-black text-deepspace-500 h-11"
-                      value={pricing.costTech}
+                      value={initialData?.cost || 0}
                     />
                   </div>
                 </div>
               )}
-
-              <div className="space-y-2 px-3 py-2 bg-skybase-900/10 rounded-lg border border-skybase-800/30">
-                <Label className="flex justify-between text-deepspace-500 font-semibold">
-                  <span>% Margen Empresa</span>
-                  <span className="font-black text-deepspace-500">${computedCost.toFixed(2)}</span>
-                </Label>
-                <Select
-                  value={pricing.costMargin.toString()}
-                  onValueChange={(val) => setPricing({ ...pricing, costMargin: Number(val) })}
-                >
-                  <SelectTrigger className="w-full bg-white border-skybase-700/50 focus:ring-bluegreen-500">
-                    <SelectValue placeholder="Seleccionar %" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MARGIN_OPTIONS.map((p) => (
-                      <SelectItem key={p} value={p.toString()}>
-                        +{p}%
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
 
               <div className="space-y-2 px-3 py-2 bg-skybase-900/10 rounded-lg border border-skybase-800/30">
                 <Label className="flex justify-between text-deepspace-500 font-semibold">

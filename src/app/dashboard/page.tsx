@@ -121,6 +121,16 @@ export default function DashboardPage() {
         label: "Costo Final",
         render: (item: any) => <span className="font-semibold text-bluegreen-500">${Number(item.cost || 0).toFixed(2)}</span>
       });
+      baseCols.push({
+        key: "cash",
+        label: "Efectivo",
+        render: (item: any) => <span className="font-bold text-bluegreen-500">${Number(item.cash || 0).toFixed(2)}</span>
+      });
+      baseCols.push({
+        key: "credit",
+        label: "Tarjeta",
+        render: (item: any) => <span className="font-bold text-amber-500">${Number(item.credit || 0).toFixed(2)}</span>
+      });
     }
 
     if (isEmpresa) {
@@ -141,7 +151,7 @@ export default function DashboardPage() {
       });
     }
 
-    if (!isTecnico) {
+    if (!isTecnico && !isEmpresa) {
       baseCols.push({
         key: "cash",
         label: "Efectivo",
@@ -154,7 +164,7 @@ export default function DashboardPage() {
       });
     }
 
-    if (isTecnico || isEmpresa) {
+    if (isTecnico) {
       baseCols.push({
         key: "actions",
         label: "Acciones",
@@ -164,17 +174,30 @@ export default function DashboardPage() {
             <Button size="icon" variant="ghost" className="hover:bg-bluegreen-100/50 hover:text-bluegreen-600" onClick={(e) => { e.stopPropagation(); setProductToEdit(item); setModalOpen(true); }}>
               <Edit size={16} className="text-bluegreen-500" />
             </Button>
-            {isEmpresa && (
-              <Button size="icon" variant="ghost" className="hover:bg-red-50 hover:text-red-600" onClick={(e) => { e.stopPropagation(); setProductToDelete(item); setDeleteModalOpen(true); }}>
-                <Trash size={16} className="text-red-500" />
-              </Button>
-            )}
+            <Button size="icon" variant="ghost" className="hover:bg-red-50 hover:text-red-600" onClick={(e) => { e.stopPropagation(); setProductToDelete(item); setDeleteModalOpen(true); }}>
+              <Trash size={16} className="text-red-500" />
+            </Button>
           </div>
         )
       });
     }
 
-    return baseCols;
+    if (isEmpresa) {
+      baseCols.push({
+        key: "actions",
+        label: "Acciones",
+        className: "text-center",
+        render: (item: any) => (
+          <div className="flex gap-2 justify-center">
+            <Button size="icon" variant="ghost" className="hover:bg-bluegreen-100/50 hover:text-bluegreen-600" onClick={(e) => { e.stopPropagation(); setProductToEdit(item); setModalOpen(true); }}>
+              <Edit size={16} className="text-bluegreen-500" />
+            </Button>
+          </div>
+        )
+});
+    }
+
+return baseCols;
   }, [isEmpresa, isTecnico]);
 
   if (!isHydrated || !user) return null;

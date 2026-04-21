@@ -28,6 +28,7 @@ export class ProductoRepository {
     }
 
     if (userRole === "VENDEDOR") {
+      where.companyId = companyId;
       return prisma.producto.findMany({
         where,
         orderBy: { createdAt: "desc" },
@@ -50,7 +51,6 @@ export class ProductoRepository {
     }
 
     if (userRole === "TECNICO") {
-      where.companyId = companyId;
       return prisma.producto.findMany({
         where,
         orderBy: { createdAt: "desc" },
@@ -64,6 +64,9 @@ export class ProductoRepository {
           costTechMargin: true,
           cost: true,
           costMargin: true,
+          cash: true,
+          cashMargin: true,
+          credit: true,
           createdAt: true,
           updatedAt: true,
           companyId: true,
@@ -74,6 +77,7 @@ export class ProductoRepository {
       });
     }
 
+    where.companyId = companyId;
     return prisma.producto.findMany({
       where,
       orderBy: { createdAt: "desc" },

@@ -27,58 +27,29 @@ export class ProductoService {
   }
 
   static async create(data: CreateProductoDTO, userRole: UserRole, companyId: string) {
-    if (userRole === "VENDEDOR") {
+    if (userRole === "VENDEDOR" || userRole === "EMPRESA") {
       throw new ApiError({ status: httpStatus.FORBIDDEN, message: "No autorizado para crear productos" });
     }
 
-    if (userRole === "TECNICO") {
-      if (!data.costTech || data.costTech <= 0) {
-        throw new ApiError({ status: httpStatus.BAD_REQUEST, message: "El costo técnico es requerido" });
-      }
-
-      const costTechMargin = data.costTechMargin ?? 0;
-      const cost = data.costTech * (1 + costTechMargin / 100);
-
-      return await ProductoRepository.create({
-        name: data.name,
-        type: data.type,
-        quality: data.quality,
-        available: data.available,
-        costTech: data.costTech,
-        costTechMargin,
-        cost,
-        costMargin: 0,
-        cash: 0,
-        cashMargin: 0,
-        credit: 0,
-        companyId,
-      });
+    if (!data.costTech || data.costTech <= 0) {
+      throw new ApiError({ status: httpStatus.BAD_REQUEST, message: "El costo técnico es requerido" });
     }
 
-    const costBase = data.cost ?? 0;
-    if (!data.costTech && costBase > 0) {
-      data.costTech = costBase;
-      data.costTechMargin = 0;
-    }
-
-    const costMargin = data.costMargin ?? 0;
-    const cashMargin = data.cashMargin ?? 0;
-    const cost = data.cost ?? 0;
-    const cash = cost * (1 + costMargin / 100);
-    const credit = cash * (1 + cashMargin / 100);
+    const costTechMargin = data.costTechMargin ?? 0;
+    const cost = data.costTech * (1 + costTechMargin / 100);
 
     return await ProductoRepository.create({
       name: data.name,
       type: data.type,
       quality: data.quality,
       available: data.available,
-      costTech: data.costTech ?? 0,
-      costTechMargin: data.costTechMargin ?? 0,
-      cost: data.cost ?? cost,
-      costMargin,
-      cash: data.cash ?? cash,
-      cashMargin,
-      credit: data.credit ?? credit,
+      costTech: data.costTech,
+      costTechMargin,
+      cost,
+      costMargin: 0,
+      cash: 0,
+      cashMargin: 0,
+      credit: 0,
       companyId,
     });
   }
@@ -88,10 +59,14 @@ export class ProductoService {
       throw new ApiError({ status: httpStatus.FORBIDDEN, message: "No autorizado para editar productos" });
     }
 
+    const existing = await ProductoRepository.findById(id);
+    if (!existing) {
+      throw new ApiError({ status: httpStatus.NOT_FOUND, message: "Producto no encontrado" });
+    }
+
     if (userRole === "TECNICO") {
-      const existing = await ProductoRepository.findById(id);
-      if (!existing || existing.companyId !== companyId) {
-        throw new ApiError({ status: httpStatus.NOT_FOUND, message: "Producto no encontrado" });
+      if (existing.companyId !== companyId) {
+        throw new ApiError({ status: httpStatus.FORBIDDEN, message: "No podés editar productos de otras empresas" });
       }
 
       const costTech = data.costTech ?? existing.costTech;
@@ -105,15 +80,16 @@ export class ProductoService {
       });
     }
 
-    const cost = data.cost ?? 0;
-    const costMargin = data.costMargin ?? 0;
+    if (existing.companyId !== companyId) {
+      throw new ApiError({ status: httpStatus.FORBIDDEN, message: "No podés editar productos de otras empresas" });
+    }
+
+    const cost = existing.cost;
     const cashMargin = data.cashMargin ?? 0;
-    const cash = cost * (1 + costMargin / 100);
+    const cash = cost * (1 + cashMargin / 100);
     const credit = cash * (1 + cashMargin / 100);
 
     return await ProductoRepository.update(id, {
-      cost: data.cost,
-      costMargin,
       cash: data.cash ?? cash,
       cashMargin,
       credit: data.credit ?? credit,
@@ -121,9 +97,15 @@ export class ProductoService {
   }
 
   static async delete(id: string, userRole: UserRole, companyId: string) {
-    if (userRole !== "EMPRESA") {
+    if (userRole === "VENDEDOR" || userRole === "EMPRESA") {
       throw new ApiError({ status: httpStatus.FORBIDDEN, message: "No autorizado para eliminar productos" });
     }
+
+    const existing = await ProductoRepository.findById(id);
+    if (!existing || existing.companyId !== companyId) {
+      throw new ApiError({ status: httpStatus.NOT_FOUND, message: "Producto no encontrado" });
+    }
+
     return await ProductoRepository.delete(id);
   }
 }
