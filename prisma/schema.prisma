@@ -36,11 +36,13 @@ model User {
   username  String   @unique
   password  String
   role      Role     @default(VENDEDOR)
+  companyId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relación: Una empresa (User) puede tener muchos productos en su listado
   productos Producto[]
+  company   User?     @relation("CompanyVendedores", fields: [companyId], references: [id])
+  vendedores User[]   @relation("CompanyVendedores")
 
   @@map("users")
 }

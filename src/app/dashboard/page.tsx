@@ -117,29 +117,17 @@ export default function DashboardPage() {
     if (isTecnico) {
       baseCols.push({
         key: "costTech",
-        label: "Costo Técnico",
+        label: "Costo Repuesto",
         render: (item: any) => (
-          <span className="font-semibold text-deepspace-500">${Number(item.costTech || 0).toFixed(2)}</span>
+          <span className="font-semibold text-purple-600">${Number(item.costTech || 0).toFixed(2)}</span>
         ),
       });
       baseCols.push({
         key: "cost",
-        label: "Costo Final",
+        label: "Costo Cliente",
         render: (item: any) => (
-          <span className="font-semibold text-bluegreen-500">${Number(item.cost || 0).toFixed(2)}</span>
+          <span className="font-bold text-deepspace-500">${Number(item.cost || 0).toFixed(2)}</span>
         ),
-      });
-      baseCols.push({
-        key: "cash",
-        label: "Efectivo",
-        render: (item: any) => (
-          <span className="font-bold text-bluegreen-500">${Number(item.cash || 0).toFixed(2)}</span>
-        ),
-      });
-      baseCols.push({
-        key: "credit",
-        label: "Tarjeta",
-        render: (item: any) => <span className="font-bold text-amber-500">${Number(item.credit || 0).toFixed(2)}</span>,
       });
     }
 

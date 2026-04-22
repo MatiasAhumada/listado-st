@@ -43,9 +43,6 @@ export class ProductoRepository {
           createdAt: true,
           updatedAt: true,
           companyId: true,
-          company: {
-            select: { username: true },
-          },
         },
       });
     }
@@ -76,6 +73,10 @@ export class ProductoRepository {
       });
     }
 
+    where.OR = [
+      { companyId: null },
+      { companyId: companyId },
+    ];
     return prisma.producto.findMany({
       where,
       orderBy: { createdAt: "desc" },

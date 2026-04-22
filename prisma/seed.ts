@@ -22,17 +22,18 @@ async function main() {
   });
   console.log(`Created admin user: ${empresaAdmin.username}`);
 
-  // Create VENDEDOR (Seller)
+  // Create VENDEDOR (Seller) associated with EMPRESA
   const vendedor = await prisma.user.upsert({
     where: { username: "vendedor" },
-    update: {},
+    update: { companyId: empresaAdmin.id },
     create: {
       username: "vendedor",
       password: await hashPassword("vendedor123"),
       role: Role.VENDEDOR,
+      companyId: empresaAdmin.id,
     },
   });
-  console.log(`Created seller user: ${vendedor.username}`);
+  console.log(`Created seller user: ${vendedor.username} (associated with ${empresaAdmin.username})`);
 
   // Create TECNICO (Technician)
   const tecnico = await prisma.user.upsert({

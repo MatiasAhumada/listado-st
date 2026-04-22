@@ -13,7 +13,8 @@
     "reset": "prisma migrate reset",
     "studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",
-    "seed:production": "tsx prisma/seed-production.ts"
+    "seed:production": "tsx prisma/seed-production.ts",
+    "migrate:productos": "tsx prisma/migrate-productos.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.13.0",
