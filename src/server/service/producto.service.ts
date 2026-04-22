@@ -47,7 +47,8 @@ export class ProductoService {
       cash: 0,
       cashMargin: 0,
       credit: 0,
-      companyId,
+      creditMargin: 0,
+      companyId: null,
     });
   }
 
@@ -62,8 +63,8 @@ export class ProductoService {
     }
 
     if (userRole === "TECNICO") {
-      if (existing.companyId !== companyId) {
-        throw new ApiError({ status: httpStatus.FORBIDDEN, message: "No podés editar productos de otras empresas" });
+      if (existing.companyId) {
+        throw new ApiError({ status: httpStatus.FORBIDDEN, message: "No podés editar productos de empresas" });
       }
 
       const costTech = data.costTech ?? existing.costTech;
@@ -109,8 +110,12 @@ export class ProductoService {
     }
 
     const existing = await ProductoRepository.findById(id);
-    if (!existing || existing.companyId !== companyId) {
+    if (!existing) {
       throw new ApiError({ status: httpStatus.NOT_FOUND, message: "Producto no encontrado" });
+    }
+
+    if (existing.companyId) {
+      throw new ApiError({ status: httpStatus.FORBIDDEN, message: "No podés eliminar productos de empresas" });
     }
 
     return await ProductoRepository.delete(id);
