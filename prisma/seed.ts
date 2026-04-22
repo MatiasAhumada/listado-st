@@ -47,43 +47,6 @@ async function main() {
   });
   console.log(`Created technician user: ${tecnico.username}`);
 
-  // Create some initial products for the EMPRESA
-  console.log("Creating initial products...");
-
-  await prisma.producto.create({
-    data: {
-      name: "Módulo iPhone 11",
-      type: "MODULO",
-      quality: "INCELL",
-      available: true,
-      costTech: 10.0,
-      costTechMargin: 100,
-      cost: 20.0,
-      costMargin: 75,
-      cash: 35.0,
-      cashMargin: 14.29,
-      credit: 40.0,
-      companyId: empresaAdmin.id,
-    },
-  });
-
-  await prisma.producto.create({
-    data: {
-      name: "Batería Samsung S20",
-      type: "BATERIA",
-      quality: "ORIGINAL",
-      available: true,
-      costTech: 8.0,
-      costTechMargin: 87.5,
-      cost: 15.0,
-      costMargin: 66.67,
-      cash: 25.0,
-      cashMargin: 20,
-      credit: 30.0,
-      companyId: empresaAdmin.id,
-    },
-  });
-
   console.log("Seeding finished.");
 }
 
