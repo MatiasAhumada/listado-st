@@ -14,7 +14,10 @@
     "studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",
     "seed:production": "tsx prisma/seed-production.ts",
-    "migrate:productos": "tsx prisma/migrate-productos.ts"
+    "migrate:productos": "tsx prisma/migrate-productos.ts",
+    "vincular:vendedor": "tsx prisma/vincular-vendedor.ts",
+    "vincular:productos-empresa": "tsx prisma/vincular-productos-empresa.ts",
+    "revertir:productos-maestra": "tsx prisma/revertir-productos-maestra.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.13.0",

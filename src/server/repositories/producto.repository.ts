@@ -37,7 +37,10 @@ export class ProductoRepository {
         return [];
       }
 
-      where.companyId = user.companyId;
+      where.OR = [
+        { companyId: null },
+        { companyId: user.companyId },
+      ];
       return prisma.producto.findMany({
         where,
         orderBy: { createdAt: "desc" },
