@@ -35,7 +35,7 @@ export class ProductoService {
     const costTechMargin = data.costTechMargin ?? 0;
     const cost = data.costTech * (1 + costTechMargin / 100);
 
-    return await ProductoRepository.create({
+    const masterProduct = await ProductoRepository.create({
       name: data.name,
       type: data.type,
       quality: data.quality,
@@ -49,7 +49,31 @@ export class ProductoService {
       credit: 0,
       creditMargin: 0,
       companyId: null,
+      masterProductId: null,
     });
+
+    const empresas = await ProductoRepository.findAllEmpresas();
+    
+    for (const empresa of empresas) {
+      await ProductoRepository.create({
+        name: data.name,
+        type: data.type,
+        quality: data.quality,
+        available: data.available,
+        costTech: data.costTech,
+        costTechMargin,
+        cost,
+        costMargin: 0,
+        cash: 0,
+        cashMargin: 0,
+        credit: 0,
+        creditMargin: 0,
+        companyId: empresa.id,
+        masterProductId: masterProduct.id,
+      });
+    }
+
+    return masterProduct;
   }
 
   static async update(id: string, data: Partial<CreateProductoDTO>, userRole: UserRole, companyId: string) {
@@ -71,7 +95,7 @@ export class ProductoService {
       const costTechMargin = data.costTechMargin ?? existing.costTechMargin;
       const cost = costTech * (1 + costTechMargin / 100);
 
-      return await ProductoRepository.update(id, {
+      await ProductoRepository.update(id, {
         name: data.name,
         type: data.type,
         quality: data.quality,
@@ -80,6 +104,10 @@ export class ProductoService {
         costTechMargin,
         cost,
       });
+
+      await ProductoRepository.updateCopiasCost(id, cost);
+
+      return await ProductoRepository.findById(id);
     }
 
     if (existing.companyId !== companyId) {

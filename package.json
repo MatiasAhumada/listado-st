@@ -17,7 +17,8 @@
     "migrate:productos": "tsx prisma/migrate-productos.ts",
     "vincular:vendedor": "tsx prisma/vincular-vendedor.ts",
     "vincular:productos-empresa": "tsx prisma/vincular-productos-empresa.ts",
-    "revertir:productos-maestra": "tsx prisma/revertir-productos-maestra.ts"
+    "revertir:productos-maestra": "tsx prisma/revertir-productos-maestra.ts",
+    "generar:copias-empresas": "tsx prisma/generar-copias-empresas.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.13.0",

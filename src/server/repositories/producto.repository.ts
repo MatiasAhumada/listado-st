@@ -37,10 +37,7 @@ export class ProductoRepository {
         return [];
       }
 
-      where.OR = [
-        { companyId: null },
-        { companyId: user.companyId },
-      ];
+      where.companyId = user.companyId;
       return prisma.producto.findMany({
         where,
         orderBy: { createdAt: "desc" },
@@ -85,10 +82,7 @@ export class ProductoRepository {
       });
     }
 
-    where.OR = [
-      { companyId: null },
-      { companyId: userId },
-    ];
+    where.companyId = userId;
     return prisma.producto.findMany({
       where,
       orderBy: { createdAt: "desc" },
@@ -135,6 +129,20 @@ export class ProductoRepository {
   static async findById(id: string) {
     return prisma.producto.findUnique({
       where: { id },
+    });
+  }
+
+  static async findAllEmpresas() {
+    return prisma.user.findMany({
+      where: { role: "EMPRESA" },
+      select: { id: true },
+    });
+  }
+
+  static async updateCopiasCost(masterProductId: string, newCost: number) {
+    return prisma.producto.updateMany({
+      where: { masterProductId },
+      data: { cost: newCost },
     });
   }
 }

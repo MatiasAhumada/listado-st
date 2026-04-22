@@ -64,6 +64,10 @@ model Producto {
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 
+  masterProductId  String?
+  masterProduct    Producto?  @relation("ProductoCopias", fields: [masterProductId], references: [id], onDelete: Cascade)
+  copias           Producto[] @relation("ProductoCopias")
+
   companyId String?
   company   User?   @relation(fields: [companyId], references: [id])
 
