@@ -6,7 +6,7 @@ export type UserRole = Role | "TECNICO";
 export class ProductoRepository {
   static async findAll(
     userRole: UserRole,
-    companyId: string,
+    userId: string,
     filters?: { type?: string; quality?: string; search?: string }
   ) {
     const where: Prisma.ProductoWhereInput = {};
@@ -28,7 +28,16 @@ export class ProductoRepository {
     }
 
     if (userRole === "VENDEDOR") {
-      where.companyId = companyId;
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { companyId: true },
+      });
+
+      if (!user?.companyId) {
+        return [];
+      }
+
+      where.companyId = user.companyId;
       return prisma.producto.findMany({
         where,
         orderBy: { createdAt: "desc" },
@@ -75,7 +84,7 @@ export class ProductoRepository {
 
     where.OR = [
       { companyId: null },
-      { companyId: companyId },
+      { companyId: userId },
     ];
     return prisma.producto.findMany({
       where,
