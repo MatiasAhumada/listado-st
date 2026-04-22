@@ -12,13 +12,7 @@
     "migrate": "prisma migrate dev",
     "reset": "prisma migrate reset",
     "studio": "prisma studio",
-    "seed": "tsx prisma/seed.ts",
-    "seed:production": "tsx prisma/seed-production.ts",
-    "migrate:productos": "tsx prisma/migrate-productos.ts",
-    "vincular:vendedor": "tsx prisma/vincular-vendedor.ts",
-    "vincular:productos-empresa": "tsx prisma/vincular-productos-empresa.ts",
-    "revertir:productos-maestra": "tsx prisma/revertir-productos-maestra.ts",
-    "generar:copias-empresas": "tsx prisma/generar-copias-empresas.ts"
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.13.0",
@@ -38,6 +32,7 @@
     "react-dom": "19.2.3",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
+    "xlsx": "^0.18.5",
     "zustand": "^5.0.11"
   },
   "devDependencies": {

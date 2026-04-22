@@ -10,8 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AddProductModal } from "@/components/dashboard/AddProductModal";
+import { BulkUploadModal } from "@/components/dashboard/BulkUploadModal";
 import { GenericModal } from "@/components/common/GenericModal";
-import { LogOut, Plus, Edit, Trash } from "lucide-react";
+import { LogOut, Plus, Edit, Trash, Upload } from "lucide-react";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 
 export default function DashboardPage() {
@@ -20,6 +21,7 @@ export default function DashboardPage() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState<any>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<any>(null);
@@ -305,16 +307,27 @@ export default function DashboardPage() {
                 </Select>
 
                 {(isEmpresa || isTecnico) && (
-                  <Button
-                    onClick={() => {
-                      setProductToEdit(null);
-                      setModalOpen(true);
-                    }}
-                    className="gap-2 bg-gradient-to-r from-bluegreen-500 to-bluegreen-400 hover:shadow-lg hover:shadow-bluegreen-400/30 transition-all font-bold text-white rounded-xl px-4"
-                  >
-                    <Plus size={18} />
-                    Nuevo
-                  </Button>
+                  <>
+                    <Button
+                      onClick={() => {
+                        setProductToEdit(null);
+                        setModalOpen(true);
+                      }}
+                      className="gap-2 bg-gradient-to-r from-bluegreen-500 to-bluegreen-400 hover:shadow-lg hover:shadow-bluegreen-400/30 transition-all font-bold text-white rounded-xl px-4"
+                    >
+                      <Plus size={18} />
+                      Nuevo
+                    </Button>
+                    {isTecnico && (
+                      <Button
+                        onClick={() => setBulkUploadOpen(true)}
+                        className="gap-2 bg-gradient-to-r from-purple-500 to-purple-600 hover:shadow-lg hover:shadow-purple-400/30 transition-all font-bold text-white rounded-xl px-4"
+                      >
+                        <Upload size={18} />
+                        Carga Masiva
+                      </Button>
+                    )}
+                  </>
                 )}
               </div>
             }
@@ -332,6 +345,9 @@ export default function DashboardPage() {
             initialData={productToEdit}
             userRole={isTecnico ? "TECNICO" : "EMPRESA"}
           />
+          {isTecnico && (
+            <BulkUploadModal open={bulkUploadOpen} onOpenChange={setBulkUploadOpen} onSuccess={fetchData} />
+          )}
           <GenericModal
             open={deleteModalOpen}
             onOpenChange={setDeleteModalOpen}

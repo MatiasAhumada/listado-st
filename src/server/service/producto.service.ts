@@ -14,6 +14,14 @@ export interface CreateProductoDTO {
   companyId: string;
 }
 
+export interface BulkProductoDTO {
+  name: string;
+  type: string;
+  quality?: string | null;
+  costTech: number;
+  costTechMargin: number;
+}
+
 export class ProductoService {
   static async getAll(
     userRole: UserRole,
@@ -147,5 +155,80 @@ export class ProductoService {
     }
 
     return await ProductoRepository.delete(id);
+  }
+
+  static async bulkCreateOrUpdate(productos: BulkProductoDTO[], userRole: UserRole) {
+    if (userRole !== "TECNICO") {
+      throw new ApiError({ status: httpStatus.FORBIDDEN, message: "Solo técnicos pueden hacer carga masiva" });
+    }
+
+    const resultados = {
+      creados: 0,
+      actualizados: 0,
+      errores: 0,
+    };
+
+    for (const producto of productos) {
+      try {
+        const existente = await ProductoRepository.findByName(producto.name);
+        const cost = producto.costTech * (1 + producto.costTechMargin / 100);
+
+        if (existente) {
+          await ProductoRepository.update(existente.id, {
+            costTech: producto.costTech,
+            costTechMargin: producto.costTechMargin,
+            cost,
+          });
+
+          await ProductoRepository.updateCopiasCost(existente.id, cost);
+          resultados.actualizados++;
+        } else {
+          const masterProduct = await ProductoRepository.create({
+            name: producto.name,
+            type: producto.type,
+            quality: producto.quality,
+            available: true,
+            costTech: producto.costTech,
+            costTechMargin: producto.costTechMargin,
+            cost,
+            costMargin: 0,
+            cash: 0,
+            cashMargin: 0,
+            credit: 0,
+            creditMargin: 0,
+            companyId: null,
+            masterProductId: null,
+          });
+
+          const empresas = await ProductoRepository.findAllEmpresas();
+
+          for (const empresa of empresas) {
+            await ProductoRepository.create({
+              name: producto.name,
+              type: producto.type,
+              quality: producto.quality,
+              available: true,
+              costTech: producto.costTech,
+              costTechMargin: producto.costTechMargin,
+              cost,
+              costMargin: 0,
+              cash: 0,
+              cashMargin: 0,
+              credit: 0,
+              creditMargin: 0,
+              companyId: empresa.id,
+              masterProductId: masterProduct.id,
+            });
+          }
+
+          resultados.creados++;
+        }
+      } catch (error) {
+        console.error(`Error procesando ${producto.name}:`, error);
+        resultados.errores++;
+      }
+    }
+
+    return resultados;
   }
 }

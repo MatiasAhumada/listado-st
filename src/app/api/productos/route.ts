@@ -52,6 +52,11 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
 
+    if (body.productos && Array.isArray(body.productos)) {
+      const resultados = await ProductoService.bulkCreateOrUpdate(body.productos, decoded.role as any);
+      return NextResponse.json(resultados);
+    }
+
     const data = {
       ...body,
       quality: body.quality === "NINGUNA" ? null : body.quality,

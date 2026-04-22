@@ -132,6 +132,15 @@ export class ProductoRepository {
     });
   }
 
+  static async findByName(name: string) {
+    return prisma.producto.findFirst({
+      where: {
+        name,
+        companyId: null,
+      },
+    });
+  }
+
   static async findAllEmpresas() {
     return prisma.user.findMany({
       where: { role: "EMPRESA" },

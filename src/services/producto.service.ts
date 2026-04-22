@@ -24,3 +24,8 @@ export const deleteProducto = async (id: string) => {
   const { data } = await clientAxios.delete(`/productos/${id}`);
   return data;
 };
+
+export const bulkCreateOrUpdateProductos = async (productos: any[]) => {
+  const { data } = await clientAxios.post("/productos", { productos });
+  return data;
+};
