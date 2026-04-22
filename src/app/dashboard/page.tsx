@@ -23,7 +23,7 @@ export default function DashboardPage() {
   const [productToEdit, setProductToEdit] = useState<any>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<any>(null);
-  
+
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedType, setSelectedType] = useState("TODOS");
@@ -94,19 +94,23 @@ export default function DashboardPage() {
     const baseCols: { key: string; label: string; render?: (item: any) => any; className?: string }[] = [
       { key: "name", label: "Producto" },
       { key: "type", label: "Tipo" },
-      { 
-        key: "quality", 
+      {
+        key: "quality",
         label: "Calidad",
-        render: (item: any) => item.quality || <span className="text-skybase-200 font-bold">-</span>
+        render: (item: any) => item.quality || <span className="text-skybase-200 font-bold">-</span>,
       },
       {
         key: "available",
         label: "Estado",
         render: (item: any) => (
-          <Badge className={item.available ? "bg-bluegreen-500 hover:bg-bluegreen-600" : "bg-princeton-500 hover:bg-princeton-600"}>
+          <Badge
+            className={
+              item.available ? "bg-bluegreen-500 hover:bg-bluegreen-600" : "bg-princeton-500 hover:bg-princeton-600"
+            }
+          >
             {item.available ? "Disponible" : "Sin Stock"}
           </Badge>
-        )
+        ),
       },
     ];
 
@@ -114,22 +118,28 @@ export default function DashboardPage() {
       baseCols.push({
         key: "costTech",
         label: "Costo Técnico",
-        render: (item: any) => <span className="font-semibold text-deepspace-500">${Number(item.costTech || 0).toFixed(2)}</span>
+        render: (item: any) => (
+          <span className="font-semibold text-deepspace-500">${Number(item.costTech || 0).toFixed(2)}</span>
+        ),
       });
       baseCols.push({
         key: "cost",
         label: "Costo Final",
-        render: (item: any) => <span className="font-semibold text-bluegreen-500">${Number(item.cost || 0).toFixed(2)}</span>
+        render: (item: any) => (
+          <span className="font-semibold text-bluegreen-500">${Number(item.cost || 0).toFixed(2)}</span>
+        ),
       });
       baseCols.push({
         key: "cash",
         label: "Efectivo",
-        render: (item: any) => <span className="font-bold text-bluegreen-500">${Number(item.cash || 0).toFixed(2)}</span>
+        render: (item: any) => (
+          <span className="font-bold text-bluegreen-500">${Number(item.cash || 0).toFixed(2)}</span>
+        ),
       });
       baseCols.push({
         key: "credit",
         label: "Tarjeta",
-        render: (item: any) => <span className="font-bold text-amber-500">${Number(item.credit || 0).toFixed(2)}</span>
+        render: (item: any) => <span className="font-bold text-amber-500">${Number(item.credit || 0).toFixed(2)}</span>,
       });
     }
 
@@ -137,17 +147,19 @@ export default function DashboardPage() {
       baseCols.push({
         key: "cost",
         label: "Costo",
-        render: (item: any) => <span className="font-semibold text-deepspace-500">${Number(item.cost).toFixed(2)}</span>
+        render: (item: any) => (
+          <span className="font-semibold text-deepspace-500">${Number(item.cost).toFixed(2)}</span>
+        ),
       });
       baseCols.push({
         key: "cash",
         label: "Efectivo",
-        render: (item: any) => <span className="font-bold text-bluegreen-500">${Number(item.cash).toFixed(2)}</span>
+        render: (item: any) => <span className="font-bold text-bluegreen-500">${Number(item.cash).toFixed(2)}</span>,
       });
       baseCols.push({
         key: "credit",
         label: "Tarjeta",
-        render: (item: any) => <span className="font-bold text-amber-500">${Number(item.credit).toFixed(2)}</span>
+        render: (item: any) => <span className="font-bold text-amber-500">${Number(item.credit).toFixed(2)}</span>,
       });
     }
 
@@ -155,12 +167,14 @@ export default function DashboardPage() {
       baseCols.push({
         key: "cash",
         label: "Efectivo",
-        render: (item: any) => <span className="font-bold text-bluegreen-500">${Number(item.cash || 0).toFixed(2)}</span>
+        render: (item: any) => (
+          <span className="font-bold text-bluegreen-500">${Number(item.cash || 0).toFixed(2)}</span>
+        ),
       });
       baseCols.push({
         key: "credit",
         label: "Tarjeta",
-        render: (item: any) => <span className="font-bold text-amber-500">${Number(item.credit || 0).toFixed(2)}</span>
+        render: (item: any) => <span className="font-bold text-amber-500">${Number(item.credit || 0).toFixed(2)}</span>,
       });
     }
 
@@ -171,14 +185,32 @@ export default function DashboardPage() {
         className: "text-center",
         render: (item: any) => (
           <div className="flex gap-2 justify-center">
-            <Button size="icon" variant="ghost" className="hover:bg-bluegreen-100/50 hover:text-bluegreen-600" onClick={(e) => { e.stopPropagation(); setProductToEdit(item); setModalOpen(true); }}>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="hover:bg-bluegreen-100/50 hover:text-bluegreen-600"
+              onClick={(e) => {
+                e.stopPropagation();
+                setProductToEdit(item);
+                setModalOpen(true);
+              }}
+            >
               <Edit size={16} className="text-bluegreen-500" />
             </Button>
-            <Button size="icon" variant="ghost" className="hover:bg-red-50 hover:text-red-600" onClick={(e) => { e.stopPropagation(); setProductToDelete(item); setDeleteModalOpen(true); }}>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="hover:bg-red-50 hover:text-red-600"
+              onClick={(e) => {
+                e.stopPropagation();
+                setProductToDelete(item);
+                setDeleteModalOpen(true);
+              }}
+            >
               <Trash size={16} className="text-red-500" />
             </Button>
           </div>
-        )
+        ),
       });
     }
 
@@ -189,15 +221,24 @@ export default function DashboardPage() {
         className: "text-center",
         render: (item: any) => (
           <div className="flex gap-2 justify-center">
-            <Button size="icon" variant="ghost" className="hover:bg-bluegreen-100/50 hover:text-bluegreen-600" onClick={(e) => { e.stopPropagation(); setProductToEdit(item); setModalOpen(true); }}>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="hover:bg-bluegreen-100/50 hover:text-bluegreen-600"
+              onClick={(e) => {
+                e.stopPropagation();
+                setProductToEdit(item);
+                setModalOpen(true);
+              }}
+            >
               <Edit size={16} className="text-bluegreen-500" />
             </Button>
           </div>
-        )
-});
+        ),
+      });
     }
 
-return baseCols;
+    return baseCols;
   }, [isEmpresa, isTecnico]);
 
   if (!isHydrated || !user) return null;
@@ -211,16 +252,21 @@ return baseCols;
       <header className="relative z-10 mx-auto max-w-7xl pt-6 px-4">
         <div className="bg-white/95 backdrop-blur-md shadow-lg border border-skybase-700/50 rounded-2xl h-16 flex items-center justify-between px-6">
           <div className="flex items-center gap-4">
-            <h1 className="text-xl font-black text-deepspace-500">
-              Listado ST
-            </h1>
+            <h1 className="text-xl font-black text-deepspace-500">Listado ST</h1>
             <Badge className="bg-amber-500 hover:bg-amber-400 uppercase text-deepspace-100 font-bold border-0 shadow-sm">
               {user.role}
             </Badge>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-skybase-200 font-medium">Hola, <b className="text-deepspace-500 font-bold">{user.username}</b></span>
-            <Button variant="ghost" size="icon" onClick={handleLogout} className="text-skybase-200 hover:text-princeton-500 hover:bg-skybase-900 rounded-full transition-colors">
+            <span className="text-sm text-skybase-200 font-medium">
+              Hola, <b className="text-deepspace-500 font-bold">{user.username}</b>
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleLogout}
+              className="text-skybase-200 hover:text-princeton-500 hover:bg-skybase-900 rounded-full transition-colors"
+            >
               <LogOut size={18} />
             </Button>
           </div>
@@ -243,7 +289,9 @@ return baseCols;
             actions={
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mt-4 sm:mt-0">
                 <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger className="w-full sm:w-[150px] bg-white border-border"><SelectValue placeholder="Filtrar Tipo" /></SelectTrigger>
+                  <SelectTrigger className="w-full sm:w-[150px] bg-white border-border">
+                    <SelectValue placeholder="Filtrar Tipo" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="TODOS">Todos los Tipos</SelectItem>
                     <SelectItem value="MODULO">Módulos</SelectItem>
@@ -254,7 +302,9 @@ return baseCols;
                 </Select>
 
                 <Select value={selectedQuality} onValueChange={setSelectedQuality}>
-                  <SelectTrigger className="w-full sm:w-[160px] bg-white border-border"><SelectValue placeholder="Filtrar Calidad" /></SelectTrigger>
+                  <SelectTrigger className="w-full sm:w-[160px] bg-white border-border">
+                    <SelectValue placeholder="Filtrar Calidad" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="TODAS">Todas las Calidades</SelectItem>
                     <SelectItem value="INCELL">Incell</SelectItem>
@@ -267,7 +317,13 @@ return baseCols;
                 </Select>
 
                 {(isEmpresa || isTecnico) && (
-                  <Button onClick={() => { setProductToEdit(null); setModalOpen(true); }} className="gap-2 bg-gradient-to-r from-bluegreen-500 to-bluegreen-400 hover:shadow-lg hover:shadow-bluegreen-400/30 transition-all font-bold text-white rounded-xl px-4">
+                  <Button
+                    onClick={() => {
+                      setProductToEdit(null);
+                      setModalOpen(true);
+                    }}
+                    className="gap-2 bg-gradient-to-r from-bluegreen-500 to-bluegreen-400 hover:shadow-lg hover:shadow-bluegreen-400/30 transition-all font-bold text-white rounded-xl px-4"
+                  >
                     <Plus size={18} />
                     Nuevo
                   </Button>
@@ -281,9 +337,9 @@ return baseCols;
       {/* Modals */}
       {(isEmpresa || isTecnico) && (
         <>
-          <AddProductModal 
-            open={modalOpen} 
-            onOpenChange={setModalOpen} 
+          <AddProductModal
+            open={modalOpen}
+            onOpenChange={setModalOpen}
             onSuccess={fetchData}
             initialData={productToEdit}
             userRole={isTecnico ? "TECNICO" : "EMPRESA"}
@@ -295,10 +351,18 @@ return baseCols;
             description="Esta acción es irreversible, el producto y todos sus datos se borrarán para siempre."
             footer={
               <>
-                <Button variant="ghost" className="hover:bg-skybase-900 text-deepspace-500 h-11 px-6 font-semibold" onClick={() => setDeleteModalOpen(false)}>
+                <Button
+                  variant="ghost"
+                  className="hover:bg-skybase-900 text-deepspace-500 h-11 px-6 font-semibold"
+                  onClick={() => setDeleteModalOpen(false)}
+                >
                   Cancelar
                 </Button>
-                <Button variant="destructive" className="bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30 h-11 px-6 font-bold tracking-wide transition-all hover:scale-[1.02]" onClick={handleDelete}>
+                <Button
+                  variant="destructive"
+                  className="bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30 h-11 px-6 font-bold tracking-wide transition-all hover:scale-[1.02]"
+                  onClick={handleDelete}
+                >
                   Eliminar Producto
                 </Button>
               </>
@@ -307,7 +371,9 @@ return baseCols;
             <div className="p-4 bg-red-50/50 rounded-xl border border-red-100 flex flex-col gap-2 mt-2">
               <span className="text-red-800 font-semibold">¿Seguro que deseas borrar el siguiente producto?</span>
               <span className="text-deepspace-500 font-black text-lg">{productToDelete?.name}</span>
-              <span className="text-muted-foreground text-sm">{productToDelete?.type} - {productToDelete?.quality || "Ninguna"}</span>
+              <span className="text-muted-foreground text-sm">
+                {productToDelete?.type} - {productToDelete?.quality || "Ninguna"}
+              </span>
             </div>
           </GenericModal>
         </>

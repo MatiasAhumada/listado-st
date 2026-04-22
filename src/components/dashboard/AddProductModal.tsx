@@ -23,7 +23,13 @@ interface AddProductModalProps {
 const PRODUCT_TYPES = ["MODULO", "BATERIA", "PIN", "VARIOS"];
 const PRODUCT_QUALITIES = ["INCELL", "OLED", "ORIGINAL", "SERVICEPACK", "REMANOFACTURADO", "NINGUNA"];
 
-export function AddProductModal({ open, onOpenChange, onSuccess, initialData, userRole: propUserRole }: AddProductModalProps) {
+export function AddProductModal({
+  open,
+  onOpenChange,
+  onSuccess,
+  initialData,
+  userRole: propUserRole,
+}: AddProductModalProps) {
   const [loading, setLoading] = useState(false);
   const isEditing = !!initialData;
   const authUser = useAuthStore((state) => state.user);
@@ -41,8 +47,8 @@ export function AddProductModal({ open, onOpenChange, onSuccess, initialData, us
   const [pricing, setPricing] = useState({
     costTech: 0,
     costTechMargin: 0,
-    costMargin: 0,
     cashMargin: 0,
+    creditMargin: 0,
   });
 
   useEffect(() => {
@@ -58,35 +64,41 @@ export function AddProductModal({ open, onOpenChange, onSuccess, initialData, us
         const costTechVal = initialData.costTech || 0;
         let costTechMarginVal = 0;
         if (initialData.cost > 0 && costTechVal > 0) {
-          costTechMarginVal = Math.round(((initialData.cost / costTechVal - 1) * 100));
+          costTechMarginVal = Math.round((initialData.cost / costTechVal - 1) * 100);
         }
         if (!MARGIN_OPTIONS.includes(costTechMarginVal)) costTechMarginVal = 0;
 
         setPricing({
           costTech: costTechVal,
           costTechMargin: costTechMarginVal,
-          costMargin: 0,
           cashMargin: 0,
+          creditMargin: 0,
         });
       } else if (isEmpresa) {
         let cashMarginVal = 0;
+        let creditMarginVal = 0;
 
         if (initialData.cash > 0 && initialData.cost > 0) {
-          cashMarginVal = Math.round(((initialData.cash / initialData.cost - 1) * 100));
+          cashMarginVal = Math.round((initialData.cash / initialData.cost - 1) * 100);
+        }
+
+        if (initialData.credit > 0 && initialData.cash > 0) {
+          creditMarginVal = Math.round((initialData.credit / initialData.cash - 1) * 100);
         }
 
         if (!MARGIN_OPTIONS.includes(cashMarginVal)) cashMarginVal = 0;
+        if (!MARGIN_OPTIONS.includes(creditMarginVal)) creditMarginVal = 0;
 
         setPricing({
           costTech: 0,
           costTechMargin: 0,
-          costMargin: 0,
           cashMargin: cashMarginVal,
+          creditMargin: creditMarginVal,
         });
       }
     } else if (open && !initialData) {
       setForm({ name: "", type: "MODULO", quality: "INCELL", available: true });
-      setPricing({ costTech: 0, costTechMargin: 0, costMargin: 0, cashMargin: 0 });
+      setPricing({ costTech: 0, costTechMargin: 0, cashMargin: 0, creditMargin: 0 });
     }
   }, [open, initialData, isTecnico, isEmpresa]);
 
@@ -100,6 +112,10 @@ export function AddProductModal({ open, onOpenChange, onSuccess, initialData, us
     }
     return computedCost * (1 + pricing.cashMargin / 100);
   }, [computedCost, pricing.cashMargin, isEmpresa, initialData]);
+
+  const computedCredit = useMemo(() => {
+    return computedCash * (1 + pricing.creditMargin / 100);
+  }, [computedCash, pricing.creditMargin]);
 
   const handleSave = async () => {
     if (!form.name) return clientErrorHandler("El nombre es requerido");
@@ -126,6 +142,7 @@ export function AddProductModal({ open, onOpenChange, onSuccess, initialData, us
         payload = {
           ...payload,
           cashMargin: pricing.cashMargin,
+          creditMargin: pricing.creditMargin,
         };
       }
 
@@ -151,15 +168,28 @@ export function AddProductModal({ open, onOpenChange, onSuccess, initialData, us
       open={open}
       onOpenChange={onOpenChange}
       title={isEditing ? "Editar Producto" : "Agregar Producto"}
-      description={isEditing ? "Actualiza los datos del producto seleccionado." : "Ingresa los datos del nuevo producto y los márgenes de ganancia."}
+      description={
+        isEditing
+          ? "Actualiza los datos del producto seleccionado."
+          : "Ingresa los datos del nuevo producto y los márgenes de ganancia."
+      }
       size="lg"
       footer={
         <>
-          <Button variant="ghost" className="hover:bg-skybase-900 text-deepspace-500 h-11 px-6 font-semibold" onClick={() => onOpenChange(false)} disabled={loading}>
+          <Button
+            variant="ghost"
+            className="hover:bg-skybase-900 text-deepspace-500 h-11 px-6 font-semibold"
+            onClick={() => onOpenChange(false)}
+            disabled={loading}
+          >
             Cancelar
           </Button>
-          <Button className="bg-gradient-to-r from-bluegreen-500 to-bluegreen-600 hover:from-bluegreen-400 hover:to-bluegreen-500 text-white shadow-lg shadow-bluegreen-500/30 h-11 px-6 font-bold tracking-wide transition-all hover:scale-[1.02]" onClick={handleSave} disabled={loading}>
-            {loading ? "Guardando..." : (isEditing ? "Actualizar Producto" : "Guardar Producto")}
+          <Button
+            className="bg-gradient-to-r from-bluegreen-500 to-bluegreen-600 hover:from-bluegreen-400 hover:to-bluegreen-500 text-white shadow-lg shadow-bluegreen-500/30 h-11 px-6 font-bold tracking-wide transition-all hover:scale-[1.02]"
+            onClick={handleSave}
+            disabled={loading}
+          >
+            {loading ? "Guardando..." : isEditing ? "Actualizar Producto" : "Guardar Producto"}
           </Button>
         </>
       }
@@ -168,7 +198,7 @@ export function AddProductModal({ open, onOpenChange, onSuccess, initialData, us
         {/* Datos Básicos */}
         <div className="space-y-5">
           <h3 className="font-bold text-lg border-b border-skybase-800 pb-2 text-deepspace-500">Datos Básicos</h3>
-          
+
           <div className="space-y-2">
             <Label className="text-deepspace-500 font-semibold">Nombre del Producto</Label>
             <Input
@@ -182,9 +212,15 @@ export function AddProductModal({ open, onOpenChange, onSuccess, initialData, us
           <div className="space-y-2">
             <Label className="text-deepspace-500 font-semibold">Tipo</Label>
             <Select value={form.type} onValueChange={(val) => setForm({ ...form, type: val })}>
-              <SelectTrigger className="w-full bg-skybase-900/30 border-skybase-700/50 focus:ring-bluegreen-500 transition-all h-11"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full bg-skybase-900/30 border-skybase-700/50 focus:ring-bluegreen-500 transition-all h-11">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
-                {PRODUCT_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                {PRODUCT_TYPES.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {t}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -192,9 +228,15 @@ export function AddProductModal({ open, onOpenChange, onSuccess, initialData, us
           <div className="space-y-2">
             <Label className="text-deepspace-500 font-semibold">Calidad</Label>
             <Select value={form.quality} onValueChange={(val) => setForm({ ...form, quality: val })}>
-              <SelectTrigger className="w-full bg-skybase-900/30 border-skybase-700/50 focus:ring-bluegreen-500 transition-all h-11"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full bg-skybase-900/30 border-skybase-700/50 focus:ring-bluegreen-500 transition-all h-11">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
-                {PRODUCT_QUALITIES.map((q) => <SelectItem key={q} value={q}>{q}</SelectItem>)}
+                {PRODUCT_QUALITIES.map((q) => (
+                  <SelectItem key={q} value={q}>
+                    {q}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -281,6 +323,28 @@ export function AddProductModal({ open, onOpenChange, onSuccess, initialData, us
                 <Select
                   value={pricing.cashMargin.toString()}
                   onValueChange={(val) => setPricing({ ...pricing, cashMargin: Number(val) })}
+                >
+                  <SelectTrigger className="w-full bg-white border-skybase-700/50 focus:ring-bluegreen-500">
+                    <SelectValue placeholder="Seleccionar %" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MARGIN_OPTIONS.map((p) => (
+                      <SelectItem key={p} value={p.toString()}>
+                        +{p}%
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2 px-3 py-2 bg-skybase-900/10 rounded-lg border border-skybase-800/30">
+                <Label className="flex justify-between text-deepspace-500 font-semibold">
+                  <span>% Margen Crédito</span>
+                  <span className="font-black text-amber-500">${computedCredit.toFixed(2)}</span>
+                </Label>
+                <Select
+                  value={pricing.creditMargin.toString()}
+                  onValueChange={(val) => setPricing({ ...pricing, creditMargin: Number(val) })}
                 >
                   <SelectTrigger className="w-full bg-white border-skybase-700/50 focus:ring-bluegreen-500">
                     <SelectValue placeholder="Seleccionar %" />

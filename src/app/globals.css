@@ -83,19 +83,19 @@
   --card-foreground: #00090e; /* deep_space_blue 100 */
   --popover: #ffffff;
   --popover-foreground: #00090e;
-  
+
   --primary: #219ebc; /* blue_green 500 */
   --primary-foreground: #ffffff;
-  
+
   --secondary: #8ecae6; /* sky_blue_(light) 500 */
   --secondary-foreground: #00090e; /* deep_space_blue 100 */
-  
+
   --muted: #ceeef6; /* blue_green 900 */
   --muted-foreground: #1b5c7a; /* sky_blue_(light) 200 */
-  
+
   --accent: #ffb703; /* amber_flame 500 */
-  --accent-foreground: #00090e; 
-  
+  --accent-foreground: #00090e;
+
   --destructive: #fb8500; /* princeton_orange 500 */
   --border: #bbdff0; /* sky_blue_(light) 700 */
   --input: #a5d5eb; /* sky_blue_(light) 600 */
@@ -158,8 +158,16 @@
 }
 
 @keyframes blob {
-  0% { transform: translate(0px, 0px) scale(1); }
-  33% { transform: translate(30px, -50px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.9); }
-  100% { transform: translate(0px, 0px) scale(1); }
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
 }

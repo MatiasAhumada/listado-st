@@ -48,7 +48,7 @@ async function main() {
 
   // Create some initial products for the EMPRESA
   console.log("Creating initial products...");
-  
+
   await prisma.producto.create({
     data: {
       name: "Módulo iPhone 11",

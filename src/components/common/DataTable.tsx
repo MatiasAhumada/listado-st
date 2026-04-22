@@ -98,7 +98,9 @@ export function DataTable<T>({
                   >
                     {columns.map((column) => (
                       <td key={column.key} className={`py-4 ${column.className || ""}`}>
-                        {column.render ? column.render(item) : String((item as Record<string, unknown>)[column.key] ?? "")}
+                        {column.render
+                          ? column.render(item)
+                          : String((item as Record<string, unknown>)[column.key] ?? "")}
                       </td>
                     ))}
                   </tr>

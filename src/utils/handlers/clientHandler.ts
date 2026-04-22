@@ -17,9 +17,7 @@ function normalizeError(error: unknown): Error {
     const isNetworkError = !error.response;
     return {
       name: "AxiosError",
-      message: isNetworkError
-        ? "Error de conexión"
-        : error.response?.data?.error?.message || error.message,
+      message: isNetworkError ? "Error de conexión" : error.response?.data?.error?.message || error.message,
       stack: error.response?.data?.error?.stack || error.stack,
     };
   }

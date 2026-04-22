@@ -27,7 +27,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const decoded = getAuthContext(cookieStore, req.headers);
     const body = await req.json();
     const { id } = await params;
-    
+
     const data = {
       ...body,
       quality: body.quality === "NINGUNA" ? null : body.quality,

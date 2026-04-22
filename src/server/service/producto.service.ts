@@ -9,11 +9,8 @@ export interface CreateProductoDTO {
   available: boolean;
   costTech?: number;
   costTechMargin?: number;
-  cost?: number;
-  costMargin?: number;
-  cash?: number;
   cashMargin?: number;
-  credit?: number;
+  creditMargin?: number;
   companyId: string;
 }
 
@@ -27,8 +24,8 @@ export class ProductoService {
   }
 
   static async create(data: CreateProductoDTO, userRole: UserRole, companyId: string) {
-    if (userRole === "VENDEDOR" || userRole === "EMPRESA") {
-      throw new ApiError({ status: httpStatus.FORBIDDEN, message: "No autorizado para crear productos" });
+    if (userRole !== "TECNICO") {
+      throw new ApiError({ status: httpStatus.FORBIDDEN, message: "Solo técnicos pueden crear productos" });
     }
 
     if (!data.costTech || data.costTech <= 0) {
@@ -74,6 +71,10 @@ export class ProductoService {
       const cost = costTech * (1 + costTechMargin / 100);
 
       return await ProductoRepository.update(id, {
+        name: data.name,
+        type: data.type,
+        quality: data.quality,
+        available: data.available,
         costTech,
         costTechMargin,
         cost,
@@ -85,20 +86,26 @@ export class ProductoService {
     }
 
     const cost = existing.cost;
-    const cashMargin = data.cashMargin ?? 0;
+    const cashMargin = data.cashMargin ?? existing.cashMargin;
+    const creditMargin = data.creditMargin ?? existing.creditMargin;
     const cash = cost * (1 + cashMargin / 100);
-    const credit = cash * (1 + cashMargin / 100);
+    const credit = cash * (1 + creditMargin / 100);
 
     return await ProductoRepository.update(id, {
-      cash: data.cash ?? cash,
+      name: data.name,
+      type: data.type,
+      quality: data.quality,
+      available: data.available,
       cashMargin,
-      credit: data.credit ?? credit,
+      cash,
+      creditMargin,
+      credit,
     });
   }
 
   static async delete(id: string, userRole: UserRole, companyId: string) {
-    if (userRole === "VENDEDOR" || userRole === "EMPRESA") {
-      throw new ApiError({ status: httpStatus.FORBIDDEN, message: "No autorizado para eliminar productos" });
+    if (userRole !== "TECNICO") {
+      throw new ApiError({ status: httpStatus.FORBIDDEN, message: "Solo técnicos pueden eliminar productos" });
     }
 
     const existing = await ProductoRepository.findById(id);

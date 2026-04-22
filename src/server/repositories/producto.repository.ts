@@ -10,11 +10,11 @@ export class ProductoRepository {
     filters?: { type?: string; quality?: string; search?: string }
   ) {
     const where: Prisma.ProductoWhereInput = {};
-    
+
     if (filters?.type && filters.type !== "TODOS") {
       where.type = filters.type as ProductType;
     }
-    
+
     if (filters?.quality && filters.quality !== "TODAS") {
       if (filters.quality === "NINGUNA") {
         where.quality = null;
@@ -22,7 +22,7 @@ export class ProductoRepository {
         where.quality = filters.quality as ProductQuality;
       }
     }
-    
+
     if (filters?.search) {
       where.name = { contains: filters.search, mode: "insensitive" };
     }
@@ -67,6 +67,7 @@ export class ProductoRepository {
           cash: true,
           cashMargin: true,
           credit: true,
+          creditMargin: true,
           createdAt: true,
           updatedAt: true,
           companyId: true,
@@ -94,6 +95,7 @@ export class ProductoRepository {
         cash: true,
         cashMargin: true,
         credit: true,
+        creditMargin: true,
         createdAt: true,
         updatedAt: true,
         companyId: true,
@@ -129,4 +131,3 @@ export class ProductoRepository {
     });
   }
 }
-

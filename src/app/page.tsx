@@ -17,7 +17,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
-  
+
   const router = useRouter();
   const { user, token, setUser, setToken } = useAuthStore();
 
@@ -78,7 +78,9 @@ export default function LoginPage() {
           <CardContent className="pt-6">
             <form onSubmit={handleLogin} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="username" className="text-sm font-semibold text-deepspace-500">Usuario</Label>
+                <Label htmlFor="username" className="text-sm font-semibold text-deepspace-500">
+                  Usuario
+                </Label>
                 <Input
                   id="username"
                   type="text"
@@ -90,7 +92,9 @@ export default function LoginPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-semibold text-deepspace-500">Contraseña</Label>
+                <Label htmlFor="password" className="text-sm font-semibold text-deepspace-500">
+                  Contraseña
+                </Label>
                 <Input
                   id="password"
                   type="password"
@@ -101,9 +105,9 @@ export default function LoginPage() {
                   required
                 />
               </div>
-              <Button 
-                type="submit" 
-                className="w-full h-11 bg-gradient-to-r from-bluegreen-500 to-bluegreen-600 hover:from-bluegreen-400 hover:to-bluegreen-500 text-white font-semibold tracking-wide shadow-lg shadow-bluegreen-500/30 transition-all hover:scale-[1.02]" 
+              <Button
+                type="submit"
+                className="w-full h-11 bg-gradient-to-r from-bluegreen-500 to-bluegreen-600 hover:from-bluegreen-400 hover:to-bluegreen-500 text-white font-semibold tracking-wide shadow-lg shadow-bluegreen-500/30 transition-all hover:scale-[1.02]"
                 disabled={loading}
               >
                 {loading ? "Accediendo..." : "Ingresar al Sistema"}

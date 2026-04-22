@@ -221,9 +221,9 @@ async function main() {
   let updated = 0;
 
   for (const [name, basePrice] of devices) {
-    const cost = basePrice * 2;        // cost = price + 100%
-    const cash = cost * 2;             // cash = cost + 100%
-    const credit = cash * 1.4;         // credit = cash + 40%
+    const cost = basePrice * 2; // cost = price + 100%
+    const cash = cost * 2; // cash = cost + 100%
+    const credit = cash * 1.4; // credit = cash + 40%
 
     const existingProduct = await prisma.producto.findFirst({
       where: { name },
