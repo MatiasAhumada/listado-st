@@ -14,6 +14,7 @@ import { BulkUploadModal } from "@/components/dashboard/BulkUploadModal";
 import { GenericModal } from "@/components/common/GenericModal";
 import { LogOut, Plus, Edit, Trash, Upload } from "lucide-react";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
+import { formatNumber } from "@/utils/formatters.util";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -121,14 +122,14 @@ export default function DashboardPage() {
         key: "costTech",
         label: "Costo Repuesto",
         render: (item: any) => (
-          <span className="font-semibold text-purple-600">${Number(item.costTech || 0).toFixed(2)}</span>
+          <span className="font-semibold text-purple-600">${formatNumber(item.costTech || 0)}</span>
         ),
       });
       baseCols.push({
         key: "cost",
         label: "Costo Cliente",
         render: (item: any) => (
-          <span className="font-bold text-deepspace-500">${Number(item.cost || 0).toFixed(2)}</span>
+          <span className="font-bold text-deepspace-500">${formatNumber(item.cost || 0)}</span>
         ),
       });
     }
@@ -138,18 +139,18 @@ export default function DashboardPage() {
         key: "cost",
         label: "Costo",
         render: (item: any) => (
-          <span className="font-semibold text-deepspace-500">${Number(item.cost).toFixed(2)}</span>
+          <span className="font-semibold text-deepspace-500">${formatNumber(item.cost)}</span>
         ),
       });
       baseCols.push({
         key: "cash",
         label: "Efectivo",
-        render: (item: any) => <span className="font-bold text-bluegreen-500">${Number(item.cash).toFixed(2)}</span>,
+        render: (item: any) => <span className="font-bold text-bluegreen-500">${formatNumber(item.cash)}</span>,
       });
       baseCols.push({
         key: "credit",
         label: "Tarjeta",
-        render: (item: any) => <span className="font-bold text-amber-500">${Number(item.credit).toFixed(2)}</span>,
+        render: (item: any) => <span className="font-bold text-amber-500">${formatNumber(item.credit)}</span>,
       });
     }
 
@@ -158,13 +159,13 @@ export default function DashboardPage() {
         key: "cash",
         label: "Efectivo",
         render: (item: any) => (
-          <span className="font-bold text-bluegreen-500">${Number(item.cash || 0).toFixed(2)}</span>
+          <span className="font-bold text-bluegreen-500">${formatNumber(item.cash || 0)}</span>
         ),
       });
       baseCols.push({
         key: "credit",
         label: "Tarjeta",
-        render: (item: any) => <span className="font-bold text-amber-500">${Number(item.credit || 0).toFixed(2)}</span>,
+        render: (item: any) => <span className="font-bold text-amber-500">${formatNumber(item.credit || 0)}</span>,
       });
     }
 

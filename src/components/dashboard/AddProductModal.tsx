@@ -11,6 +11,7 @@ import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clien
 import { useAuthStore } from "@/hooks/useAuthStore";
 import { CheckIcon } from "lucide-react";
 import { MARGIN_OPTIONS } from "@/constants/pricing.constant";
+import { formatNumber } from "@/utils/formatters.util";
 
 interface AddProductModalProps {
   open: boolean;
@@ -278,7 +279,7 @@ export function AddProductModal({
               <div className="space-y-2 px-3 py-2 bg-skybase-900/10 rounded-lg border border-skybase-800/30">
                 <Label className="flex justify-between text-deepspace-500 font-semibold">
                   <span>% Margen Técnico</span>
-                  <span className="font-black text-deepspace-500">${computedCost.toFixed(2)}</span>
+                  <span className="font-black text-deepspace-500">${formatNumber(computedCost)}</span>
                 </Label>
                 <Select
                   value={pricing.costTechMargin.toString()}
@@ -318,7 +319,7 @@ export function AddProductModal({
               <div className="space-y-2 px-3 py-2 bg-skybase-900/10 rounded-lg border border-skybase-800/30">
                 <Label className="flex justify-between text-deepspace-500 font-semibold">
                   <span>% Margen Efectivo</span>
-                  <span className="font-black text-bluegreen-500">${computedCash.toFixed(2)}</span>
+                  <span className="font-black text-bluegreen-500">${formatNumber(computedCash)}</span>
                 </Label>
                 <Select
                   value={pricing.cashMargin.toString()}
@@ -340,7 +341,7 @@ export function AddProductModal({
               <div className="space-y-2 px-3 py-2 bg-skybase-900/10 rounded-lg border border-skybase-800/30">
                 <Label className="flex justify-between text-deepspace-500 font-semibold">
                   <span>% Margen Crédito</span>
-                  <span className="font-black text-amber-500">${computedCredit.toFixed(2)}</span>
+                  <span className="font-black text-amber-500">${formatNumber(computedCredit)}</span>
                 </Label>
                 <Select
                   value={pricing.creditMargin.toString()}

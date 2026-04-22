@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { procesarExcelFile, ProductoProcesado } from "@/utils/excelParser.util";
+import { formatNumber } from "@/utils/formatters.util";
 import { bulkCreateOrUpdateProductos } from "@/services/producto.service";
 import { Upload, FileSpreadsheet } from "lucide-react";
 
@@ -128,7 +129,7 @@ export function BulkUploadModal({ open, onOpenChange, onSuccess }: BulkUploadMod
                 {productos.slice(0, 10).map((prod, idx) => (
                   <div key={idx} className="flex justify-between py-2 border-b border-skybase-800/30 last:border-0">
                     <span className="text-sm font-medium text-deepspace-500">{prod.name}</span>
-                    <span className="text-sm font-bold text-bluegreen-500">${prod.costTech}</span>
+                    <span className="text-sm font-bold text-bluegreen-500">${formatNumber(prod.costTech)}</span>
                   </div>
                 ))}
                 {productos.length > 10 && (
