@@ -58,6 +58,7 @@ model Producto {
   cash             Float
   cashMargin       Float           @default(0)
   credit           Float
+  creditMargin     Float           @default(0)
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 
