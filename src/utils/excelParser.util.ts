@@ -122,6 +122,21 @@ export async function procesarExcelFile(file: File): Promise<ProductoProcesado[]
       type: "MODULO",
       quality: "OLED",
     });
+
+    const productosCM = grupo.productos.filter((p) => /c\/m/i.test(p.descripcion));
+    
+    if (productosCM.length > 0) {
+      const preciosCM = productosCM.map((p) => p.precio);
+      const promedioCM = preciosCM.reduce((a, b) => a + b, 0) / preciosCM.length;
+
+      productosProcesados.push({
+        name: `${grupo.marca} ${nombreBase} C/M`.trim(),
+        costTech: Math.round(promedioCM),
+        costTechMargin: 100,
+        type: "MODULO",
+        quality: "OLED",
+      });
+    }
   }
 
   return productosProcesados;
