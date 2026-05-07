@@ -15,20 +15,29 @@ export interface ProductoProcesado {
 
 export function limpiarPrecio(precioStr: string | number): number {
   if (!precioStr) return 0;
-  
+
   const str = precioStr.toString();
   const cleaned = str.replace(/[$.]/g, "").replace(",", ".");
   return parseFloat(cleaned) || 0;
 }
 
+export function tieneClaveRemovible(descripcion: string): boolean {
+  return /\s+(Mecanico|wp|gold|wuzip|Black|Negro|Blanco|Dorado|Plateado|Azul|Rojo|Verde|Rosa|Crown|Repart|REPART|GX|gx|caja naranja|naranja|S\/L|incell|oled|AMM|AMP|ASS|SERVICE PACK|PACK|1ra calidad|2da calidad)/i.test(
+    descripcion
+  );
+}
+
 export function extraerNombreBase(descripcion: string): string {
   let nombre = descripcion.trim();
-  
+
   nombre = nombre.replace(/^•\s*/, "");
-  nombre = nombre.replace(/\s+(Mecanico|wp|gold|wuzip|Black|Negro|Blanco|Dorado|Plateado|Azul|Rojo|Verde|Rosa|C\/M|S\/L|incell|oled|AMM|AMP|ASS|SERVICE PACK|PACK|\(.*?\)|1ra calidad|2da calidad).*$/i, "");
-  
+  nombre = nombre.replace(
+    /\s+(Mecanico|wp|gold|wuzip|Black|Negro|Blanco|Dorado|Plateado|Azul|Rojo|Verde|Rosa|Crown|Repart|REPART|GX|gx|caja naranja|naranja|S\/L|incell|oled|AMM|AMP|ASS|SERVICE PACK|PACK|\(.*?\)|1ra calidad|2da calidad).*$/i,
+    ""
+  );
+
   nombre = nombre.replace(/\s+\/.*$/, "");
-  
+
   return nombre.trim();
 }
 
@@ -70,7 +79,7 @@ export async function procesarExcelFile(file: File): Promise<ProductoProcesado[]
 
   for (let i = 0; i < data.length; i++) {
     const fila = data[i];
-    
+
     if (!fila || fila.length === 0 || (!fila[0] && !fila[1])) {
       if (grupoActual.length > 0) {
         grupos.push({ marca: marcaActual, productos: [...grupoActual] });
@@ -111,31 +120,44 @@ export async function procesarExcelFile(file: File): Promise<ProductoProcesado[]
   for (const grupo of grupos) {
     if (grupo.productos.length === 0) continue;
 
-    const nombreBase = extraerNombreBase(grupo.productos[0].descripcion);
-    const precios = grupo.productos.map((p) => p.precio);
-    const promedio = precios.reduce((a, b) => a + b, 0) / precios.length;
+    const agrupados = new Map<string, { descripcion: string; precio: number }[]>();
 
-    productosProcesados.push({
-      name: `${grupo.marca} ${nombreBase}`.trim(),
-      costTech: Math.round(promedio),
-      costTechMargin: 100,
-      type: "MODULO",
-      quality: "OLED",
-    });
+    for (const producto of grupo.productos) {
+      const nombreLimpio = extraerNombreBase(producto.descripcion);
+      const clave = `${grupo.marca} ${nombreLimpio}`.trim();
 
-    const productosCM = grupo.productos.filter((p) => /c\/m/i.test(p.descripcion));
-    
-    if (productosCM.length > 0) {
-      const preciosCM = productosCM.map((p) => p.precio);
-      const promedioCM = preciosCM.reduce((a, b) => a + b, 0) / preciosCM.length;
+      if (!agrupados.has(clave)) {
+        agrupados.set(clave, []);
+      }
+      agrupados.get(clave)!.push(producto);
+    }
+
+    for (const [nombreProducto, items] of agrupados) {
+      const precios = items.map((p) => p.precio);
+      const promedio = precios.reduce((a, b) => a + b, 0) / precios.length;
 
       productosProcesados.push({
-        name: `${grupo.marca} ${nombreBase} C/M`.trim(),
-        costTech: Math.round(promedioCM),
+        name: nombreProducto,
+        costTech: Math.round(promedio),
         costTechMargin: 100,
         type: "MODULO",
         quality: "OLED",
       });
+
+      const itemsCM = items.filter((p) => /c\/m/i.test(p.descripcion));
+
+      if (itemsCM.length > 0) {
+        const preciosCM = itemsCM.map((p) => p.precio);
+        const promedioCM = preciosCM.reduce((a, b) => a + b, 0) / preciosCM.length;
+
+        productosProcesados.push({
+          name: `${nombreProducto} C/M`,
+          costTech: Math.round(promedioCM),
+          costTechMargin: 100,
+          type: "MODULO",
+          quality: "OLED",
+        });
+      }
     }
   }
 

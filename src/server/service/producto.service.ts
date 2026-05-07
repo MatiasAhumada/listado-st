@@ -61,7 +61,7 @@ export class ProductoService {
     });
 
     const empresas = await ProductoRepository.findAllEmpresas();
-    
+
     for (const empresa of empresas) {
       await ProductoRepository.create({
         name: data.name,

@@ -128,9 +128,7 @@ export default function DashboardPage() {
       baseCols.push({
         key: "cost",
         label: "Costo Cliente",
-        render: (item: any) => (
-          <span className="font-bold text-deepspace-500">${formatNumber(item.cost || 0)}</span>
-        ),
+        render: (item: any) => <span className="font-bold text-deepspace-500">${formatNumber(item.cost || 0)}</span>,
       });
     }
 
@@ -138,9 +136,7 @@ export default function DashboardPage() {
       baseCols.push({
         key: "cost",
         label: "Costo",
-        render: (item: any) => (
-          <span className="font-semibold text-deepspace-500">${formatNumber(item.cost)}</span>
-        ),
+        render: (item: any) => <span className="font-semibold text-deepspace-500">${formatNumber(item.cost)}</span>,
       });
       baseCols.push({
         key: "cash",
@@ -158,9 +154,7 @@ export default function DashboardPage() {
       baseCols.push({
         key: "cash",
         label: "Efectivo",
-        render: (item: any) => (
-          <span className="font-bold text-bluegreen-500">${formatNumber(item.cash || 0)}</span>
-        ),
+        render: (item: any) => <span className="font-bold text-bluegreen-500">${formatNumber(item.cash || 0)}</span>,
       });
       baseCols.push({
         key: "credit",

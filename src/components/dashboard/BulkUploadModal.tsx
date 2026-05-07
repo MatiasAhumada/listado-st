@@ -47,11 +47,11 @@ export function BulkUploadModal({ open, onOpenChange, onSuccess }: BulkUploadMod
 
     try {
       const resultados = await bulkCreateOrUpdateProductos(productos);
-      
+
       clientSuccessHandler(
         `Carga completada: ${resultados.creados} creados, ${resultados.actualizados} actualizados, ${resultados.errores} errores`
       );
-      
+
       onSuccess();
       onOpenChange(false);
       setProductos([]);
@@ -122,9 +122,7 @@ export function BulkUploadModal({ open, onOpenChange, onSuccess }: BulkUploadMod
 
           {productos.length > 0 && (
             <div className="space-y-2">
-              <Label className="text-deepspace-500 font-semibold">
-                Vista Previa ({productos.length} productos)
-              </Label>
+              <Label className="text-deepspace-500 font-semibold">Vista Previa ({productos.length} productos)</Label>
               <div className="max-h-64 overflow-y-auto border border-skybase-700/50 rounded-lg p-3 bg-skybase-900/20">
                 {productos.slice(0, 10).map((prod, idx) => (
                   <div key={idx} className="flex justify-between py-2 border-b border-skybase-800/30 last:border-0">
