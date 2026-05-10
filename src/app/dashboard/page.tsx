@@ -4,7 +4,6 @@ import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/hooks/useAuthStore";
 import { getProductos, deleteProducto } from "@/services/producto.service";
-import { logoutUsuario } from "@/services/auth.service";
 import { DataTable } from "@/components/common/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AddProductModal } from "@/components/dashboard/AddProductModal";
 import { BulkUploadModal } from "@/components/dashboard/BulkUploadModal";
 import { GenericModal } from "@/components/common/GenericModal";
-import { LogOut, Plus, Edit, Trash, Upload, ClipboardList } from "lucide-react";
+import { Sidebar } from "@/components/common/Sidebar";
+import { Plus, Edit, Trash, Upload } from "lucide-react";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { formatNumber } from "@/utils/formatters.util";
 
@@ -70,12 +70,6 @@ export default function DashboardPage() {
     }
     fetchData();
   }, [user, isHydrated, router, debouncedSearch, selectedType, selectedQuality]);
-
-  const handleLogout = async () => {
-    await logoutUsuario();
-    logout();
-    router.push("/");
-  };
 
   const handleDelete = async () => {
     if (!productToDelete) return;
@@ -229,119 +223,84 @@ export default function DashboardPage() {
   if (!isHydrated || !user) return null;
 
   return (
-    <div className="min-h-screen bg-skybase-900 relative overflow-hidden">
-      {/* Decorative background for Dashboard */}
-      <div className="absolute top-0 w-full h-80 bg-gradient-to-r from-deepspace-500 via-deepspace-400 to-deepspace-300 rounded-b-[4rem] shadow-xl z-0 pointer-events-none"></div>
+    <div className="flex min-h-screen bg-skybase-900">
+      <Sidebar />
 
-      {/* Top Navbar */}
-      <header className="relative z-10 mx-auto max-w-7xl pt-6 px-4">
-        <div className="bg-white/95 backdrop-blur-md shadow-lg border border-skybase-700/50 rounded-2xl h-16 flex items-center justify-between px-6">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-black text-deepspace-500">Listado ST</h1>
-            <Badge className="bg-amber-500 hover:bg-amber-400 uppercase text-deepspace-100 font-bold border-0 shadow-sm">
-              {user.role}
-            </Badge>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-skybase-200 font-medium">
-              Hola, <b className="text-deepspace-500 font-bold">{user.username}</b>
-            </span>
-            {(isEmpresa || user.role === "VENDEDOR") && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.push("/service-orders")}
-                className="text-deepspace-500 hover:text-bluegreen-500 hover:bg-skybase-900 rounded-full transition-colors gap-2"
-              >
-                <ClipboardList size={18} />
-                Órdenes de Servicio
-              </Button>
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleLogout}
-              className="text-skybase-200 hover:text-princeton-500 hover:bg-skybase-900 rounded-full transition-colors"
-            >
-              <LogOut size={18} />
-            </Button>
-          </div>
-        </div>
-      </header>
+      <div className="flex-1 ml-64">
+        <div className="min-h-screen bg-gradient-to-br from-skybase-950 via-deepspace-900 to-skybase-900 p-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="bg-white shadow-xl rounded-2xl p-6 border border-skybase-800">
+              <DataTable
+                title="Inventario Activo"
+                subtitle={isEmpresa ? "Vista administrador global" : "Catálogo disponible para venta"}
+                data={data}
+                columns={columns}
+                keyExtractor={(item: any) => item.id}
+                loading={loading}
+                searchPlaceholder="Buscar por nombre..."
+                onSearch={setSearchTerm}
+                totalLabel={`Resultados: ${data.length}`}
+                actions={
+                  <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mt-4 sm:mt-0">
+                    <Select value={selectedType} onValueChange={setSelectedType}>
+                      <SelectTrigger className="w-full sm:w-[150px] bg-white border-border">
+                        <SelectValue placeholder="Filtrar Tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="TODOS">Todos los Tipos</SelectItem>
+                        <SelectItem value="MODULO">Módulos</SelectItem>
+                        <SelectItem value="BATERIA">Baterías</SelectItem>
+                        <SelectItem value="PIN">Pines</SelectItem>
+                        <SelectItem value="VARIOS">Varios</SelectItem>
+                      </SelectContent>
+                    </Select>
 
-      {/* Main Content */}
-      <main className="relative z-10 container mx-auto px-4 py-8 pb-32 max-w-7xl">
-        <div className="bg-white shadow-xl rounded-2xl p-6 border border-skybase-800">
-          <DataTable
-            title="Inventario Activo"
-            subtitle={isEmpresa ? "Vista administrador global" : "Catálogo disponible para venta"}
-            data={data}
-            columns={columns}
-            keyExtractor={(item: any) => item.id}
-            loading={loading}
-            searchPlaceholder="Buscar por nombre..."
-            onSearch={setSearchTerm}
-            totalLabel={`Resultados: ${data.length}`}
-            actions={
-              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mt-4 sm:mt-0">
-                <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger className="w-full sm:w-[150px] bg-white border-border">
-                    <SelectValue placeholder="Filtrar Tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="TODOS">Todos los Tipos</SelectItem>
-                    <SelectItem value="MODULO">Módulos</SelectItem>
-                    <SelectItem value="BATERIA">Baterías</SelectItem>
-                    <SelectItem value="PIN">Pines</SelectItem>
-                    <SelectItem value="VARIOS">Varios</SelectItem>
-                  </SelectContent>
-                </Select>
+                    <Select value={selectedQuality} onValueChange={setSelectedQuality}>
+                      <SelectTrigger className="w-full sm:w-[160px] bg-white border-border">
+                        <SelectValue placeholder="Filtrar Calidad" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="TODAS">Todas las Calidades</SelectItem>
+                        <SelectItem value="INCELL">Incell</SelectItem>
+                        <SelectItem value="OLED">OLED</SelectItem>
+                        <SelectItem value="ORIGINAL">Original</SelectItem>
+                        <SelectItem value="SERVICEPACK">Service Pack</SelectItem>
+                        <SelectItem value="REMANOFACTURADO">Remanufacturado</SelectItem>
+                        <SelectItem value="NINGUNA">Ninguna</SelectItem>
+                      </SelectContent>
+                    </Select>
 
-                <Select value={selectedQuality} onValueChange={setSelectedQuality}>
-                  <SelectTrigger className="w-full sm:w-[160px] bg-white border-border">
-                    <SelectValue placeholder="Filtrar Calidad" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="TODAS">Todas las Calidades</SelectItem>
-                    <SelectItem value="INCELL">Incell</SelectItem>
-                    <SelectItem value="OLED">OLED</SelectItem>
-                    <SelectItem value="ORIGINAL">Original</SelectItem>
-                    <SelectItem value="SERVICEPACK">Service Pack</SelectItem>
-                    <SelectItem value="REMANOFACTURADO">Remanufacturado</SelectItem>
-                    <SelectItem value="NINGUNA">Ninguna</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                {(isEmpresa || isTecnico) && (
-                  <>
-                    <Button
-                      onClick={() => {
-                        setProductToEdit(null);
-                        setModalOpen(true);
-                      }}
-                      className="gap-2 bg-gradient-to-r from-bluegreen-500 to-bluegreen-400 hover:shadow-lg hover:shadow-bluegreen-400/30 transition-all font-bold text-white rounded-xl px-4"
-                    >
-                      <Plus size={18} />
-                      Nuevo
-                    </Button>
-                    {isTecnico && (
-                      <Button
-                        onClick={() => setBulkUploadOpen(true)}
-                        className="gap-2 bg-gradient-to-r from-purple-500 to-purple-600 hover:shadow-lg hover:shadow-purple-400/30 transition-all font-bold text-white rounded-xl px-4"
-                      >
-                        <Upload size={18} />
-                        Carga Masiva
-                      </Button>
+                    {(isEmpresa || isTecnico) && (
+                      <>
+                        <Button
+                          onClick={() => {
+                            setProductToEdit(null);
+                            setModalOpen(true);
+                          }}
+                          className="gap-2 bg-gradient-to-r from-bluegreen-500 to-bluegreen-400 hover:shadow-lg hover:shadow-bluegreen-400/30 transition-all font-bold text-white rounded-xl px-4"
+                        >
+                          <Plus size={18} />
+                          Nuevo
+                        </Button>
+                        {isTecnico && (
+                          <Button
+                            onClick={() => setBulkUploadOpen(true)}
+                            className="gap-2 bg-gradient-to-r from-purple-500 to-purple-600 hover:shadow-lg hover:shadow-purple-400/30 transition-all font-bold text-white rounded-xl px-4"
+                          >
+                            <Upload size={18} />
+                            Carga Masiva
+                          </Button>
+                        )}
+                      </>
                     )}
-                  </>
-                )}
-              </div>
-            }
-          />
+                  </div>
+                }
+              />
+            </div>
+          </div>
         </div>
-      </main>
+      </div>
 
-      {/* Modals */}
       {(isEmpresa || isTecnico) && (
         <>
           <AddProductModal
