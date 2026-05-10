@@ -69,9 +69,9 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-yellow-green-500/30 bg-hunter-green-500 space-y-3">
+      <div className="p-4 border-t border-yellow-green-500/30 bg-hunter-green-500">
         <div className="flex items-center gap-3 px-2">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-green-400 to-yellow-green-600 flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-green-400 to-yellow-green-600 flex items-center justify-center shadow-lg flex-shrink-0">
             <User size={20} className="text-hunter-green-900" />
           </div>
           <div className="flex-1 min-w-0">
@@ -80,14 +80,15 @@ export function Sidebar() {
               {user?.role}
             </Badge>
           </div>
+          <Button
+            variant="ghost"
+            onClick={handleLogout}
+            size="icon"
+            className="flex-shrink-0 text-vanilla-cream-600 hover:text-blushed-brick-400 hover:bg-hunter-green-400/50 transition-all"
+          >
+            <LogOut size={18} />
+          </Button>
         </div>
-        <Button
-          variant="ghost"
-          onClick={handleLogout}
-          className="w-full justify-center text-vanilla-cream-600 hover:text-blushed-brick-400 hover:bg-hunter-green-400/50 transition-all"
-        >
-          <LogOut size={18} />
-        </Button>
       </div>
     </aside>
   );
