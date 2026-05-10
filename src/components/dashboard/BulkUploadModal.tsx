@@ -73,14 +73,14 @@ export function BulkUploadModal({ open, onOpenChange, onSuccess }: BulkUploadMod
       footer={
         <>
           <Button
-            className="bg-blushed-brick-500 hover:bg-blushed-brick-700 text-white h-11 px-6 font-semibold shadow-md transition-all"
+            className="bg-charcoal hover:bg-charcoal/80 text-lavender border border-lavender/20 h-11 px-6 font-semibold shadow-md transition-all"
             onClick={() => onOpenChange(false)}
             disabled={loading}
           >
             Cancelar
           </Button>
           <Button
-            className="bg-gradient-to-r from-hunter-green-600 to-hunter-green-700 hover:from-hunter-green-500 hover:to-hunter-green-600 text-white shadow-lg shadow-hunter-green-500/30 h-11 px-6 font-bold tracking-wide transition-all hover:scale-[1.02]"
+            className="bg-lime hover:bg-green text-dark shadow-lg h-11 px-6 font-bold tracking-wide transition-all hover:scale-[1.02]"
             onClick={handleUpload}
             disabled={loading || productos.length === 0}
           >
@@ -91,46 +91,46 @@ export function BulkUploadModal({ open, onOpenChange, onSuccess }: BulkUploadMod
     >
       <div className="space-y-6 p-1">
         <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <FileSpreadsheet className="text-blue-600" size={24} />
+          <div className="flex items-center gap-3 p-4 bg-lime/10 border border-lime/30 rounded-lg">
+            <FileSpreadsheet className="text-lime" size={24} />
             <div className="flex-1">
-              <h4 className="font-semibold text-blue-900">Formato del archivo</h4>
-              <p className="text-sm text-blue-700">
+              <h4 className="font-semibold text-lavender">Formato del archivo</h4>
+              <p className="text-sm text-lavender/70">
                 Archivo Excel (.xlsx) con productos y precios. Primera columna: descripción, Segunda columna: precio
               </p>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label className="text-deepspace-500 font-semibold">Seleccionar Archivo</Label>
+            <Label className="text-lavender font-semibold">Seleccionar Archivo</Label>
             <div className="flex items-center gap-3">
               <Input
                 type="file"
                 accept=".xlsx,.xls"
                 onChange={handleFileChange}
-                className="flex-1 bg-skybase-900/30 border-skybase-700/50 focus-visible:ring-bluegreen-500 h-11"
+                className="flex-1 bg-charcoal border-lavender/20 text-lavender focus-visible:ring-lime h-11"
               />
-              <Upload className="text-skybase-400" size={20} />
+              <Upload className="text-lavender/60" size={20} />
             </div>
             {archivo && (
-              <p className="text-sm text-skybase-300">
-                Archivo: <span className="font-semibold text-deepspace-500">{archivo.name}</span>
+              <p className="text-sm text-lavender/60">
+                Archivo: <span className="font-semibold text-lavender">{archivo.name}</span>
               </p>
             )}
           </div>
 
           {productos.length > 0 && (
             <div className="space-y-2">
-              <Label className="text-deepspace-500 font-semibold">Vista Previa ({productos.length} productos)</Label>
-              <div className="max-h-64 overflow-y-auto border border-skybase-700/50 rounded-lg p-3 bg-skybase-900/20">
+              <Label className="text-lavender font-semibold">Vista Previa ({productos.length} productos)</Label>
+              <div className="max-h-64 overflow-y-auto border border-lavender/20 rounded-lg p-3 bg-charcoal">
                 {productos.slice(0, 10).map((prod, idx) => (
-                  <div key={idx} className="flex justify-between py-2 border-b border-skybase-800/30 last:border-0">
-                    <span className="text-sm font-medium text-deepspace-500">{prod.name}</span>
-                    <span className="text-sm font-bold text-bluegreen-500">${formatNumber(prod.costTech)}</span>
+                  <div key={idx} className="flex justify-between py-2 border-b border-lavender/10 last:border-0">
+                    <span className="text-sm font-medium text-lavender">{prod.name}</span>
+                    <span className="text-sm font-bold text-lime">${formatNumber(prod.costTech)}</span>
                   </div>
                 ))}
                 {productos.length > 10 && (
-                  <p className="text-xs text-skybase-300 text-center mt-2">
+                  <p className="text-xs text-lavender/60 text-center mt-2">
                     ... y {productos.length - 10} productos más
                   </p>
                 )}

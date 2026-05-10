@@ -23,9 +23,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!isHydrated || !user) return null;
 
   return (
-    <div className="flex min-h-screen bg-skybase-900">
+    <div className="flex min-h-screen bg-charcoal">
       <Sidebar />
-      <div className="flex-1 ml-64">
+      <div className="flex-1 lg:ml-16 transition-all duration-300">
         {children}
       </div>
     </div>

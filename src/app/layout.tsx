@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Listado ST",
+  title: "Service Tech",
   description: "Sistema de gestión y listado para Servicio Técnico",
 };
 

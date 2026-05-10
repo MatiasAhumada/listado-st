@@ -14,6 +14,7 @@ import { GenericModal } from "@/components/common/GenericModal";
 import { Plus, Edit, Trash, Upload } from "lucide-react";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { formatNumber } from "@/utils/formatters.util";
+import { motion } from "framer-motion";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -83,7 +84,7 @@ export default function DashboardPage() {
       {
         key: "quality",
         label: "Calidad",
-        render: (item: any) => item.quality || <span className="text-hunter-green-400 font-bold">-</span>,
+        render: (item: any) => item.quality || <span className="text-lavender/40 font-bold">-</span>,
       },
       {
         key: "available",
@@ -92,8 +93,8 @@ export default function DashboardPage() {
           <Badge
             className={
               item.available 
-                ? "bg-gradient-to-r from-sage-green-500 to-sage-green-600 text-white shadow-md" 
-                : "bg-gradient-to-r from-blushed-brick-500 to-blushed-brick-600 text-white shadow-md"
+                ? "bg-lime text-dark shadow-md" 
+                : "bg-destructive text-white shadow-md"
             }
           >
             {item.available ? "Disponible" : "Sin Stock"}
@@ -107,13 +108,13 @@ export default function DashboardPage() {
         key: "costTech",
         label: "Costo Repuesto",
         render: (item: any) => (
-          <span className="font-bold text-hunter-green-700">${formatNumber(item.costTech || 0)}</span>
+          <span className="font-bold text-lavender">${formatNumber(item.costTech || 0)}</span>
         ),
       });
       baseCols.push({
         key: "cost",
         label: "Costo Cliente",
-        render: (item: any) => <span className="font-bold text-sage-green-700">${formatNumber(item.cost || 0)}</span>,
+        render: (item: any) => <span className="font-bold text-lime">${formatNumber(item.cost || 0)}</span>,
       });
     }
 
@@ -121,17 +122,17 @@ export default function DashboardPage() {
       baseCols.push({
         key: "cost",
         label: "Costo",
-        render: (item: any) => <span className="font-bold text-hunter-green-700">${formatNumber(item.cost)}</span>,
+        render: (item: any) => <span className="font-bold text-lavender">${formatNumber(item.cost)}</span>,
       });
       baseCols.push({
         key: "cash",
         label: "Efectivo",
-        render: (item: any) => <span className="font-bold text-yellow-green-700">${formatNumber(item.cash)}</span>,
+        render: (item: any) => <span className="font-bold text-lime">${formatNumber(item.cash)}</span>,
       });
       baseCols.push({
         key: "credit",
         label: "Tarjeta",
-        render: (item: any) => <span className="font-bold text-blushed-brick-600">${formatNumber(item.credit)}</span>,
+        render: (item: any) => <span className="font-bold text-green">${formatNumber(item.credit)}</span>,
       });
     }
 
@@ -139,12 +140,12 @@ export default function DashboardPage() {
       baseCols.push({
         key: "cash",
         label: "Efectivo",
-        render: (item: any) => <span className="font-bold text-yellow-green-700">${formatNumber(item.cash || 0)}</span>,
+        render: (item: any) => <span className="font-bold text-lime">${formatNumber(item.cash || 0)}</span>,
       });
       baseCols.push({
         key: "credit",
         label: "Tarjeta",
-        render: (item: any) => <span className="font-bold text-blushed-brick-600">${formatNumber(item.credit || 0)}</span>,
+        render: (item: any) => <span className="font-bold text-green">${formatNumber(item.credit || 0)}</span>,
       });
     }
 
@@ -158,26 +159,26 @@ export default function DashboardPage() {
             <Button
               size="icon"
               variant="ghost"
-              className="hover:bg-yellow-green-100 hover:text-yellow-green-800 transition-all"
+              className="hover:bg-lime/20 hover:text-lime transition-all"
               onClick={(e) => {
                 e.stopPropagation();
                 setProductToEdit(item);
                 setModalOpen(true);
               }}
             >
-              <Edit size={16} className="text-yellow-green-600" />
+              <Edit size={16} className="text-lime" />
             </Button>
             <Button
               size="icon"
               variant="ghost"
-              className="hover:bg-blushed-brick-100 hover:text-blushed-brick-800 transition-all"
+              className="hover:bg-destructive/20 hover:text-destructive transition-all"
               onClick={(e) => {
                 e.stopPropagation();
                 setProductToDelete(item);
                 setDeleteModalOpen(true);
               }}
             >
-              <Trash size={16} className="text-blushed-brick-600" />
+              <Trash size={16} className="text-destructive" />
             </Button>
           </div>
         ),
@@ -194,14 +195,14 @@ export default function DashboardPage() {
             <Button
               size="icon"
               variant="ghost"
-              className="hover:bg-yellow-green-100 hover:text-yellow-green-800 transition-all"
+              className="hover:bg-lime/20 hover:text-lime transition-all"
               onClick={(e) => {
                 e.stopPropagation();
                 setProductToEdit(item);
                 setModalOpen(true);
               }}
             >
-              <Edit size={16} className="text-yellow-green-600" />
+              <Edit size={16} className="text-lime" />
             </Button>
           </div>
         ),
@@ -212,14 +213,19 @@ export default function DashboardPage() {
   }, [isEmpresa, isTecnico]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-vanilla-cream-800 via-vanilla-cream-700 to-vanilla-cream-600 p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-charcoal p-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-7xl mx-auto"
+      >
         <div className="mb-6">
-          <h1 className="text-4xl font-black text-hunter-green-700 mb-2">Inventario Activo</h1>
-          <p className="text-hunter-green-500 text-lg">{isEmpresa ? "Vista administrador global" : "Catálogo disponible para venta"}</p>
+          <h1 className="text-4xl font-black text-lavender mb-2">Inventario Activo</h1>
+          <p className="text-lavender/60 text-lg">{isEmpresa ? "Vista administrador global" : "Catálogo disponible para venta"}</p>
         </div>
 
-        <div className="bg-white shadow-2xl rounded-2xl p-6 border-2 border-yellow-green-400">
+        <div className="bg-dark/80 backdrop-blur-sm shadow-2xl rounded-2xl p-6 border border-lavender/10">
           <DataTable
             title=""
             subtitle=""
@@ -233,7 +239,7 @@ export default function DashboardPage() {
             actions={
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mt-4 sm:mt-0">
                 <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger className="w-full sm:w-[150px] bg-white border-2 border-hunter-green-300 hover:border-yellow-green-500 transition-all">
+                  <SelectTrigger className="w-full sm:w-[150px] bg-charcoal border-lavender/20 text-lavender hover:border-lime transition-all">
                     <SelectValue placeholder="Filtrar Tipo" />
                   </SelectTrigger>
                   <SelectContent>
@@ -246,7 +252,7 @@ export default function DashboardPage() {
                 </Select>
 
                 <Select value={selectedQuality} onValueChange={setSelectedQuality}>
-                  <SelectTrigger className="w-full sm:w-[160px] bg-white border-2 border-hunter-green-300 hover:border-yellow-green-500 transition-all">
+                  <SelectTrigger className="w-full sm:w-[160px] bg-charcoal border-lavender/20 text-lavender hover:border-lime transition-all">
                     <SelectValue placeholder="Filtrar Calidad" />
                   </SelectTrigger>
                   <SelectContent>
@@ -267,7 +273,7 @@ export default function DashboardPage() {
                         setProductToEdit(null);
                         setModalOpen(true);
                       }}
-                      className="gap-2 bg-gradient-to-r from-yellow-green-500 to-yellow-green-600 hover:from-yellow-green-400 hover:to-yellow-green-500 shadow-lg shadow-yellow-green-500/40 transition-all font-bold text-hunter-green-900 rounded-xl px-6"
+                      className="gap-2 bg-lime hover:bg-green text-dark shadow-lg transition-all font-bold rounded-xl px-6"
                     >
                       <Plus size={18} />
                       Nuevo
@@ -275,7 +281,7 @@ export default function DashboardPage() {
                     {isTecnico && (
                       <Button
                         onClick={() => setBulkUploadOpen(true)}
-                        className="gap-2 bg-gradient-to-r from-sage-green-500 to-sage-green-600 hover:from-sage-green-400 hover:to-sage-green-500 shadow-lg shadow-sage-green-500/40 transition-all font-bold text-white rounded-xl px-6"
+                        className="gap-2 bg-green hover:bg-lime text-white shadow-lg transition-all font-bold rounded-xl px-6"
                       >
                         <Upload size={18} />
                         Carga Masiva
@@ -287,7 +293,7 @@ export default function DashboardPage() {
             }
           />
         </div>
-      </div>
+      </motion.div>
 
       {(isEmpresa || isTecnico) && (
         <>
@@ -310,14 +316,14 @@ export default function DashboardPage() {
               <>
                 <Button
                   variant="ghost"
-                  className="hover:bg-hunter-green-100 text-hunter-green-700 h-11 px-6 font-semibold border-2 border-hunter-green-300"
+                  className="hover:bg-lavender/10 text-lavender h-11 px-6 font-semibold border border-lavender/20"
                   onClick={() => setDeleteModalOpen(false)}
                 >
                   Cancelar
                 </Button>
                 <Button
                   variant="destructive"
-                  className="bg-gradient-to-r from-blushed-brick-500 to-blushed-brick-600 hover:from-blushed-brick-400 hover:to-blushed-brick-500 text-white shadow-lg shadow-blushed-brick-500/40 h-11 px-6 font-bold tracking-wide transition-all hover:scale-105"
+                  className="bg-destructive hover:bg-destructive/90 text-white shadow-lg h-11 px-6 font-bold tracking-wide transition-all hover:scale-105"
                   onClick={handleDelete}
                 >
                   Eliminar Producto
@@ -325,10 +331,10 @@ export default function DashboardPage() {
               </>
             }
           >
-            <div className="p-4 bg-blushed-brick-50 rounded-xl border-2 border-blushed-brick-300 flex flex-col gap-2 mt-2">
-              <span className="text-blushed-brick-700 font-semibold">¿Seguro que deseas borrar el siguiente producto?</span>
-              <span className="text-hunter-green-800 font-black text-lg">{productToDelete?.name}</span>
-              <span className="text-hunter-green-600 text-sm">
+            <div className="p-4 bg-destructive/10 rounded-xl border border-destructive/20 flex flex-col gap-2 mt-2">
+              <span className="text-lavender font-semibold">¿Seguro que deseas borrar el siguiente producto?</span>
+              <span className="text-lavender font-black text-lg">{productToDelete?.name}</span>
+              <span className="text-lavender/60 text-sm">
                 {productToDelete?.type} - {productToDelete?.quality || "Ninguna"}
               </span>
             </div>
