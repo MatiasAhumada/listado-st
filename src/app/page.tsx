@@ -52,10 +52,10 @@ export default function LoginPage() {
   if (!isHydrated) return null;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-deepspace-100 p-4 overflow-hidden relative">
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-bluegreen-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob"></div>
-      <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-amber-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-      <div className="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-princeton-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-vanilla-cream-100 via-sage-green-50 to-hunter-green-100 p-4 overflow-hidden relative">
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-yellow-green-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+      <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-hunter-green-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+      <div className="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-sage-green-400 rounded-full mix-blend-multiply filter blur-3xl opacity-25 animate-blob animation-delay-4000"></div>
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
@@ -63,22 +63,22 @@ export default function LoginPage() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="w-full max-w-md relative z-10"
       >
-        <Card className="shadow-2xl border-white/10 bg-card/95 backdrop-blur-xl">
-          <CardHeader className="space-y-3 pb-6 border-b border-border/50">
-            <div className="w-16 h-16 bg-gradient-to-tr from-bluegreen-500 to-amber-500 rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-bluegreen-500/30 mb-2">
+        <Card className="shadow-2xl border-hunter-green-200/50 bg-white/95 backdrop-blur-xl">
+          <CardHeader className="space-y-3 pb-6 border-b border-sage-green-200">
+            <div className="w-16 h-16 bg-gradient-to-tr from-hunter-green-600 to-yellow-green-500 rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-hunter-green-500/40 mb-2">
               <Wrench className="w-8 h-8 text-white" />
             </div>
-            <CardTitle className="text-3xl font-bold tracking-tight text-center text-deepspace-500">
+            <CardTitle className="text-3xl font-bold tracking-tight text-center text-hunter-green-900">
               Listado ST
             </CardTitle>
-            <CardDescription className="text-center text-muted-foreground font-medium text-sm">
+            <CardDescription className="text-center text-hunter-green-700 font-medium text-sm">
               Sistema Integral de Servicio Técnico
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             <form onSubmit={handleLogin} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="username" className="text-sm font-semibold text-deepspace-500">
+                <Label htmlFor="username" className="text-sm font-semibold text-hunter-green-800">
                   Usuario
                 </Label>
                 <Input
@@ -87,12 +87,12 @@ export default function LoginPage() {
                   placeholder="Ej: admin"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="bg-skybase-900 border-border focus-visible:ring-princeton-500 transition-all h-11"
+                  className="bg-vanilla-cream-50 border-sage-green-300 focus-visible:ring-hunter-green-500 focus-visible:border-hunter-green-500 transition-all h-11"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-semibold text-deepspace-500">
+                <Label htmlFor="password" className="text-sm font-semibold text-hunter-green-800">
                   Contraseña
                 </Label>
                 <Input
@@ -101,13 +101,13 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-skybase-900 border-border focus-visible:ring-princeton-500 transition-all h-11"
+                  className="bg-vanilla-cream-50 border-sage-green-300 focus-visible:ring-hunter-green-500 focus-visible:border-hunter-green-500 transition-all h-11"
                   required
                 />
               </div>
               <Button
                 type="submit"
-                className="w-full h-11 bg-gradient-to-r from-bluegreen-500 to-bluegreen-600 hover:from-bluegreen-400 hover:to-bluegreen-500 text-white font-semibold tracking-wide shadow-lg shadow-bluegreen-500/30 transition-all hover:scale-[1.02]"
+                className="w-full h-11 bg-gradient-to-r from-yellow-green-500 to-yellow-green-600 hover:from-yellow-green-400 hover:to-yellow-green-500 text-hunter-green-900 font-bold tracking-wide shadow-lg shadow-yellow-green-500/40 transition-all hover:scale-[1.02]"
                 disabled={loading}
               >
                 {loading ? "Accediendo..." : "Ingresar al Sistema"}

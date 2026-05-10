@@ -73,15 +73,14 @@ export function BulkUploadModal({ open, onOpenChange, onSuccess }: BulkUploadMod
       footer={
         <>
           <Button
-            variant="ghost"
-            className="hover:bg-skybase-900 text-deepspace-500 h-11 px-6 font-semibold"
+            className="bg-blushed-brick-500 hover:bg-blushed-brick-700 text-white h-11 px-6 font-semibold shadow-md transition-all"
             onClick={() => onOpenChange(false)}
             disabled={loading}
           >
             Cancelar
           </Button>
           <Button
-            className="bg-gradient-to-r from-bluegreen-500 to-bluegreen-600 hover:from-bluegreen-400 hover:to-bluegreen-500 text-white shadow-lg shadow-bluegreen-500/30 h-11 px-6 font-bold tracking-wide transition-all hover:scale-[1.02]"
+            className="bg-gradient-to-r from-hunter-green-600 to-hunter-green-700 hover:from-hunter-green-500 hover:to-hunter-green-600 text-white shadow-lg shadow-hunter-green-500/30 h-11 px-6 font-bold tracking-wide transition-all hover:scale-[1.02]"
             onClick={handleUpload}
             disabled={loading || productos.length === 0}
           >

@@ -184,9 +184,22 @@ export class ProductoService {
             costTechMargin: producto.costTechMargin,
             cost: producto.cost,
             costMargin: producto.costMargin,
+            cash: producto.cash,
+            cashMargin: producto.cashMargin,
+            credit: producto.credit,
+            creditMargin: producto.creditMargin,
           });
 
-          await ProductoRepository.updateCopiasCost(existente.id, producto.cost);
+          await ProductoRepository.updateCopiasAllFields(existente.id, {
+            costTech: producto.costTech,
+            costTechMargin: producto.costTechMargin,
+            cost: producto.cost,
+            costMargin: producto.costMargin,
+            cash: producto.cash,
+            cashMargin: producto.cashMargin,
+            credit: producto.credit,
+            creditMargin: producto.creditMargin,
+          });
           resultados.actualizados++;
         } else {
           const masterProduct = await ProductoRepository.create({

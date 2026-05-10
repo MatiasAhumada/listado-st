@@ -154,4 +154,23 @@ export class ProductoRepository {
       data: { cost: newCost },
     });
   }
+
+  static async updateCopiasAllFields(
+    masterProductId: string,
+    data: {
+      costTech: number;
+      costTechMargin: number;
+      cost: number;
+      costMargin: number;
+      cash: number;
+      cashMargin: number;
+      credit: number;
+      creditMargin: number;
+    }
+  ) {
+    return prisma.producto.updateMany({
+      where: { masterProductId },
+      data,
+    });
+  }
 }
