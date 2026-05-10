@@ -83,7 +83,7 @@ export default function DashboardPage() {
       {
         key: "quality",
         label: "Calidad",
-        render: (item: any) => item.quality || <span className="text-hunter-green-300 font-bold">-</span>,
+        render: (item: any) => item.quality || <span className="text-hunter-green-400 font-bold">-</span>,
       },
       {
         key: "available",
@@ -91,7 +91,9 @@ export default function DashboardPage() {
         render: (item: any) => (
           <Badge
             className={
-              item.available ? "bg-sage-green-500 hover:bg-sage-green-600" : "bg-blushed-brick-500 hover:bg-blushed-brick-600"
+              item.available 
+                ? "bg-gradient-to-r from-sage-green-500 to-sage-green-600 text-white shadow-md" 
+                : "bg-gradient-to-r from-blushed-brick-500 to-blushed-brick-600 text-white shadow-md"
             }
           >
             {item.available ? "Disponible" : "Sin Stock"}
@@ -105,13 +107,13 @@ export default function DashboardPage() {
         key: "costTech",
         label: "Costo Repuesto",
         render: (item: any) => (
-          <span className="font-semibold text-yellow-green-600">${formatNumber(item.costTech || 0)}</span>
+          <span className="font-bold text-hunter-green-700">${formatNumber(item.costTech || 0)}</span>
         ),
       });
       baseCols.push({
         key: "cost",
         label: "Costo Cliente",
-        render: (item: any) => <span className="font-bold text-hunter-green-600">${formatNumber(item.cost || 0)}</span>,
+        render: (item: any) => <span className="font-bold text-sage-green-700">${formatNumber(item.cost || 0)}</span>,
       });
     }
 
@@ -119,17 +121,17 @@ export default function DashboardPage() {
       baseCols.push({
         key: "cost",
         label: "Costo",
-        render: (item: any) => <span className="font-semibold text-hunter-green-600">${formatNumber(item.cost)}</span>,
+        render: (item: any) => <span className="font-bold text-hunter-green-700">${formatNumber(item.cost)}</span>,
       });
       baseCols.push({
         key: "cash",
         label: "Efectivo",
-        render: (item: any) => <span className="font-bold text-sage-green-600">${formatNumber(item.cash)}</span>,
+        render: (item: any) => <span className="font-bold text-yellow-green-700">${formatNumber(item.cash)}</span>,
       });
       baseCols.push({
         key: "credit",
         label: "Tarjeta",
-        render: (item: any) => <span className="font-bold text-yellow-green-600">${formatNumber(item.credit)}</span>,
+        render: (item: any) => <span className="font-bold text-blushed-brick-600">${formatNumber(item.credit)}</span>,
       });
     }
 
@@ -137,12 +139,12 @@ export default function DashboardPage() {
       baseCols.push({
         key: "cash",
         label: "Efectivo",
-        render: (item: any) => <span className="font-bold text-sage-green-600">${formatNumber(item.cash || 0)}</span>,
+        render: (item: any) => <span className="font-bold text-yellow-green-700">${formatNumber(item.cash || 0)}</span>,
       });
       baseCols.push({
         key: "credit",
         label: "Tarjeta",
-        render: (item: any) => <span className="font-bold text-yellow-green-600">${formatNumber(item.credit || 0)}</span>,
+        render: (item: any) => <span className="font-bold text-blushed-brick-600">${formatNumber(item.credit || 0)}</span>,
       });
     }
 
@@ -156,19 +158,19 @@ export default function DashboardPage() {
             <Button
               size="icon"
               variant="ghost"
-              className="hover:bg-sage-green-100/50 hover:text-sage-green-700"
+              className="hover:bg-yellow-green-100 hover:text-yellow-green-800 transition-all"
               onClick={(e) => {
                 e.stopPropagation();
                 setProductToEdit(item);
                 setModalOpen(true);
               }}
             >
-              <Edit size={16} className="text-sage-green-600" />
+              <Edit size={16} className="text-yellow-green-600" />
             </Button>
             <Button
               size="icon"
               variant="ghost"
-              className="hover:bg-blushed-brick-100 hover:text-blushed-brick-700"
+              className="hover:bg-blushed-brick-100 hover:text-blushed-brick-800 transition-all"
               onClick={(e) => {
                 e.stopPropagation();
                 setProductToDelete(item);
@@ -192,14 +194,14 @@ export default function DashboardPage() {
             <Button
               size="icon"
               variant="ghost"
-              className="hover:bg-sage-green-100/50 hover:text-sage-green-700"
+              className="hover:bg-yellow-green-100 hover:text-yellow-green-800 transition-all"
               onClick={(e) => {
                 e.stopPropagation();
                 setProductToEdit(item);
                 setModalOpen(true);
               }}
             >
-              <Edit size={16} className="text-sage-green-600" />
+              <Edit size={16} className="text-yellow-green-600" />
             </Button>
           </div>
         ),
@@ -210,12 +212,17 @@ export default function DashboardPage() {
   }, [isEmpresa, isTecnico]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-vanilla-cream-900 via-vanilla-cream-800 to-vanilla-cream-700 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-vanilla-cream-800 via-vanilla-cream-700 to-vanilla-cream-600 p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white shadow-xl rounded-2xl p-6 border border-sage-green-200">
+        <div className="mb-6">
+          <h1 className="text-4xl font-black text-hunter-green-700 mb-2">Inventario Activo</h1>
+          <p className="text-hunter-green-500 text-lg">{isEmpresa ? "Vista administrador global" : "Catálogo disponible para venta"}</p>
+        </div>
+
+        <div className="bg-white shadow-2xl rounded-2xl p-6 border-2 border-yellow-green-400">
           <DataTable
-            title="Inventario Activo"
-            subtitle={isEmpresa ? "Vista administrador global" : "Catálogo disponible para venta"}
+            title=""
+            subtitle=""
             data={data}
             columns={columns}
             keyExtractor={(item: any) => item.id}
@@ -226,7 +233,7 @@ export default function DashboardPage() {
             actions={
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mt-4 sm:mt-0">
                 <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger className="w-full sm:w-[150px] bg-white border-border">
+                  <SelectTrigger className="w-full sm:w-[150px] bg-white border-2 border-hunter-green-300 hover:border-yellow-green-500 transition-all">
                     <SelectValue placeholder="Filtrar Tipo" />
                   </SelectTrigger>
                   <SelectContent>
@@ -239,7 +246,7 @@ export default function DashboardPage() {
                 </Select>
 
                 <Select value={selectedQuality} onValueChange={setSelectedQuality}>
-                  <SelectTrigger className="w-full sm:w-[160px] bg-white border-border">
+                  <SelectTrigger className="w-full sm:w-[160px] bg-white border-2 border-hunter-green-300 hover:border-yellow-green-500 transition-all">
                     <SelectValue placeholder="Filtrar Calidad" />
                   </SelectTrigger>
                   <SelectContent>
@@ -260,7 +267,7 @@ export default function DashboardPage() {
                         setProductToEdit(null);
                         setModalOpen(true);
                       }}
-                      className="gap-2 bg-gradient-to-r from-sage-green-500 to-sage-green-600 hover:shadow-lg hover:shadow-sage-green-400/30 transition-all font-bold text-white rounded-xl px-4"
+                      className="gap-2 bg-gradient-to-r from-yellow-green-500 to-yellow-green-600 hover:from-yellow-green-400 hover:to-yellow-green-500 shadow-lg shadow-yellow-green-500/40 transition-all font-bold text-hunter-green-900 rounded-xl px-6"
                     >
                       <Plus size={18} />
                       Nuevo
@@ -268,7 +275,7 @@ export default function DashboardPage() {
                     {isTecnico && (
                       <Button
                         onClick={() => setBulkUploadOpen(true)}
-                        className="gap-2 bg-gradient-to-r from-yellow-green-500 to-yellow-green-600 hover:shadow-lg hover:shadow-yellow-green-400/30 transition-all font-bold text-white rounded-xl px-4"
+                        className="gap-2 bg-gradient-to-r from-sage-green-500 to-sage-green-600 hover:from-sage-green-400 hover:to-sage-green-500 shadow-lg shadow-sage-green-500/40 transition-all font-bold text-white rounded-xl px-6"
                       >
                         <Upload size={18} />
                         Carga Masiva
@@ -303,14 +310,14 @@ export default function DashboardPage() {
               <>
                 <Button
                   variant="ghost"
-                  className="hover:bg-hunter-green-100 text-hunter-green-700 h-11 px-6 font-semibold"
+                  className="hover:bg-hunter-green-100 text-hunter-green-700 h-11 px-6 font-semibold border-2 border-hunter-green-300"
                   onClick={() => setDeleteModalOpen(false)}
                 >
                   Cancelar
                 </Button>
                 <Button
                   variant="destructive"
-                  className="bg-blushed-brick-500 hover:bg-blushed-brick-600 text-white shadow-lg shadow-blushed-brick-500/30 h-11 px-6 font-bold tracking-wide transition-all hover:scale-[1.02]"
+                  className="bg-gradient-to-r from-blushed-brick-500 to-blushed-brick-600 hover:from-blushed-brick-400 hover:to-blushed-brick-500 text-white shadow-lg shadow-blushed-brick-500/40 h-11 px-6 font-bold tracking-wide transition-all hover:scale-105"
                   onClick={handleDelete}
                 >
                   Eliminar Producto
@@ -318,10 +325,10 @@ export default function DashboardPage() {
               </>
             }
           >
-            <div className="p-4 bg-blushed-brick-50 rounded-xl border border-blushed-brick-200 flex flex-col gap-2 mt-2">
+            <div className="p-4 bg-blushed-brick-50 rounded-xl border-2 border-blushed-brick-300 flex flex-col gap-2 mt-2">
               <span className="text-blushed-brick-700 font-semibold">¿Seguro que deseas borrar el siguiente producto?</span>
-              <span className="text-hunter-green-700 font-black text-lg">{productToDelete?.name}</span>
-              <span className="text-muted-foreground text-sm">
+              <span className="text-hunter-green-800 font-black text-lg">{productToDelete?.name}</span>
+              <span className="text-hunter-green-600 text-sm">
                 {productToDelete?.type} - {productToDelete?.quality || "Ninguna"}
               </span>
             </div>
