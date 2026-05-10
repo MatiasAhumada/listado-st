@@ -36,8 +36,12 @@ export default function ServiceOrdersPage() {
       setLoading(true);
       const data = await getServiceOrders();
       setOrders(data);
-    } catch (error) {
-      clientErrorHandler(error);
+    } catch (error: any) {
+      if (error?.response?.status === 404) {
+        setOrders([]);
+      } else {
+        clientErrorHandler(error);
+      }
     } finally {
       setLoading(false);
     }
