@@ -12,6 +12,8 @@ export function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
 
+  if (!user) return null;
+
   const handleLogout = async () => {
     await logoutUsuario();
     logout();
@@ -31,7 +33,7 @@ export function Sidebar() {
     {
       label: "Órdenes de Servicio",
       icon: ClipboardList,
-      path: "/service-orders",
+      path: "/dashboard/service-orders",
       roles: ["EMPRESA", "VENDEDOR"],
     },
   ];
@@ -39,9 +41,9 @@ export function Sidebar() {
   const filteredMenu = menuItems.filter((item) => item.roles.includes(user?.role || ""));
 
   return (
-    <aside className="w-64 bg-gradient-to-b from-deepspace-600 to-deepspace-700 h-screen fixed left-0 top-0 flex flex-col shadow-2xl">
-      <div className="p-6 border-b border-deepspace-500/50">
-        <h1 className="text-2xl font-black text-white">Listado ST</h1>
+    <aside className="w-64 bg-gradient-to-b from-hunter-green-500 to-hunter-green-600 h-screen fixed left-0 top-0 flex flex-col shadow-2xl z-50">
+      <div className="p-6 border-b border-hunter-green-400/50">
+        <h1 className="text-2xl font-black text-vanilla-cream-500">Listado ST</h1>
       </div>
 
       <nav className="flex-1 p-4 space-y-2">
@@ -55,8 +57,8 @@ export function Sidebar() {
               onClick={() => router.push(item.path)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                 isActive
-                  ? "bg-bluegreen-500 text-white shadow-lg"
-                  : "text-skybase-200 hover:bg-deepspace-500/50 hover:text-white"
+                  ? "bg-sage-green-500 text-white shadow-lg"
+                  : "text-vanilla-cream-600 hover:bg-hunter-green-400/50 hover:text-white"
               }`}
             >
               <Icon size={20} />
@@ -66,14 +68,14 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-deepspace-500/50 space-y-3">
+      <div className="p-4 border-t border-hunter-green-400/50 space-y-3">
         <div className="flex items-center gap-3 px-2">
-          <div className="w-10 h-10 rounded-full bg-bluegreen-500 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-sage-green-500 flex items-center justify-center">
             <User size={20} className="text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white font-semibold text-sm truncate">{user?.username}</p>
-            <Badge className="bg-amber-500 hover:bg-amber-400 text-xs uppercase font-bold border-0">
+            <p className="text-vanilla-cream-500 font-semibold text-sm truncate">{user?.username}</p>
+            <Badge className="bg-yellow-green-500 hover:bg-yellow-green-400 text-hunter-green-900 text-xs uppercase font-bold border-0">
               {user?.role}
             </Badge>
           </div>
@@ -81,7 +83,7 @@ export function Sidebar() {
         <Button
           variant="ghost"
           onClick={handleLogout}
-          className="w-full justify-center text-skybase-200 hover:text-white hover:bg-deepspace-500/50"
+          className="w-full justify-center text-vanilla-cream-600 hover:text-white hover:bg-hunter-green-400/50"
         >
           <LogOut size={18} />
         </Button>
