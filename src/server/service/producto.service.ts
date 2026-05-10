@@ -5,7 +5,6 @@ import httpStatus from "http-status";
 export interface CreateProductoDTO {
   name: string;
   type: string;
-  quality?: string | null;
   available: boolean;
   costTech?: number;
   costTechMargin?: number;
@@ -17,7 +16,6 @@ export interface CreateProductoDTO {
 export interface BulkProductoDTO {
   name: string;
   type: string;
-  quality?: string | null;
   costTech: number;
   costTechMargin: number;
   cost: number;
@@ -32,7 +30,7 @@ export class ProductoService {
   static async getAll(
     userRole: UserRole,
     companyId: string,
-    filters?: { type?: string; quality?: string; search?: string }
+    filters?: { type?: string; search?: string }
   ) {
     return await ProductoRepository.findAll(userRole, companyId, filters);
   }
@@ -52,7 +50,6 @@ export class ProductoService {
     const masterProduct = await ProductoRepository.create({
       name: data.name,
       type: data.type,
-      quality: data.quality,
       available: data.available,
       costTech: data.costTech,
       costTechMargin,
@@ -72,7 +69,6 @@ export class ProductoService {
       await ProductoRepository.create({
         name: data.name,
         type: data.type,
-        quality: data.quality,
         available: data.available,
         costTech: data.costTech,
         costTechMargin,
@@ -112,7 +108,6 @@ export class ProductoService {
       await ProductoRepository.update(id, {
         name: data.name,
         type: data.type,
-        quality: data.quality,
         available: data.available,
         costTech,
         costTechMargin,
@@ -137,7 +132,6 @@ export class ProductoService {
     return await ProductoRepository.update(id, {
       name: data.name,
       type: data.type,
-      quality: data.quality,
       available: data.available,
       cashMargin,
       cash,
@@ -205,7 +199,6 @@ export class ProductoService {
           const masterProduct = await ProductoRepository.create({
             name: producto.name,
             type: producto.type,
-            quality: producto.quality,
             available: true,
             costTech: producto.costTech,
             costTechMargin: producto.costTechMargin,
@@ -225,7 +218,6 @@ export class ProductoService {
             await ProductoRepository.create({
               name: producto.name,
               type: producto.type,
-              quality: producto.quality,
               available: true,
               costTech: producto.costTech,
               costTechMargin: producto.costTechMargin,

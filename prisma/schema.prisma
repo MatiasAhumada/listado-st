@@ -20,15 +20,10 @@ enum ProductType {
   MODULO
   BATERIA
   PIN
+  CONSOLA
+  MANTENIMIENTO
+  VIDRIOS_CAMARA
   VARIOS
-}
-
-enum ProductQuality {
-  INCELL
-  OLED
-  ORIGINAL
-  SERVICEPACK
-  REMANOFACTURADO
 }
 
 enum ServiceOrderStatus {
@@ -60,7 +55,6 @@ model Producto {
   id               String          @id @default(uuid())
   name             String
   type             ProductType
-  quality          ProductQuality?
   available        Boolean         @default(true)
   costTech         Float           @default(0)
   costTechMargin   Float           @default(0)

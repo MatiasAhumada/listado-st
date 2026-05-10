@@ -21,8 +21,7 @@ interface AddProductModalProps {
   userRole?: "EMPRESA" | "TECNICO" | "VENDEDOR";
 }
 
-const PRODUCT_TYPES = ["MODULO", "BATERIA", "PIN", "VARIOS"];
-const PRODUCT_QUALITIES = ["INCELL", "OLED", "ORIGINAL", "SERVICEPACK", "REMANOFACTURADO", "NINGUNA"];
+const PRODUCT_TYPES = ["MODULO", "BATERIA", "PIN", "CONSOLA", "MANTENIMIENTO", "VIDRIOS_CAMARA", "VARIOS"];
 
 export function AddProductModal({
   open,
@@ -41,7 +40,6 @@ export function AddProductModal({
   const [form, setForm] = useState({
     name: "",
     type: "MODULO" as string,
-    quality: "INCELL" as string,
     available: true,
   });
 
@@ -57,7 +55,6 @@ export function AddProductModal({
       setForm({
         name: initialData.name || "",
         type: initialData.type || "MODULO",
-        quality: initialData.quality || "NINGUNA",
         available: initialData.available !== undefined ? initialData.available : true,
       });
 
@@ -98,7 +95,7 @@ export function AddProductModal({
         });
       }
     } else if (open && !initialData) {
-      setForm({ name: "", type: "MODULO", quality: "INCELL", available: true });
+      setForm({ name: "", type: "MODULO", available: true });
       setPricing({ costTech: 0, costTechMargin: 0, cashMargin: 0, creditMargin: 0 });
     }
   }, [open, initialData, isTecnico, isEmpresa]);
@@ -129,7 +126,6 @@ export function AddProductModal({
       let payload: Record<string, unknown> = {
         name: form.name,
         type: form.type,
-        quality: form.quality === "NINGUNA" ? null : form.quality,
         available: form.available,
       };
 
@@ -178,15 +174,14 @@ export function AddProductModal({
       footer={
         <>
           <Button
-            variant="ghost"
-            className="hover:bg-skybase-900 text-deepspace-500 h-11 px-6 font-semibold"
+            className="bg-charcoal hover:bg-charcoal/80 text-lavender border border-lavender/20 h-11 px-6 font-semibold shadow-md transition-all"
             onClick={() => onOpenChange(false)}
             disabled={loading}
           >
             Cancelar
           </Button>
           <Button
-            className="bg-gradient-to-r from-bluegreen-500 to-bluegreen-600 hover:from-bluegreen-400 hover:to-bluegreen-500 text-white shadow-lg shadow-bluegreen-500/30 h-11 px-6 font-bold tracking-wide transition-all hover:scale-[1.02]"
+            className="bg-lime hover:bg-green text-dark shadow-lg h-11 px-6 font-bold tracking-wide transition-all hover:scale-[1.02]"
             onClick={handleSave}
             disabled={loading}
           >
@@ -198,12 +193,12 @@ export function AddProductModal({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-1">
         {/* Datos Básicos */}
         <div className="space-y-5">
-          <h3 className="font-bold text-lg border-b border-skybase-800 pb-2 text-deepspace-500">Datos Básicos</h3>
+          <h3 className="font-bold text-lg border-b border-lavender/20 pb-2 text-lavender">Datos Básicos</h3>
 
           <div className="space-y-2">
-            <Label className="text-deepspace-500 font-semibold">Nombre del Producto</Label>
+            <Label className="text-lavender font-semibold">Nombre del Producto</Label>
             <Input
-              className="w-full bg-skybase-900/30 border-skybase-700/50 focus-visible:ring-bluegreen-500 transition-all h-11"
+              className="w-full bg-charcoal border-lavender/20 text-lavender focus-visible:ring-lime transition-all h-11"
               placeholder="Ej: Módulo iPhone 11"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -211,9 +206,9 @@ export function AddProductModal({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-deepspace-500 font-semibold">Tipo</Label>
+            <Label className="text-lavender font-semibold">Trabajo</Label>
             <Select value={form.type} onValueChange={(val) => setForm({ ...form, type: val })}>
-              <SelectTrigger className="w-full bg-skybase-900/30 border-skybase-700/50 focus:ring-bluegreen-500 transition-all h-11">
+              <SelectTrigger className="w-full bg-charcoal border-lavender/20 text-lavender focus:ring-lime transition-all h-11">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -226,26 +221,10 @@ export function AddProductModal({
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-deepspace-500 font-semibold">Calidad</Label>
-            <Select value={form.quality} onValueChange={(val) => setForm({ ...form, quality: val })}>
-              <SelectTrigger className="w-full bg-skybase-900/30 border-skybase-700/50 focus:ring-bluegreen-500 transition-all h-11">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {PRODUCT_QUALITIES.map((q) => (
-                  <SelectItem key={q} value={q}>
-                    {q}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="flex items-center space-x-2 pt-2">
             <Button
               type="button"
-              className={`w-full h-11 transition-all shadow-sm ${form.available ? "bg-bluegreen-500 hover:bg-bluegreen-600 text-white" : "bg-princeton-500 hover:bg-princeton-600 text-white"}`}
+              className={`w-full h-11 transition-all shadow-sm ${form.available ? "bg-lime hover:bg-green text-dark" : "bg-destructive hover:bg-destructive/90 text-white"}`}
               onClick={() => setForm({ ...form, available: !form.available })}
             >
               <CheckIcon className={`mr-2 h-5 w-5 ${form.available ? "opacity-100" : "opacity-0"}`} />
@@ -256,36 +235,36 @@ export function AddProductModal({
 
         {/* Precios y Márgenes */}
         <div className="space-y-5">
-          <h3 className="font-bold text-lg border-b border-skybase-800 pb-2 text-deepspace-500">
+          <h3 className="font-bold text-lg border-b border-lavender/20 pb-2 text-lavender">
             {isTecnico ? "Costo Técnico" : "Estructura de Precios"}
           </h3>
 
           {isTecnico ? (
             <>
-              <div className="space-y-2 p-4 bg-skybase-900/40 rounded-xl border border-skybase-700/50 shadow-sm">
-                <Label className="text-deepspace-500 font-bold">Costo Técnico</Label>
+              <div className="space-y-2 p-4 bg-charcoal/60 rounded-xl border border-lavender/20 shadow-sm">
+                <Label className="text-lavender font-bold">Costo Técnico</Label>
                 <div className="flex items-center gap-2">
-                  <span className="flex items-center text-skybase-200 font-black text-xl">$</span>
+                  <span className="flex items-center text-lavender/60 font-black text-xl">$</span>
                   <Input
                     type="number"
                     min={0}
-                    className="w-full bg-white border-skybase-700/50 focus-visible:ring-bluegreen-500 text-lg font-black text-deepspace-500 h-11"
+                    className="w-full bg-dark border-lavender/20 text-lavender focus-visible:ring-lime text-lg font-black h-11"
                     value={pricing.costTech}
                     onChange={(e) => setPricing({ ...pricing, costTech: Number(e.target.value) })}
                   />
                 </div>
               </div>
 
-              <div className="space-y-2 px-3 py-2 bg-skybase-900/10 rounded-lg border border-skybase-800/30">
-                <Label className="flex justify-between text-deepspace-500 font-semibold">
+              <div className="space-y-2 px-3 py-2 bg-charcoal/40 rounded-lg border border-lavender/10">
+                <Label className="flex justify-between text-lavender font-semibold">
                   <span>% Margen Técnico</span>
-                  <span className="font-black text-deepspace-500">${formatNumber(computedCost)}</span>
+                  <span className="font-black text-lime">${formatNumber(computedCost)}</span>
                 </Label>
                 <Select
                   value={pricing.costTechMargin.toString()}
                   onValueChange={(val) => setPricing({ ...pricing, costTechMargin: Number(val) })}
                 >
-                  <SelectTrigger className="w-full bg-white border-skybase-700/50 focus:ring-bluegreen-500">
+                  <SelectTrigger className="w-full bg-dark border-lavender/20 text-lavender focus:ring-lime">
                     <SelectValue placeholder="Seleccionar %" />
                   </SelectTrigger>
                   <SelectContent>
@@ -301,31 +280,31 @@ export function AddProductModal({
           ) : (
             <>
               {isEmpresa && (
-                <div className="space-y-2 p-4 bg-skybase-900/40 rounded-xl border border-skybase-700/50 shadow-sm">
-                  <Label className="text-deepspace-500 font-bold">Costo Base</Label>
+                <div className="space-y-2 p-4 bg-charcoal/60 rounded-xl border border-lavender/20 shadow-sm">
+                  <Label className="text-lavender font-bold">Costo Base</Label>
                   <div className="flex items-center gap-2">
-                    <span className="flex items-center text-skybase-200 font-black text-xl">$</span>
+                    <span className="flex items-center text-lavender/60 font-black text-xl">$</span>
                     <Input
                       type="number"
                       min={0}
                       readOnly
-                      className="w-full bg-skybase-800/50 border-skybase-700/50 text-lg font-black text-deepspace-500 h-11"
+                      className="w-full bg-charcoal/80 border-lavender/20 text-lavender text-lg font-black h-11"
                       value={initialData?.cost || 0}
                     />
                   </div>
                 </div>
               )}
 
-              <div className="space-y-2 px-3 py-2 bg-skybase-900/10 rounded-lg border border-skybase-800/30">
-                <Label className="flex justify-between text-deepspace-500 font-semibold">
+              <div className="space-y-2 px-3 py-2 bg-charcoal/40 rounded-lg border border-lavender/10">
+                <Label className="flex justify-between text-lavender font-semibold">
                   <span>% Margen Efectivo</span>
-                  <span className="font-black text-bluegreen-500">${formatNumber(computedCash)}</span>
+                  <span className="font-black text-lime">${formatNumber(computedCash)}</span>
                 </Label>
                 <Select
                   value={pricing.cashMargin.toString()}
                   onValueChange={(val) => setPricing({ ...pricing, cashMargin: Number(val) })}
                 >
-                  <SelectTrigger className="w-full bg-white border-skybase-700/50 focus:ring-bluegreen-500">
+                  <SelectTrigger className="w-full bg-dark border-lavender/20 text-lavender focus:ring-lime">
                     <SelectValue placeholder="Seleccionar %" />
                   </SelectTrigger>
                   <SelectContent>
@@ -338,16 +317,16 @@ export function AddProductModal({
                 </Select>
               </div>
 
-              <div className="space-y-2 px-3 py-2 bg-skybase-900/10 rounded-lg border border-skybase-800/30">
-                <Label className="flex justify-between text-deepspace-500 font-semibold">
+              <div className="space-y-2 px-3 py-2 bg-charcoal/40 rounded-lg border border-lavender/10">
+                <Label className="flex justify-between text-lavender font-semibold">
                   <span>% Margen Crédito</span>
-                  <span className="font-black text-amber-500">${formatNumber(computedCredit)}</span>
+                  <span className="font-black text-green">${formatNumber(computedCredit)}</span>
                 </Label>
                 <Select
                   value={pricing.creditMargin.toString()}
                   onValueChange={(val) => setPricing({ ...pricing, creditMargin: Number(val) })}
                 >
-                  <SelectTrigger className="w-full bg-white border-skybase-700/50 focus:ring-bluegreen-500">
+                  <SelectTrigger className="w-full bg-dark border-lavender/20 text-lavender focus:ring-lime">
                     <SelectValue placeholder="Seleccionar %" />
                   </SelectTrigger>
                   <SelectContent>

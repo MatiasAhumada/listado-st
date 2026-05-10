@@ -30,7 +30,6 @@ export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedType, setSelectedType] = useState("TODOS");
-  const [selectedQuality, setSelectedQuality] = useState("TODAS");
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -44,7 +43,6 @@ export default function DashboardPage() {
       setLoading(true);
       const productos = await getProductos({
         type: selectedType !== "TODOS" ? selectedType : undefined,
-        quality: selectedQuality !== "TODAS" ? selectedQuality : undefined,
         search: debouncedSearch || undefined,
       });
       setData(productos);
@@ -59,7 +57,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchData();
-  }, [debouncedSearch, selectedType, selectedQuality]);
+  }, [debouncedSearch, selectedType]);
 
   const handleDelete = async () => {
     if (!productToDelete) return;
@@ -80,12 +78,7 @@ export default function DashboardPage() {
   const columns = useMemo(() => {
     const baseCols: { key: string; label: string; render?: (item: any) => any; className?: string }[] = [
       { key: "name", label: "Producto" },
-      { key: "type", label: "Tipo" },
-      {
-        key: "quality",
-        label: "Calidad",
-        render: (item: any) => item.quality || <span className="text-lavender/40 font-bold">-</span>,
-      },
+      { key: "type", label: "Trabajo" },
       {
         key: "available",
         label: "Estado",
@@ -122,7 +115,7 @@ export default function DashboardPage() {
       baseCols.push({
         key: "cost",
         label: "Costo",
-        render: (item: any) => <span className="font-bold text-lavender">${formatNumber(item.cost)}</span>,
+        render: (item: any) => <span className="font-bold text-destructive">${formatNumber(item.cost)}</span>,
       });
       baseCols.push({
         key: "cash",
@@ -239,34 +232,22 @@ export default function DashboardPage() {
             actions={
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mt-4 sm:mt-0">
                 <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger className="w-full sm:w-[150px] bg-charcoal border-lavender/20 text-lavender hover:border-lime transition-all">
-                    <SelectValue placeholder="Filtrar Tipo" />
+                  <SelectTrigger className="w-full sm:w-[180px] bg-charcoal border-lavender/20 text-lavender hover:border-lime transition-all">
+                    <SelectValue placeholder="Filtrar Trabajo" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="TODOS">Todos los Tipos</SelectItem>
+                    <SelectItem value="TODOS">Todos los Trabajos</SelectItem>
                     <SelectItem value="MODULO">Módulos</SelectItem>
                     <SelectItem value="BATERIA">Baterías</SelectItem>
                     <SelectItem value="PIN">Pines</SelectItem>
+                    <SelectItem value="CONSOLA">Consolas</SelectItem>
+                    <SelectItem value="MANTENIMIENTO">Mantenimiento</SelectItem>
+                    <SelectItem value="VIDRIOS_CAMARA">Vidrios de Cámara</SelectItem>
                     <SelectItem value="VARIOS">Varios</SelectItem>
                   </SelectContent>
                 </Select>
 
-                <Select value={selectedQuality} onValueChange={setSelectedQuality}>
-                  <SelectTrigger className="w-full sm:w-[160px] bg-charcoal border-lavender/20 text-lavender hover:border-lime transition-all">
-                    <SelectValue placeholder="Filtrar Calidad" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="TODAS">Todas las Calidades</SelectItem>
-                    <SelectItem value="INCELL">Incell</SelectItem>
-                    <SelectItem value="OLED">OLED</SelectItem>
-                    <SelectItem value="ORIGINAL">Original</SelectItem>
-                    <SelectItem value="SERVICEPACK">Service Pack</SelectItem>
-                    <SelectItem value="REMANOFACTURADO">Remanufacturado</SelectItem>
-                    <SelectItem value="NINGUNA">Ninguna</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                {(isEmpresa || isTecnico) && (
+                {isTecnico && (
                   <>
                     <Button
                       onClick={() => {
@@ -278,15 +259,13 @@ export default function DashboardPage() {
                       <Plus size={18} />
                       Nuevo
                     </Button>
-                    {isTecnico && (
-                      <Button
-                        onClick={() => setBulkUploadOpen(true)}
-                        className="gap-2 bg-green hover:bg-lime text-white shadow-lg transition-all font-bold rounded-xl px-6"
-                      >
-                        <Upload size={18} />
-                        Carga Masiva
-                      </Button>
-                    )}
+                    <Button
+                      onClick={() => setBulkUploadOpen(true)}
+                      className="gap-2 bg-green hover:bg-lime text-white shadow-lg transition-all font-bold rounded-xl px-6"
+                    >
+                      <Upload size={18} />
+                      Carga Masiva
+                    </Button>
                   </>
                 )}
               </div>
@@ -305,40 +284,42 @@ export default function DashboardPage() {
             userRole={isTecnico ? "TECNICO" : "EMPRESA"}
           />
           {isTecnico && (
-            <BulkUploadModal open={bulkUploadOpen} onOpenChange={setBulkUploadOpen} onSuccess={fetchData} />
+            <>
+              <BulkUploadModal open={bulkUploadOpen} onOpenChange={setBulkUploadOpen} onSuccess={fetchData} />
+              <GenericModal
+                open={deleteModalOpen}
+                onOpenChange={setDeleteModalOpen}
+                title="Confirmar Eliminación"
+                description="Esta acción es irreversible, el producto y todos sus datos se borrarán para siempre."
+                footer={
+                  <>
+                    <Button
+                      variant="ghost"
+                      className="hover:bg-lavender/10 text-lavender h-11 px-6 font-semibold border border-lavender/20"
+                      onClick={() => setDeleteModalOpen(false)}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      className="bg-destructive hover:bg-destructive/90 text-white shadow-lg h-11 px-6 font-bold tracking-wide transition-all hover:scale-105"
+                      onClick={handleDelete}
+                    >
+                      Eliminar Producto
+                    </Button>
+                  </>
+                }
+              >
+                <div className="p-4 bg-destructive/10 rounded-xl border border-destructive/20 flex flex-col gap-2 mt-2">
+                  <span className="text-lavender font-semibold">¿Seguro que deseas borrar el siguiente producto?</span>
+                  <span className="text-lavender font-black text-lg">{productToDelete?.name}</span>
+                  <span className="text-lavender/60 text-sm">
+                    {productToDelete?.type}
+                  </span>
+                </div>
+              </GenericModal>
+            </>
           )}
-          <GenericModal
-            open={deleteModalOpen}
-            onOpenChange={setDeleteModalOpen}
-            title="Confirmar Eliminación"
-            description="Esta acción es irreversible, el producto y todos sus datos se borrarán para siempre."
-            footer={
-              <>
-                <Button
-                  variant="ghost"
-                  className="hover:bg-lavender/10 text-lavender h-11 px-6 font-semibold border border-lavender/20"
-                  onClick={() => setDeleteModalOpen(false)}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  variant="destructive"
-                  className="bg-destructive hover:bg-destructive/90 text-white shadow-lg h-11 px-6 font-bold tracking-wide transition-all hover:scale-105"
-                  onClick={handleDelete}
-                >
-                  Eliminar Producto
-                </Button>
-              </>
-            }
-          >
-            <div className="p-4 bg-destructive/10 rounded-xl border border-destructive/20 flex flex-col gap-2 mt-2">
-              <span className="text-lavender font-semibold">¿Seguro que deseas borrar el siguiente producto?</span>
-              <span className="text-lavender font-black text-lg">{productToDelete?.name}</span>
-              <span className="text-lavender/60 text-sm">
-                {productToDelete?.type} - {productToDelete?.quality || "Ninguna"}
-              </span>
-            </div>
-          </GenericModal>
         </>
       )}
     </div>

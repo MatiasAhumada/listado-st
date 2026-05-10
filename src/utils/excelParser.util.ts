@@ -16,7 +16,6 @@ export interface ProductoProcesado {
   credit: number;
   creditMargin: number;
   type: string;
-  quality: string;
 }
 
 export function limpiarPrecio(precioStr: string | number): number {
@@ -155,7 +154,6 @@ export async function procesarExcelFile(file: File): Promise<ProductoProcesado[]
         credit: cost * 2.2,
         creditMargin: 120,
         type: "MODULO",
-        quality: "OLED",
       });
 
       const itemsCM = items.filter((p) => /c\/m/i.test(p.descripcion));
@@ -177,7 +175,6 @@ export async function procesarExcelFile(file: File): Promise<ProductoProcesado[]
           credit: costCM * 2.2,
           creditMargin: 120,
           type: "MODULO",
-          quality: "OLED",
         });
       }
     }
