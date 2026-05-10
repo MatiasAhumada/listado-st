@@ -19,6 +19,18 @@ export const serviceOrderService = {
     return serviceOrderRepository.findByCompanyId(companyId);
   },
 
+  async getServiceOrdersByUser(userId: string, userRole: string) {
+    if (userRole === "EMPRESA") {
+      return serviceOrderRepository.findByCompanyId(userId);
+    }
+    
+    if (userRole === "VENDEDOR") {
+      return serviceOrderRepository.findByVendedor(userId);
+    }
+
+    return [];
+  },
+
   async updateServiceOrder(id: string, data: UpdateServiceOrderData) {
     const exists = await serviceOrderRepository.findById(id);
     

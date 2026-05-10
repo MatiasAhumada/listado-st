@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +10,7 @@ import { getServiceOrders, deleteServiceOrder } from "@/services/serviceOrder.se
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { SERVICE_ORDER_STATUS_LABELS, SERVICE_ORDER_STATUS_COLORS } from "@/constants/serviceOrder.constant";
 import { formatNumber } from "@/utils/formatters.util";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, ArrowLeft } from "lucide-react";
 import { ServiceOrderStatus } from "@prisma/client";
 
 interface ServiceOrder {
@@ -26,6 +27,7 @@ interface ServiceOrder {
 }
 
 export default function ServiceOrdersPage() {
+  const router = useRouter();
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -77,18 +79,28 @@ export default function ServiceOrdersPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-skybase-950 via-deepspace-900 to-skybase-900 p-8">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-white">Órdenes de Servicio</h1>
-            <p className="text-skybase-300 mt-1">Gestión de servicios técnicos</p>
-          </div>
+        <div className="flex items-center gap-4">
           <Button
-            onClick={handleCreate}
-            className="bg-gradient-to-r from-bluegreen-500 to-bluegreen-600 hover:from-bluegreen-400 hover:to-bluegreen-500"
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push("/dashboard")}
+            className="text-white hover:text-bluegreen-400 hover:bg-skybase-800/50"
           >
-            <Plus className="mr-2" size={20} />
-            Nueva Orden
+            <ArrowLeft size={24} />
           </Button>
+          <div className="flex-1 flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-white">Órdenes de Servicio</h1>
+              <p className="text-skybase-300 mt-1">Gestión de servicios técnicos</p>
+            </div>
+            <Button
+              onClick={handleCreate}
+              className="bg-gradient-to-r from-bluegreen-500 to-bluegreen-600 hover:from-bluegreen-400 hover:to-bluegreen-500"
+            >
+              <Plus className="mr-2" size={20} />
+              Nueva Orden
+            </Button>
+          </div>
         </div>
 
         <Card className="bg-skybase-900/50 border-skybase-700/50 backdrop-blur-sm">

@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AddProductModal } from "@/components/dashboard/AddProductModal";
 import { BulkUploadModal } from "@/components/dashboard/BulkUploadModal";
 import { GenericModal } from "@/components/common/GenericModal";
-import { LogOut, Plus, Edit, Trash, Upload } from "lucide-react";
+import { LogOut, Plus, Edit, Trash, Upload, ClipboardList } from "lucide-react";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { formatNumber } from "@/utils/formatters.util";
 
@@ -246,6 +246,17 @@ export default function DashboardPage() {
             <span className="text-sm text-skybase-200 font-medium">
               Hola, <b className="text-deepspace-500 font-bold">{user.username}</b>
             </span>
+            {(isEmpresa || user.role === "VENDEDOR") && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push("/service-orders")}
+                className="text-deepspace-500 hover:text-bluegreen-500 hover:bg-skybase-900 rounded-full transition-colors gap-2"
+              >
+                <ClipboardList size={18} />
+                Órdenes de Servicio
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"

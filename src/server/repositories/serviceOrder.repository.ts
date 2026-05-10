@@ -67,6 +67,27 @@ export const serviceOrderRepository = {
     });
   },
 
+  async findByVendedor(vendedorId: string) {
+    const vendedor = await prisma.user.findUnique({
+      where: { id: vendedorId },
+      select: { companyId: true },
+    });
+
+    if (!vendedor?.companyId) {
+      return [];
+    }
+
+    return prisma.serviceOrder.findMany({
+      where: { companyId: vendedor.companyId },
+      include: {
+        images: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  },
+
   async update(id: string, data: UpdateServiceOrderData) {
     const updateData: Record<string, unknown> = { ...data };
 
