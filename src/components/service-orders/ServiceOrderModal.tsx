@@ -5,11 +5,13 @@ import { GenericModal } from "@/components/common/GenericModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { createServiceOrder, updateServiceOrder, CreateServiceOrderDTO, UpdateServiceOrderDTO } from "@/services/serviceOrder.service";
+import { uploadServiceOrderImages, deleteServiceOrderImage } from "@/services/serviceOrderImage.service";
 import { ServiceOrderStatus } from "@prisma/client";
 import { SERVICE_ORDER_STATUS_LABELS } from "@/constants/serviceOrder.constant";
+import { Upload, X } from "lucide-react";
+import Image from "next/image";
 
 interface ServiceOrderModalProps {
   open: boolean;
@@ -25,11 +27,15 @@ interface ServiceOrderModalProps {
     finalCost?: number;
     status: ServiceOrderStatus;
     notes?: string;
+    images?: { id: string; url: string }[];
   };
 }
 
 export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: ServiceOrderModalProps) {
   const [loading, setLoading] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [existingImages, setExistingImages] = useState<{ id: string; url: string }[]>([]);
   const [formData, setFormData] = useState({
     clientName: "",
     clientPhone: "",
@@ -53,6 +59,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         status: order.status,
         notes: order.notes || "",
       });
+      setExistingImages(order.images || []);
     } else {
       setFormData({
         clientName: "",
@@ -64,8 +71,31 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         status: ServiceOrderStatus.RECEPCIONADO,
         notes: "",
       });
+      setExistingImages([]);
     }
+    setSelectedFiles([]);
   }, [order, open]);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    setSelectedFiles((prev) => [...prev, ...files]);
+  };
+
+  const handleRemoveSelectedFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleDeleteExistingImage = async (imageId: string) => {
+    if (!order) return;
+
+    try {
+      await deleteServiceOrderImage(order.id, imageId);
+      setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
+      clientSuccessHandler("Imagen eliminada");
+    } catch (error) {
+      clientErrorHandler(error);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!formData.clientName || !formData.clientPhone || !formData.deviceModel || !formData.deviceIssue) {
@@ -87,6 +117,18 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           notes: formData.notes || undefined,
         };
         await updateServiceOrder(order.id, updateData);
+
+        if (selectedFiles.length > 0) {
+          setUploadingImages(true);
+          try {
+            await uploadServiceOrderImages(order.id, selectedFiles);
+          } catch (error) {
+            clientErrorHandler("Error al subir imágenes");
+          } finally {
+            setUploadingImages(false);
+          }
+        }
+
         clientSuccessHandler("Orden actualizada correctamente");
       } else {
         const createData: CreateServiceOrderDTO = {
@@ -97,7 +139,19 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           estimatedCost: formData.estimatedCost,
           notes: formData.notes || undefined,
         };
-        await createServiceOrder(createData);
+        const newOrder = await createServiceOrder(createData);
+
+        if (selectedFiles.length > 0) {
+          setUploadingImages(true);
+          try {
+            await uploadServiceOrderImages(newOrder.id, selectedFiles);
+          } catch (error) {
+            clientErrorHandler("Error al subir imágenes");
+          } finally {
+            setUploadingImages(false);
+          }
+        }
+
         clientSuccessHandler("Orden creada correctamente");
       }
 
@@ -119,11 +173,11 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
       size="lg"
       footer={
         <>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={loading}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={loading || uploadingImages} className="bg-charcoal hover:bg-charcoal/80 text-lavender border border-lavender/20">
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? "Guardando..." : order ? "Actualizar" : "Crear"}
+          <Button onClick={handleSubmit} disabled={loading || uploadingImages} className="bg-lime hover:bg-green text-dark">
+            {loading || uploadingImages ? "Guardando..." : order ? "Actualizar" : "Crear"}
           </Button>
         </>
       }
@@ -211,11 +265,74 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         <div className="space-y-2">
           <Label>Notas</Label>
           <textarea
-            className="w-full min-h-20 px-3 py-2 rounded-md border border-input bg-background"
+            className="w-full min-h-20 px-3 py-2 rounded-md border border-input bg-background text-lavender"
             value={formData.notes}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             placeholder="Notas adicionales..."
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Imágenes</Label>
+          <div className="space-y-3">
+            {existingImages.length > 0 && (
+              <div className="grid grid-cols-3 gap-2">
+                {existingImages.map((img) => (
+                  <div key={img.id} className="relative group">
+                    <Image
+                      src={img.url}
+                      alt="Imagen de orden"
+                      width={150}
+                      height={150}
+                      className="w-full h-24 object-cover rounded-lg border border-lavender/20"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteExistingImage(img.id)}
+                      className="absolute top-1 right-1 bg-destructive text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {selectedFiles.length > 0 && (
+              <div className="grid grid-cols-3 gap-2">
+                {selectedFiles.map((file, index) => (
+                  <div key={index} className="relative group">
+                    <Image
+                      src={URL.createObjectURL(file)}
+                      alt="Nueva imagen"
+                      width={150}
+                      height={150}
+                      className="w-full h-24 object-cover rounded-lg border border-lime/50"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSelectedFile(index)}
+                      className="absolute top-1 right-1 bg-destructive text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <label className="flex items-center justify-center gap-2 w-full h-24 border-2 border-dashed border-lavender/30 rounded-lg cursor-pointer hover:border-lime transition-colors">
+              <Upload size={20} className="text-lavender/60" />
+              <span className="text-sm text-lavender/60">Seleccionar imágenes</span>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+            </label>
+          </div>
         </div>
       </div>
     </GenericModal>
