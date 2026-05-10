@@ -20,6 +20,12 @@ export interface BulkProductoDTO {
   quality?: string | null;
   costTech: number;
   costTechMargin: number;
+  cost: number;
+  costMargin: number;
+  cash: number;
+  cashMargin: number;
+  credit: number;
+  creditMargin: number;
 }
 
 export class ProductoService {
@@ -171,16 +177,16 @@ export class ProductoService {
     for (const producto of productos) {
       try {
         const existente = await ProductoRepository.findByName(producto.name);
-        const cost = producto.costTech * (1 + producto.costTechMargin / 100);
 
         if (existente) {
           await ProductoRepository.update(existente.id, {
             costTech: producto.costTech,
             costTechMargin: producto.costTechMargin,
-            cost,
+            cost: producto.cost,
+            costMargin: producto.costMargin,
           });
 
-          await ProductoRepository.updateCopiasCost(existente.id, cost);
+          await ProductoRepository.updateCopiasCost(existente.id, producto.cost);
           resultados.actualizados++;
         } else {
           const masterProduct = await ProductoRepository.create({
@@ -190,12 +196,12 @@ export class ProductoService {
             available: true,
             costTech: producto.costTech,
             costTechMargin: producto.costTechMargin,
-            cost,
-            costMargin: 0,
-            cash: 0,
-            cashMargin: 0,
-            credit: 0,
-            creditMargin: 0,
+            cost: producto.cost,
+            costMargin: producto.costMargin,
+            cash: producto.cash,
+            cashMargin: producto.cashMargin,
+            credit: producto.credit,
+            creditMargin: producto.creditMargin,
             companyId: null,
             masterProductId: null,
           });
@@ -210,12 +216,12 @@ export class ProductoService {
               available: true,
               costTech: producto.costTech,
               costTechMargin: producto.costTechMargin,
-              cost,
-              costMargin: 0,
-              cash: 0,
-              cashMargin: 0,
-              credit: 0,
-              creditMargin: 0,
+              cost: producto.cost,
+              costMargin: producto.costMargin,
+              cash: producto.cash,
+              cashMargin: producto.cashMargin,
+              credit: producto.credit,
+              creditMargin: producto.creditMargin,
               companyId: empresa.id,
               masterProductId: masterProduct.id,
             });
