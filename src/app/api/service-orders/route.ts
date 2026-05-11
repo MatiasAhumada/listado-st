@@ -29,8 +29,11 @@ export async function GET(request: NextRequest) {
 
     const orders = await serviceOrderService.getServiceOrdersByUser(decoded.id, decoded.role);
     return NextResponse.json(orders);
-  } catch (error) {
-    return apiErrorHandler(error);
+  } catch (error: any) {
+    return apiErrorHandler({
+      error: error instanceof ApiError ? error : new ApiError({ message: "Error al obtener órdenes" }),
+      request,
+    });
   }
 }
 
@@ -45,8 +48,8 @@ export async function POST(request: NextRequest) {
     let branchId = undefined;
 
     if (decoded.role === "VENDEDOR") {
-      const { userRepository } = await import("@/server/repositories/user.repository");
-      const vendedor = await userRepository.findById(decoded.id);
+      const { UserRepository } = await import("@/server/repositories/user.repository");
+      const vendedor = await UserRepository.findById(decoded.id);
       if (!vendedor?.companyId) {
         throw new ApiError({ status: httpStatus.FORBIDDEN, message: "Vendedor sin empresa asignada" });
       }
@@ -61,7 +64,10 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(order, { status: 201 });
-  } catch (error) {
-    return apiErrorHandler(error);
+  } catch (error: any) {
+    return apiErrorHandler({
+      error: error instanceof ApiError ? error : new ApiError({ message: "Error al crear orden" }),
+      request,
+    });
   }
 }

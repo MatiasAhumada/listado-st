@@ -10,7 +10,7 @@ import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clien
 import { SERVICE_ORDER_STATUS_LABELS, SERVICE_ORDER_STATUS_COLORS } from "@/constants/serviceOrder.constant";
 import { formatNumber } from "@/utils/formatters.util";
 import { Plus, Edit, Trash2 } from "lucide-react";
-import { ServiceOrderStatus } from "@prisma/client";
+import { ServiceOrderStatus, ProductType } from "@prisma/client";
 import { motion } from "framer-motion";
 
 interface ServiceOrder {
@@ -31,6 +31,7 @@ interface ServiceOrder {
   products?: {
     id: string;
     productName: string;
+    productType: ProductType;
     unitPrice: number;
     totalPrice: number;
   }[];

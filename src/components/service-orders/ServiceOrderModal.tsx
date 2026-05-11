@@ -40,7 +40,6 @@ interface ServiceOrderModalProps {
       id: string;
       productName: string;
       productType: ProductType;
-      quantity: number;
       unitPrice: number;
       totalPrice: number;
     }[];
@@ -54,7 +53,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
   const [existingImages, setExistingImages] = useState<{ id: string; url: string }[]>([]);
   const [productos, setProductos] = useState<any[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<
-    { productName: string; productType: string; unitPrice: number }[]
+    { productName: string; productType: ProductType; unitPrice: number }[]
   >([]);
   const [formData, setFormData] = useState({
     clientName: "",
@@ -63,7 +62,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
     deviceIssue: "",
     estimatedCost: 0,
     finalCost: 0,
-    status: ServiceOrderStatus.RECEPCIONADO,
+    status: ServiceOrderStatus.RECEPCIONADO as ServiceOrderStatus,
     notes: "",
   });
 
@@ -120,7 +119,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
   }, [order, open]);
 
   const handleAddProduct = () => {
-    setSelectedProducts([...selectedProducts, { productName: "", productType: "MODULO", unitPrice: 0 }]);
+    setSelectedProducts([...selectedProducts, { productName: "", productType: ProductType.MODULO, unitPrice: 0 }]);
   };
 
   const handleRemoveProduct = (index: number) => {
@@ -213,7 +212,6 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           deviceIssue: formData.deviceIssue,
           estimatedCost: formData.estimatedCost,
           notes: formData.notes || undefined,
-          products: selectedProducts.length > 0 ? selectedProducts : undefined,
           products: selectedProducts.length > 0 ? selectedProducts : undefined,
         };
         const newOrder = await createServiceOrder(createData);

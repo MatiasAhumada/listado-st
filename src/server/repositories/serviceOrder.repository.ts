@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { ServiceOrderStatus } from "@prisma/client";
+import { ServiceOrderStatus, ProductType } from "@prisma/client";
 
 export interface CreateServiceOrderData {
   clientName: string;
@@ -12,7 +12,7 @@ export interface CreateServiceOrderData {
   branchId?: string;
   products?: {
     productName: string;
-    productType: string;
+    productType: ProductType;
     unitPrice: number;
   }[];
 }
@@ -28,7 +28,7 @@ export interface UpdateServiceOrderData {
   notes?: string;
   products?: {
     productName: string;
-    productType: string;
+    productType: ProductType;
     unitPrice: number;
   }[];
 }
