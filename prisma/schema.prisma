@@ -50,6 +50,7 @@ model User {
   vendedores    User[]         @relation("CompanyVendedores")
   branch        Branch?        @relation(fields: [branchId], references: [id])
   branches      Branch[]       @relation("CompanyBranches")
+  clients       Client[]
 
   @@map("users")
 }
@@ -97,14 +98,35 @@ model Producto {
   @@map("productos")
 }
 
+model Client {
+  id        String   @id @default(uuid())
+  fullName  String
+  dni       String
+  phone     String?
+  email     String?
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   User   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  serviceOrders ServiceOrder[]
+
+  @@unique([companyId, dni])
+  @@map("clients")
+}
+
 model ServiceOrder {
   id                String             @id @default(uuid())
   clientName        String
   clientPhone       String
   deviceModel       String
   deviceIssue       String
-  estimatedCost     Float
   finalCost         Float?
+  advancePayment    Int                @default(0)
+  balance           Int                @default(0)
+  deliveryDate      DateTime?
   status            ServiceOrderStatus @default(RECEPCIONADO)
   receivedAt        DateTime           @default(now())
   pickedUpAt        DateTime?
@@ -120,6 +142,9 @@ model ServiceOrder {
 
   branchId String?
   branch   Branch? @relation(fields: [branchId], references: [id])
+
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id])
 
   images   ServiceOrderImage[]
   products ServiceOrderProduct[]

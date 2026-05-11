@@ -9,6 +9,10 @@ export interface CreateServiceOrderData {
   notes?: string;
   companyId: string;
   branchId?: string;
+  clientId?: string;
+  deliveryDate?: Date;
+  advancePayment?: number;
+  balance?: number;
   products?: {
     productName: string;
     productType: ProductType;
@@ -24,6 +28,9 @@ export interface UpdateServiceOrderData {
   finalCost?: number;
   status?: ServiceOrderStatus;
   notes?: string;
+  deliveryDate?: Date;
+  advancePayment?: number;
+  balance?: number;
   products?: {
     productName: string;
     productType: ProductType;
@@ -58,6 +65,14 @@ export const serviceOrderRepository = {
             name: true,
           },
         },
+        client: {
+          select: {
+            id: true,
+            fullName: true,
+            dni: true,
+            phone: true,
+          },
+        },
         company: {
           select: {
             id: true,
@@ -81,6 +96,14 @@ export const serviceOrderRepository = {
             name: true,
           },
         },
+        client: {
+          select: {
+            id: true,
+            fullName: true,
+            dni: true,
+            phone: true,
+          },
+        },
         company: {
           select: {
             id: true,
@@ -102,6 +125,14 @@ export const serviceOrderRepository = {
           select: {
             id: true,
             name: true,
+          },
+        },
+        client: {
+          select: {
+            id: true,
+            fullName: true,
+            dni: true,
+            phone: true,
           },
         },
       },
@@ -133,6 +164,14 @@ export const serviceOrderRepository = {
           select: {
             id: true,
             name: true,
+          },
+        },
+        client: {
+          select: {
+            id: true,
+            fullName: true,
+            dni: true,
+            phone: true,
           },
         },
       },
@@ -184,6 +223,14 @@ export const serviceOrderRepository = {
           select: {
             id: true,
             name: true,
+          },
+        },
+        client: {
+          select: {
+            id: true,
+            fullName: true,
+            dni: true,
+            phone: true,
           },
         },
         company: {

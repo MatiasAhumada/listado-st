@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProductSearch } from "./ProductSearch";
+import { ClientSearch } from "@/components/clients/ClientSearch";
+import { ClientDTO } from "@/services/client.service";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import {
   createServiceOrder,
@@ -30,8 +32,10 @@ interface ServiceOrderModalProps {
     clientPhone: string;
     deviceModel: string;
     deviceIssue: string;
-    estimatedCost: number;
     finalCost?: number;
+    advancePayment?: number;
+    balance?: number;
+    deliveryDate?: string;
     status: ServiceOrderStatus;
     notes?: string;
     images?: { id: string; url: string }[];
@@ -53,12 +57,16 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
   const [selectedProducts, setSelectedProducts] = useState<
     { productId: string; productName: string; productType: ProductType; unitPrice: number }[]
   >([]);
+  const [selectedClient, setSelectedClient] = useState<ClientDTO | null>(null);
   const [formData, setFormData] = useState({
     clientName: "",
     clientPhone: "",
     deviceModel: "",
     deviceIssue: "",
     finalCost: 0,
+    advancePayment: 0,
+    balance: 0,
+    deliveryDate: "",
     status: ServiceOrderStatus.RECEPCIONADO as ServiceOrderStatus,
     notes: "",
   });
@@ -71,6 +79,9 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         deviceModel: order.deviceModel,
         deviceIssue: order.deviceIssue,
         finalCost: order.finalCost || 0,
+        advancePayment: order.advancePayment || 0,
+        balance: order.balance || 0,
+        deliveryDate: order.deliveryDate ? order.deliveryDate.split('T')[0] : "",
         status: order.status,
         notes: order.notes || "",
       });
@@ -90,11 +101,15 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         deviceModel: "",
         deviceIssue: "",
         finalCost: 0,
+        advancePayment: 0,
+        balance: 0,
+        deliveryDate: "",
         status: ServiceOrderStatus.RECEPCIONADO,
         notes: "",
       });
       setExistingImages([]);
       setSelectedProducts([]);
+      setSelectedClient(null);
     }
     setSelectedFiles([]);
   }, [order, open]);
@@ -161,6 +176,9 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           deviceModel: formData.deviceModel,
           deviceIssue: formData.deviceIssue,
           finalCost: formData.finalCost || undefined,
+          advancePayment: formData.advancePayment || undefined,
+          balance: formData.balance || undefined,
+          deliveryDate: formData.deliveryDate ? new Date(formData.deliveryDate) : undefined,
           status: formData.status,
           notes: formData.notes || undefined,
         };
@@ -185,6 +203,10 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           deviceModel: formData.deviceModel,
           deviceIssue: formData.deviceIssue,
           notes: formData.notes || undefined,
+          clientId: selectedClient?.id,
+          deliveryDate: formData.deliveryDate ? new Date(formData.deliveryDate) : undefined,
+          advancePayment: formData.advancePayment || undefined,
+          balance: formData.balance || undefined,
           products:
             selectedProducts.length > 0
               ? selectedProducts.map((p) => ({
@@ -247,27 +269,45 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
       }
     >
       <div className="space-y-4 p-6 bg-black rounded-lg">
-        <div className="grid grid-cols-2 gap-4">
+        {!order && (
           <div className="space-y-2">
             <Label className="text-white">Cliente *</Label>
-            <Input
-              value={formData.clientName}
-              onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
-              placeholder="Nombre del cliente"
-              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+            <ClientSearch
+              onSelect={(client) => {
+                setSelectedClient(client);
+                setFormData({
+                  ...formData,
+                  clientName: client.fullName,
+                  clientPhone: client.phone || "",
+                });
+              }}
             />
           </div>
+        )}
 
-          <div className="space-y-2">
-            <Label className="text-white">Teléfono *</Label>
-            <Input
-              value={formData.clientPhone}
-              onChange={(e) => setFormData({ ...formData, clientPhone: e.target.value })}
-              placeholder="Teléfono de contacto"
-              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
-            />
+        {order && (
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-white">Cliente *</Label>
+              <Input
+                value={formData.clientName}
+                onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
+                placeholder="Nombre del cliente"
+                className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-white">Teléfono *</Label>
+              <Input
+                value={formData.clientPhone}
+                onChange={(e) => setFormData({ ...formData, clientPhone: e.target.value })}
+                placeholder="Teléfono de contacto"
+                className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="space-y-2">
           <Label className="text-white">Modelo del Dispositivo *</Label>
@@ -289,7 +329,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           />
         </div>
 
-        {order && (
+        <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label className="text-white">Costo Final</Label>
             <Input
@@ -300,7 +340,39 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
               className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
             />
           </div>
-        )}
+
+          <div className="space-y-2">
+            <Label className="text-white">Anticipo</Label>
+            <Input
+              type="number"
+              value={formData.advancePayment}
+              onChange={(e) => setFormData({ ...formData, advancePayment: parseInt(e.target.value) || 0 })}
+              placeholder="0"
+              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-white">Saldo</Label>
+            <Input
+              type="number"
+              value={formData.balance}
+              onChange={(e) => setFormData({ ...formData, balance: parseInt(e.target.value) || 0 })}
+              placeholder="0"
+              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-white">Fecha de Entrega</Label>
+          <Input
+            type="date"
+            value={formData.deliveryDate}
+            onChange={(e) => setFormData({ ...formData, deliveryDate: e.target.value })}
+            className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+          />
+        </div>
 
         {order && (
           <div className="space-y-2">

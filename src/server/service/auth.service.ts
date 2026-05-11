@@ -19,7 +19,17 @@ export class AuthService {
       throw new ApiError({ status: httpStatus.UNAUTHORIZED, message: "Contraseña incorrecta" });
     }
 
-    const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: "1d" });
+    const token = jwt.sign(
+      {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        companyId: user.companyId || undefined,
+        branchId: user.branchId || undefined,
+      },
+      JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
     return {
       user: { id: user.id, username: user.username, role: user.role },

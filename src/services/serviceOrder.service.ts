@@ -7,6 +7,10 @@ export interface CreateServiceOrderDTO {
   deviceModel: string;
   deviceIssue: string;
   notes?: string;
+  clientId?: string;
+  deliveryDate?: Date;
+  advancePayment?: number;
+  balance?: number;
   products?: {
     productName: string;
     productType: ProductType;
@@ -22,6 +26,9 @@ export interface UpdateServiceOrderDTO {
   finalCost?: number;
   status?: ServiceOrderStatus;
   notes?: string;
+  deliveryDate?: Date;
+  advancePayment?: number;
+  balance?: number;
   products?: {
     productName: string;
     productType: ProductType;
@@ -30,27 +37,27 @@ export interface UpdateServiceOrderDTO {
 }
 
 export async function createServiceOrder(data: CreateServiceOrderDTO) {
-  const response = await clientAxios.post("/api/service-orders", data);
+  const response = await clientAxios.post("/service-orders", data);
   return response.data;
 }
 
 export async function getServiceOrders() {
-  const response = await clientAxios.get("/api/service-orders");
+  const response = await clientAxios.get("/service-orders");
   return response.data;
 }
 
 export async function getServiceOrderById(id: string) {
-  const response = await clientAxios.get(`/api/service-orders/${id}`);
+  const response = await clientAxios.get(`/service-orders/${id}`);
   return response.data;
 }
 
 export async function updateServiceOrder(id: string, data: UpdateServiceOrderDTO) {
-  const response = await clientAxios.put(`/api/service-orders/${id}`, data);
+  const response = await clientAxios.put(`/service-orders/${id}`, data);
   return response.data;
 }
 
 export async function deleteServiceOrder(id: string) {
-  const response = await clientAxios.delete(`/api/service-orders/${id}`);
+  const response = await clientAxios.delete(`/service-orders/${id}`);
   return response.data;
 }
 
