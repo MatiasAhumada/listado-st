@@ -36,8 +36,14 @@ export default function VendedoresPage() {
     try {
       setLoading(true);
       const [vendedoresData, branchesData] = await Promise.all([
-        getVendedores(),
-        getBranches(),
+        getVendedores().catch((error) => {
+          if (error?.response?.status === 404) return [];
+          throw error;
+        }),
+        getBranches().catch((error) => {
+          if (error?.response?.status === 404) return [];
+          throw error;
+        }),
       ]);
       setVendedores(vendedoresData);
       setBranches(branchesData);

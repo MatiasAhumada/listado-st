@@ -28,8 +28,12 @@ export default function BranchesPage() {
       setLoading(true);
       const data = await getBranches();
       setBranches(data);
-    } catch (error) {
-      clientErrorHandler(error);
+    } catch (error: any) {
+      if (error?.response?.status === 404) {
+        setBranches([]);
+      } else {
+        clientErrorHandler(error);
+      }
     } finally {
       setLoading(false);
     }
