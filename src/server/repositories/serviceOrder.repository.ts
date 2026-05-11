@@ -6,7 +6,6 @@ export interface CreateServiceOrderData {
   clientPhone: string;
   deviceModel: string;
   deviceIssue: string;
-  estimatedCost: number;
   notes?: string;
   companyId: string;
   branchId?: string;
@@ -22,7 +21,6 @@ export interface UpdateServiceOrderData {
   clientPhone?: string;
   deviceModel?: string;
   deviceIssue?: string;
-  estimatedCost?: number;
   finalCost?: number;
   status?: ServiceOrderStatus;
   notes?: string;

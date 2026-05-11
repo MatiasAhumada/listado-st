@@ -6,7 +6,6 @@ export interface CreateServiceOrderDTO {
   clientPhone: string;
   deviceModel: string;
   deviceIssue: string;
-  estimatedCost: number;
   notes?: string;
   products?: {
     productName: string;
@@ -20,7 +19,6 @@ export interface UpdateServiceOrderDTO {
   clientPhone?: string;
   deviceModel?: string;
   deviceIssue?: string;
-  estimatedCost?: number;
   finalCost?: number;
   status?: ServiceOrderStatus;
   notes?: string;
