@@ -121,9 +121,6 @@ model ServiceOrder {
   id                String             @id @default(uuid())
   clientName        String
   clientPhone       String
-  deviceModel       String
-  deviceIssue       String
-  finalCost         Float?
   advancePayment    Int                @default(0)
   balance           Int                @default(0)
   deliveryDate      DateTime?
@@ -133,7 +130,6 @@ model ServiceOrder {
   returnedAt        DateTime?
   deliveredAt       DateTime?
   paidAt            DateTime?
-  notes             String?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
 
@@ -153,10 +149,17 @@ model ServiceOrder {
 }
 
 model ServiceOrderProduct {
-  id             String   @id @default(uuid())
+  id             String      @id @default(uuid())
   unitPrice      Float
   totalPrice     Float
-  createdAt      DateTime @default(now())
+  isDry          Boolean     @default(false)
+  hasImpact      Boolean     @default(false)
+  isBrokenScreen Boolean     @default(false)
+  isTurnedOn     Boolean     @default(false)
+  isCharging     Boolean     @default(false)
+  color          String?
+  description    String?     @db.Text
+  createdAt      DateTime    @default(now())
 
   serviceOrderId String
   serviceOrder   ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
