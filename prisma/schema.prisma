@@ -98,9 +98,26 @@ model ServiceOrder {
   companyId String
   company   User   @relation(fields: [companyId], references: [id])
 
-  images ServiceOrderImage[]
+  images   ServiceOrderImage[]
+  products ServiceOrderProduct[]
 
   @@map("service_orders")
+}
+
+model ServiceOrderProduct {
+  id             String   @id @default(uuid())
+  quantity       Int      @default(1)
+  unitPrice      Float
+  totalPrice     Float
+  createdAt      DateTime @default(now())
+
+  serviceOrderId String
+  serviceOrder   ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+
+  productName String
+  productType ProductType
+
+  @@map("service_order_products")
 }
 
 model ServiceOrderImage {

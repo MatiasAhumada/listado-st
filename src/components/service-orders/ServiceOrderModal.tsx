@@ -5,13 +5,16 @@ import { GenericModal } from "@/components/common/GenericModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { createServiceOrder, updateServiceOrder, CreateServiceOrderDTO, UpdateServiceOrderDTO } from "@/services/serviceOrder.service";
 import { uploadServiceOrderImages, deleteServiceOrderImage } from "@/services/serviceOrderImage.service";
-import { ServiceOrderStatus } from "@prisma/client";
+import { getProductos } from "@/services/producto.service";
+import { ServiceOrderStatus, ProductType } from "@prisma/client";
 import { SERVICE_ORDER_STATUS_LABELS } from "@/constants/serviceOrder.constant";
-import { Upload, X } from "lucide-react";
+import { Upload, X, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { formatNumber } from "@/utils/formatters.util";
 
 interface ServiceOrderModalProps {
   open: boolean;
@@ -28,6 +31,14 @@ interface ServiceOrderModalProps {
     status: ServiceOrderStatus;
     notes?: string;
     images?: { id: string; url: string }[];
+    products?: {
+      id: string;
+      productName: string;
+      productType: ProductType;
+      quantity: number;
+      unitPrice: number;
+      totalPrice: number;
+    }[];
   };
 }
 
@@ -36,6 +47,10 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
   const [uploadingImages, setUploadingImages] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<{ id: string; url: string }[]>([]);
+  const [productos, setProductos] = useState<any[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<
+    { productName: string; productType: string; quantity: number; unitPrice: number }[]
+  >([]);
   const [formData, setFormData] = useState({
     clientName: "",
     clientPhone: "",
@@ -46,6 +61,21 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
     status: ServiceOrderStatus.RECEPCIONADO,
     notes: "",
   });
+
+  useEffect(() => {
+    const loadProductos = async () => {
+      try {
+        const data = await getProductos({});
+        setProductos(data);
+      } catch (error) {
+        console.error("Error loading products:", error);
+      }
+    };
+
+    if (open) {
+      loadProductos();
+    }
+  }, [open]);
 
   useEffect(() => {
     if (order) {
@@ -60,6 +90,14 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         notes: order.notes || "",
       });
       setExistingImages(order.images || []);
+      setSelectedProducts(
+        order.products?.map((p) => ({
+          productName: p.productName,
+          productType: p.productType,
+          quantity: p.quantity,
+          unitPrice: p.unitPrice,
+        })) || []
+      );
     } else {
       setFormData({
         clientName: "",
@@ -72,9 +110,42 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         notes: "",
       });
       setExistingImages([]);
+      setSelectedProducts([]);
     }
     setSelectedFiles([]);
   }, [order, open]);
+
+  const handleAddProduct = () => {
+    setSelectedProducts([...selectedProducts, { productName: "", productType: "MODULO", quantity: 1, unitPrice: 0 }]);
+  };
+
+  const handleRemoveProduct = (index: number) => {
+    setSelectedProducts(selectedProducts.filter((_, i) => i !== index));
+  };
+
+  const handleProductChange = (index: number, field: string, value: any) => {
+    const updated = [...selectedProducts];
+    updated[index] = { ...updated[index], [field]: value };
+    setSelectedProducts(updated);
+  };
+
+  const handleProductSelect = (index: number, productId: string) => {
+    const product = productos.find((p) => p.id === productId);
+    if (product) {
+      const updated = [...selectedProducts];
+      updated[index] = {
+        ...updated[index],
+        productName: product.name,
+        productType: product.type,
+        unitPrice: product.cash || 0,
+      };
+      setSelectedProducts(updated);
+    }
+  };
+
+  const calculateTotal = () => {
+    return selectedProducts.reduce((sum, p) => sum + p.quantity * p.unitPrice, 0);
+  };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -138,6 +209,8 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           deviceIssue: formData.deviceIssue,
           estimatedCost: formData.estimatedCost,
           notes: formData.notes || undefined,
+          products: selectedProducts.length > 0 ? selectedProducts : undefined,
+          products: selectedProducts.length > 0 ? selectedProducts : undefined,
         };
         const newOrder = await createServiceOrder(createData);
 
@@ -265,11 +338,88 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         <div className="space-y-2">
           <Label>Notas</Label>
           <textarea
-            className="w-full min-h-20 px-3 py-2 rounded-md border border-input bg-background text-lavender"
+            className="w-full min-h-20 px-3 py-2 rounded-md border border-lavender/20 bg-charcoal text-lavender"
             value={formData.notes}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             placeholder="Notas adicionales..."
           />
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Label>Productos/Servicios</Label>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleAddProduct}
+              className="bg-lime hover:bg-green text-dark"
+            >
+              <Plus size={16} className="mr-1" />
+              Agregar
+            </Button>
+          </div>
+
+          {selectedProducts.map((product, index) => (
+            <div key={index} className="grid grid-cols-12 gap-2 p-3 bg-charcoal/60 rounded-lg border border-lavender/10">
+              <div className="col-span-5">
+                <Select
+                  value={product.productName}
+                  onValueChange={(value) => handleProductSelect(index, value)}
+                >
+                  <SelectTrigger className="bg-dark border-lavender/20 text-lavender">
+                    <SelectValue placeholder="Seleccionar producto" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {productos.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="col-span-2">
+                <Input
+                  type="number"
+                  min="1"
+                  value={product.quantity}
+                  onChange={(e) => handleProductChange(index, "quantity", parseInt(e.target.value) || 1)}
+                  className="bg-dark border-lavender/20 text-lavender"
+                  placeholder="Cant."
+                />
+              </div>
+              <div className="col-span-3">
+                <Input
+                  type="number"
+                  min="0"
+                  value={product.unitPrice}
+                  onChange={(e) => handleProductChange(index, "unitPrice", parseFloat(e.target.value) || 0)}
+                  className="bg-dark border-lavender/20 text-lavender"
+                  placeholder="Precio"
+                />
+              </div>
+              <div className="col-span-1 flex items-center">
+                <span className="text-lime font-bold text-sm">${formatNumber(product.quantity * product.unitPrice)}</span>
+              </div>
+              <div className="col-span-1 flex items-center justify-end">
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => handleRemoveProduct(index)}
+                  className="h-8 w-8 text-destructive hover:bg-destructive/20"
+                >
+                  <Trash2 size={16} />
+                </Button>
+              </div>
+            </div>
+          ))}
+
+          {selectedProducts.length > 0 && (
+            <div className="flex justify-end p-3 bg-lime/10 rounded-lg border border-lime/30">
+              <span className="text-lg font-bold text-lime">Total: ${formatNumber(calculateTotal())}</span>
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">

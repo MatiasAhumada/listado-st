@@ -9,6 +9,12 @@ export interface CreateServiceOrderData {
   estimatedCost: number;
   notes?: string;
   companyId: string;
+  products?: {
+    productName: string;
+    productType: string;
+    quantity: number;
+    unitPrice: number;
+  }[];
 }
 
 export interface UpdateServiceOrderData {
@@ -20,14 +26,36 @@ export interface UpdateServiceOrderData {
   finalCost?: number;
   status?: ServiceOrderStatus;
   notes?: string;
+  products?: {
+    productName: string;
+    productType: string;
+    quantity: number;
+    unitPrice: number;
+  }[];
 }
 
 export const serviceOrderRepository = {
   async create(data: CreateServiceOrderData) {
+    const { products, ...orderData } = data;
+
     return prisma.serviceOrder.create({
-      data,
+      data: {
+        ...orderData,
+        products: products
+          ? {
+              create: products.map((p) => ({
+                productName: p.productName,
+                productType: p.productType,
+                quantity: p.quantity,
+                unitPrice: p.unitPrice,
+                totalPrice: p.quantity * p.unitPrice,
+              })),
+            }
+          : undefined,
+      },
       include: {
         images: true,
+        products: true,
         company: {
           select: {
             id: true,
@@ -44,6 +72,7 @@ export const serviceOrderRepository = {
       where: { id },
       include: {
         images: true,
+        products: true,
         company: {
           select: {
             id: true,
@@ -60,6 +89,7 @@ export const serviceOrderRepository = {
       where: { companyId },
       include: {
         images: true,
+        products: true,
       },
       orderBy: {
         createdAt: "desc",
@@ -81,6 +111,7 @@ export const serviceOrderRepository = {
       where: { companyId: vendedor.companyId },
       include: {
         images: true,
+        products: true,
       },
       orderBy: {
         createdAt: "desc",
@@ -89,26 +120,44 @@ export const serviceOrderRepository = {
   },
 
   async update(id: string, data: UpdateServiceOrderData) {
-    const updateData: Record<string, unknown> = { ...data };
+    const { products, ...updateData } = data;
+    const finalUpdateData: Record<string, unknown> = { ...updateData };
 
     if (data.status === ServiceOrderStatus.RETIRADO_POR_TECNICO) {
-      updateData.pickedUpAt = new Date();
+      finalUpdateData.pickedUpAt = new Date();
     }
     if (data.status === ServiceOrderStatus.DEVUELTO_POR_TECNICO) {
-      updateData.returnedAt = new Date();
+      finalUpdateData.returnedAt = new Date();
     }
     if (data.status === ServiceOrderStatus.ENTREGADO_A_CLIENTE) {
-      updateData.deliveredAt = new Date();
+      finalUpdateData.deliveredAt = new Date();
     }
     if (data.status === ServiceOrderStatus.COBRADO) {
-      updateData.paidAt = new Date();
+      finalUpdateData.paidAt = new Date();
+    }
+
+    if (products) {
+      await prisma.serviceOrderProduct.deleteMany({
+        where: { serviceOrderId: id },
+      });
+
+      finalUpdateData.products = {
+        create: products.map((p) => ({
+          productName: p.productName,
+          productType: p.productType,
+          quantity: p.quantity,
+          unitPrice: p.unitPrice,
+          totalPrice: p.quantity * p.unitPrice,
+        })),
+      };
     }
 
     return prisma.serviceOrder.update({
       where: { id },
-      data: updateData,
+      data: finalUpdateData,
       include: {
         images: true,
+        products: true,
         company: {
           select: {
             id: true,

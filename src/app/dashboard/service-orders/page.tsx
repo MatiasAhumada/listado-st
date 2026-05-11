@@ -24,6 +24,13 @@ interface ServiceOrder {
   status: ServiceOrderStatus;
   receivedAt: string;
   notes?: string;
+  products?: {
+    id: string;
+    productName: string;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+  }[];
 }
 
 export default function ServiceOrdersPage() {
@@ -110,7 +117,8 @@ export default function ServiceOrdersPage() {
                   <th className="text-left p-4 text-lavender font-bold">Teléfono</th>
                   <th className="text-left p-4 text-lavender font-bold">Dispositivo</th>
                   <th className="text-left p-4 text-lavender font-bold">Problema</th>
-                  <th className="text-left p-4 text-lavender font-bold">Costo Est.</th>
+                  <th className="text-left p-4 text-lavender font-bold">Productos</th>
+                  <th className="text-left p-4 text-lavender font-bold">Total</th>
                   <th className="text-left p-4 text-lavender font-bold">Estado</th>
                   <th className="text-left p-4 text-lavender font-bold">Acciones</th>
                 </tr>
@@ -118,13 +126,13 @@ export default function ServiceOrdersPage() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="text-center p-8 text-lavender/60 font-semibold">
+                    <td colSpan={8} className="text-center p-8 text-lavender/60 font-semibold">
                       Cargando...
                     </td>
                   </tr>
                 ) : orders.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center p-8">
+                    <td colSpan={8} className="text-center p-8">
                       <div className="flex flex-col items-center gap-3">
                         <div className="w-16 h-16 rounded-full bg-lime/20 flex items-center justify-center">
                           <Plus size={32} className="text-lime" />
@@ -135,40 +143,52 @@ export default function ServiceOrdersPage() {
                     </td>
                   </tr>
                 ) : (
-                  orders.map((order) => (
-                    <tr key={order.id} className="border-b border-lavender/10 hover:bg-lavender/5 transition-all">
-                      <td className="p-4 text-lavender font-bold">{order.clientName}</td>
-                      <td className="p-4 text-lavender/80">{order.clientPhone}</td>
-                      <td className="p-4 text-lavender/80 font-semibold">{order.deviceModel}</td>
-                      <td className="p-4 text-lavender/80 max-w-xs truncate">{order.deviceIssue}</td>
-                      <td className="p-4 text-lime font-bold text-lg">${formatNumber(order.estimatedCost)}</td>
-                      <td className="p-4">
-                        <Badge className={SERVICE_ORDER_STATUS_COLORS[order.status]}>
-                          {SERVICE_ORDER_STATUS_LABELS[order.status]}
-                        </Badge>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleEdit(order)}
-                            className="text-lime hover:text-green hover:bg-lime/20 transition-all"
-                          >
-                            <Edit size={18} />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleDelete(order.id)}
-                            className="text-destructive hover:text-destructive/80 hover:bg-destructive/20 transition-all"
-                          >
-                            <Trash2 size={18} />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                  orders.map((order) => {
+                    const total = order.products?.reduce((sum, p) => sum + p.totalPrice, 0) || 0;
+                    return (
+                      <tr key={order.id} className="border-b border-lavender/10 hover:bg-lavender/5 transition-all">
+                        <td className="p-4 text-lavender font-bold">{order.clientName}</td>
+                        <td className="p-4 text-lavender/80">{order.clientPhone}</td>
+                        <td className="p-4 text-lavender/80 font-semibold">{order.deviceModel}</td>
+                        <td className="p-4 text-lavender/80 max-w-xs truncate">{order.deviceIssue}</td>
+                        <td className="p-4">
+                          {order.products && order.products.length > 0 ? (
+                            <div className="text-xs text-lavender/70">
+                              {order.products.length} producto{order.products.length > 1 ? "s" : ""}
+                            </div>
+                          ) : (
+                            <span className="text-lavender/40">-</span>
+                          )}
+                        </td>
+                        <td className="p-4 text-lime font-bold text-lg">${formatNumber(total)}</td>
+                        <td className="p-4">
+                          <Badge className={SERVICE_ORDER_STATUS_COLORS[order.status]}>
+                            {SERVICE_ORDER_STATUS_LABELS[order.status]}
+                          </Badge>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleEdit(order)}
+                              className="text-lime hover:text-green hover:bg-lime/20 transition-all"
+                            >
+                              <Edit size={18} />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleDelete(order.id)}
+                              className="text-destructive hover:text-destructive/80 hover:bg-destructive/20 transition-all"
+                            >
+                              <Trash2 size={18} />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>

@@ -8,6 +8,12 @@ export interface CreateServiceOrderDTO {
   deviceIssue: string;
   estimatedCost: number;
   notes?: string;
+  products?: {
+    productName: string;
+    productType: string;
+    quantity: number;
+    unitPrice: number;
+  }[];
 }
 
 export interface UpdateServiceOrderDTO {
@@ -19,6 +25,12 @@ export interface UpdateServiceOrderDTO {
   finalCost?: number;
   status?: ServiceOrderStatus;
   notes?: string;
+  products?: {
+    productName: string;
+    productType: string;
+    quantity: number;
+    unitPrice: number;
+  }[];
 }
 
 export async function createServiceOrder(data: CreateServiceOrderDTO) {
