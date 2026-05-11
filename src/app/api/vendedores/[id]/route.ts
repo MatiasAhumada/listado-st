@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { apiErrorHandler, ApiError } from "@/utils/handlers/apiError.handler";
+import apiErrorHandler, { ApiError } from "@/utils/handlers/apiError.handler";
 import { vendedorRepository } from "@/server/repositories/vendedor.repository";
 import { VENDEDOR_MESSAGES } from "@/constants/vendedor.constant";
 import jwt from "jsonwebtoken";
@@ -23,10 +23,7 @@ function getAuthContext(cookieStore: any, headers?: Headers) {
   return jwt.verify(token, JWT_SECRET) as { id: string; role: string };
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const cookieStore = await cookies();
     getAuthContext(cookieStore, request.headers);
@@ -62,10 +59,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const cookieStore = await cookies();
     getAuthContext(cookieStore, request.headers);

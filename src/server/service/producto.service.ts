@@ -27,11 +27,7 @@ export interface BulkProductoDTO {
 }
 
 export class ProductoService {
-  static async getAll(
-    userRole: UserRole,
-    companyId: string,
-    filters?: { type?: string; search?: string }
-  ) {
+  static async getAll(userRole: UserRole, companyId: string, filters?: { type?: string; search?: string }) {
     return await ProductoRepository.findAll(userRole, companyId, filters);
   }
 

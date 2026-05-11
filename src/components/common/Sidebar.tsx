@@ -79,19 +79,12 @@ export function Sidebar() {
           <div className="p-4 border-b border-lavender/10">
             <div className="flex items-center justify-center lg:justify-between">
               <div
-                className={cn(
-                  "flex items-center gap-2 transition-opacity duration-300",
-                  !isOpen && "hidden lg:hidden"
-                )}
+                className={cn("flex items-center gap-2 transition-opacity duration-300", !isOpen && "hidden lg:hidden")}
               >
                 <div className="w-8 h-8 bg-gradient-to-r from-lime to-green rounded-lg flex items-center justify-center">
                   <Package size={20} className="text-lavender" />
                 </div>
-                {isOpen && (
-                  <span className="text-xl font-bold text-lavender">
-                    Listado ST
-                  </span>
-                )}
+                {isOpen && <span className="text-xl font-bold text-lavender">Listado ST</span>}
               </div>
               <Button
                 variant="ghost"
@@ -118,9 +111,7 @@ export function Sidebar() {
                   }}
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative",
-                    isActive
-                      ? "bg-lime text-dark"
-                      : "text-lavender/70 hover:bg-lavender/5 hover:text-lavender"
+                    isActive ? "bg-lime text-dark" : "text-lavender/70 hover:bg-lavender/5 hover:text-lavender"
                   )}
                 >
                   <Icon size={20} className="flex-shrink-0" />

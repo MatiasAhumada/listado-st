@@ -97,7 +97,12 @@ export function VendedorModal({ open, onOpenChange, onSuccess, branches, vendedo
       description={vendedor ? "Modifica los datos del vendedor" : "Completa los datos del nuevo vendedor"}
       footer={
         <>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={loading} className="bg-charcoal hover:bg-charcoal/80 text-lavender border border-lavender/20">
+          <Button
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+            disabled={loading}
+            className="bg-charcoal hover:bg-charcoal/80 text-lavender border border-lavender/20"
+          >
             Cancelar
           </Button>
           <Button onClick={handleSubmit} disabled={loading} className="bg-lime hover:bg-green text-dark">

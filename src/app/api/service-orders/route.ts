@@ -40,10 +40,10 @@ export async function POST(request: NextRequest) {
     const decoded = getAuthContext(cookieStore, request.headers);
 
     const body = await request.json();
-    
+
     let companyId = decoded.id;
     let branchId = undefined;
-    
+
     if (decoded.role === "VENDEDOR") {
       const { userRepository } = await import("@/server/repositories/user.repository");
       const vendedor = await userRepository.findById(decoded.id);

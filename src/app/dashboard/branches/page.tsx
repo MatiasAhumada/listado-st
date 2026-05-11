@@ -131,7 +131,9 @@ export default function BranchesPage() {
                       <td className="p-4 text-lavender/80">{branch.phone || "-"}</td>
                       <td className="p-4">
                         <span className="text-lime font-bold">{branch.vendedores.length}</span>
-                        <span className="text-lavender/60 ml-1">vendedor{branch.vendedores.length !== 1 ? "es" : ""}</span>
+                        <span className="text-lavender/60 ml-1">
+                          vendedor{branch.vendedores.length !== 1 ? "es" : ""}
+                        </span>
                       </td>
                       <td className="p-4">
                         <div className="flex gap-2">
@@ -162,12 +164,7 @@ export default function BranchesPage() {
         </Card>
       </motion.div>
 
-      <BranchModal
-        open={modalOpen}
-        onOpenChange={handleModalClose}
-        onSuccess={loadBranches}
-        branch={selectedBranch}
-      />
+      <BranchModal open={modalOpen} onOpenChange={handleModalClose} onSuccess={loadBranches} branch={selectedBranch} />
     </div>
   );
 }

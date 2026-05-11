@@ -4,11 +4,7 @@ import { Prisma, ProductType, Role } from "@prisma/client";
 export type UserRole = Role | "TECNICO";
 
 export class ProductoRepository {
-  static async findAll(
-    userRole: UserRole,
-    userId: string,
-    filters?: { type?: string; search?: string }
-  ) {
+  static async findAll(userRole: UserRole, userId: string, filters?: { type?: string; search?: string }) {
     const where: Prisma.ProductoWhereInput = {};
 
     if (filters?.type && filters.type !== "TODOS") {

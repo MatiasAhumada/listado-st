@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { apiErrorHandler, ApiError } from "@/utils/handlers/apiError.handler";
+import apiErrorHandler, { ApiError } from "@/utils/handlers/apiError.handler";
 import { vendedorRepository } from "@/server/repositories/vendedor.repository";
 import { VENDEDOR_MESSAGES } from "@/constants/vendedor.constant";
 import jwt from "jsonwebtoken";

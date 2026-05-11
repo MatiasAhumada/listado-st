@@ -145,9 +145,7 @@ export default function VendedoresPage() {
                       <td className="p-4 text-lavender font-bold">{vendedor.username}</td>
                       <td className="p-4">
                         {vendedor.branch ? (
-                          <Badge className="bg-lime/20 text-lime border-lime/30">
-                            {vendedor.branch.name}
-                          </Badge>
+                          <Badge className="bg-lime/20 text-lime border-lime/30">{vendedor.branch.name}</Badge>
                         ) : (
                           <span className="text-lavender/40">Sin sucursal</span>
                         )}

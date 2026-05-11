@@ -157,9 +157,7 @@ export default function ServiceOrdersPage() {
                         <td className="p-4 text-lavender/80 max-w-xs truncate">{order.deviceIssue}</td>
                         <td className="p-4">
                           {order.branch ? (
-                            <Badge className="bg-lime/20 text-lime border-lime/30">
-                              {order.branch.name}
-                            </Badge>
+                            <Badge className="bg-lime/20 text-lime border-lime/30">{order.branch.name}</Badge>
                           ) : (
                             <span className="text-lavender/40">-</span>
                           )}

@@ -83,13 +83,7 @@ export default function DashboardPage() {
         key: "available",
         label: "Estado",
         render: (item: any) => (
-          <Badge
-            className={
-              item.available 
-                ? "bg-lime text-dark shadow-md" 
-                : "bg-destructive text-white shadow-md"
-            }
-          >
+          <Badge className={item.available ? "bg-lime text-dark shadow-md" : "bg-destructive text-white shadow-md"}>
             {item.available ? "Disponible" : "Sin Stock"}
           </Badge>
         ),
@@ -100,9 +94,7 @@ export default function DashboardPage() {
       baseCols.push({
         key: "costTech",
         label: "Costo Repuesto",
-        render: (item: any) => (
-          <span className="font-bold text-lavender">${formatNumber(item.costTech || 0)}</span>
-        ),
+        render: (item: any) => <span className="font-bold text-lavender">${formatNumber(item.costTech || 0)}</span>,
       });
       baseCols.push({
         key: "cost",
@@ -215,7 +207,9 @@ export default function DashboardPage() {
       >
         <div className="mb-6">
           <h1 className="text-4xl font-black text-lavender mb-2">Inventario Activo</h1>
-          <p className="text-lavender/60 text-lg">{isEmpresa ? "Vista administrador global" : "Catálogo disponible para venta"}</p>
+          <p className="text-lavender/60 text-lg">
+            {isEmpresa ? "Vista administrador global" : "Catálogo disponible para venta"}
+          </p>
         </div>
 
         <div className="bg-dark/80 backdrop-blur-sm shadow-2xl rounded-2xl p-6 border border-lavender/10">
@@ -313,9 +307,7 @@ export default function DashboardPage() {
                 <div className="p-4 bg-destructive/10 rounded-xl border border-destructive/20 flex flex-col gap-2 mt-2">
                   <span className="text-lavender font-semibold">¿Seguro que deseas borrar el siguiente producto?</span>
                   <span className="text-lavender font-black text-lg">{productToDelete?.name}</span>
-                  <span className="text-lavender/60 text-sm">
-                    {productToDelete?.type}
-                  </span>
+                  <span className="text-lavender/60 text-sm">{productToDelete?.type}</span>
                 </div>
               </GenericModal>
             </>

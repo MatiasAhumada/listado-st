@@ -7,7 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
-import { createServiceOrder, updateServiceOrder, CreateServiceOrderDTO, UpdateServiceOrderDTO } from "@/services/serviceOrder.service";
+import {
+  createServiceOrder,
+  updateServiceOrder,
+  CreateServiceOrderDTO,
+  UpdateServiceOrderDTO,
+} from "@/services/serviceOrder.service";
 import { uploadServiceOrderImages, deleteServiceOrderImage } from "@/services/serviceOrderImage.service";
 import { getProductos } from "@/services/producto.service";
 import { ServiceOrderStatus, ProductType } from "@prisma/client";
@@ -245,10 +250,19 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
       size="lg"
       footer={
         <>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={loading || uploadingImages} className="bg-charcoal hover:bg-charcoal/80 text-lavender border border-lavender/20">
+          <Button
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+            disabled={loading || uploadingImages}
+            className="bg-charcoal hover:bg-charcoal/80 text-lavender border border-lavender/20"
+          >
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={loading || uploadingImages} className="bg-lime hover:bg-green text-dark">
+          <Button
+            onClick={handleSubmit}
+            disabled={loading || uploadingImages}
+            className="bg-lime hover:bg-green text-dark"
+          >
             {loading || uploadingImages ? "Guardando..." : order ? "Actualizar" : "Crear"}
           </Button>
         </>
@@ -347,24 +361,19 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label>Productos/Servicios</Label>
-            <Button
-              type="button"
-              size="sm"
-              onClick={handleAddProduct}
-              className="bg-lime hover:bg-green text-dark"
-            >
+            <Button type="button" size="sm" onClick={handleAddProduct} className="bg-lime hover:bg-green text-dark">
               <Plus size={16} className="mr-1" />
               Agregar
             </Button>
           </div>
 
           {selectedProducts.map((product, index) => (
-            <div key={index} className="grid grid-cols-12 gap-2 p-3 bg-charcoal/60 rounded-lg border border-lavender/10">
+            <div
+              key={index}
+              className="grid grid-cols-12 gap-2 p-3 bg-charcoal/60 rounded-lg border border-lavender/10"
+            >
               <div className="col-span-8">
-                <Select
-                  value={product.productName}
-                  onValueChange={(value) => handleProductSelect(index, value)}
-                >
+                <Select value={product.productName} onValueChange={(value) => handleProductSelect(index, value)}>
                   <SelectTrigger className="bg-dark border-lavender/20 text-lavender">
                     <SelectValue placeholder="Seleccionar producto" />
                   </SelectTrigger>
@@ -453,13 +462,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
             <label className="flex items-center justify-center gap-2 w-full h-24 border-2 border-dashed border-lavender/30 rounded-lg cursor-pointer hover:border-lime transition-colors">
               <Upload size={20} className="text-lavender/60" />
               <span className="text-sm text-lavender/60">Seleccionar imágenes</span>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleFileSelect}
-                className="hidden"
-              />
+              <input type="file" accept="image/*" multiple onChange={handleFileSelect} className="hidden" />
             </label>
           </div>
         </div>

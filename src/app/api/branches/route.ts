@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { apiErrorHandler, ApiError } from "@/utils/handlers/apiError.handler";
+import apiErrorHandler, { ApiError } from "@/utils/handlers/apiError.handler";
 import { branchRepository } from "@/server/repositories/branch.repository";
 import { BRANCH_MESSAGES } from "@/constants/branch.constant";
 import jwt from "jsonwebtoken";
