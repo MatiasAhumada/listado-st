@@ -83,13 +83,7 @@ export default function DashboardPage() {
         key: "available",
         label: "Estado",
         render: (item: any) => (
-          <Badge
-            className={
-              item.available 
-                ? "bg-lime text-dark shadow-md" 
-                : "bg-destructive text-white shadow-md"
-            }
-          >
+          <Badge className={item.available ? "bg-lime text-dark shadow-md" : "bg-destructive text-white shadow-md"}>
             {item.available ? "Disponible" : "Sin Stock"}
           </Badge>
         ),
@@ -100,9 +94,7 @@ export default function DashboardPage() {
       baseCols.push({
         key: "costTech",
         label: "Costo Repuesto",
-        render: (item: any) => (
-          <span className="font-bold text-lavender">${formatNumber(item.costTech || 0)}</span>
-        ),
+        render: (item: any) => <span className="font-bold text-lavender">${formatNumber(item.costTech || 0)}</span>,
       });
       baseCols.push({
         key: "cost",
@@ -213,65 +205,60 @@ export default function DashboardPage() {
         transition={{ duration: 0.5 }}
         className="max-w-7xl mx-auto"
       >
-        <div className="mb-6">
-          <h1 className="text-4xl font-black text-lavender mb-2">Inventario Activo</h1>
-          <p className="text-lavender/60 text-lg">{isEmpresa ? "Vista administrador global" : "Catálogo disponible para venta"}</p>
-        </div>
+        <DataTable
+          title="Servicios"
+          subtitle={isEmpresa ? "Vista administrador global" : "Catálogo disponible para venta"}
+          data={data}
+          columns={columns}
+          keyExtractor={(item: any) => item.id}
+          loading={loading}
+          searchPlaceholder="Buscar por nombre..."
+          onSearch={setSearchTerm}
+          totalLabel={`Resultados: ${data.length}`}
+          emptyMessage="No hay servicios"
+          emptyIcon={<Plus size={32} className="text-lime" />}
+          actions={
+            <>
+              <Select value={selectedType} onValueChange={setSelectedType}>
+                <SelectTrigger className="w-[180px] bg-charcoal border-lavender/20 text-lavender hover:border-lime transition-all">
+                  <SelectValue placeholder="Filtrar Trabajo" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-800 border-gray-700">
+                  <SelectItem value="TODOS" className="text-white hover:bg-gray-700">Todos los Trabajos</SelectItem>
+                  <SelectItem value="MODULO" className="text-white hover:bg-gray-700">Módulos</SelectItem>
+                  <SelectItem value="BATERIA" className="text-white hover:bg-gray-700">Baterías</SelectItem>
+                  <SelectItem value="PIN" className="text-white hover:bg-gray-700">Pines</SelectItem>
+                  <SelectItem value="CONSOLA" className="text-white hover:bg-gray-700">Consolas</SelectItem>
+                  <SelectItem value="MANTENIMIENTO" className="text-white hover:bg-gray-700">Mantenimiento</SelectItem>
+                  <SelectItem value="VIDRIOS_CAMARA" className="text-white hover:bg-gray-700">Vidrios de Cámara</SelectItem>
+                  <SelectItem value="VARIOS" className="text-white hover:bg-gray-700">Varios</SelectItem>
+                </SelectContent>
+              </Select>
 
-        <div className="bg-dark/80 backdrop-blur-sm shadow-2xl rounded-2xl p-6 border border-lavender/10">
-          <DataTable
-            title=""
-            subtitle=""
-            data={data}
-            columns={columns}
-            keyExtractor={(item: any) => item.id}
-            loading={loading}
-            searchPlaceholder="Buscar por nombre..."
-            onSearch={setSearchTerm}
-            totalLabel={`Resultados: ${data.length}`}
-            actions={
-              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mt-4 sm:mt-0">
-                <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger className="w-full sm:w-[180px] bg-charcoal border-lavender/20 text-lavender hover:border-lime transition-all">
-                    <SelectValue placeholder="Filtrar Trabajo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="TODOS">Todos los Trabajos</SelectItem>
-                    <SelectItem value="MODULO">Módulos</SelectItem>
-                    <SelectItem value="BATERIA">Baterías</SelectItem>
-                    <SelectItem value="PIN">Pines</SelectItem>
-                    <SelectItem value="CONSOLA">Consolas</SelectItem>
-                    <SelectItem value="MANTENIMIENTO">Mantenimiento</SelectItem>
-                    <SelectItem value="VIDRIOS_CAMARA">Vidrios de Cámara</SelectItem>
-                    <SelectItem value="VARIOS">Varios</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                {isTecnico && (
-                  <>
-                    <Button
-                      onClick={() => {
-                        setProductToEdit(null);
-                        setModalOpen(true);
-                      }}
-                      className="gap-2 bg-lime hover:bg-green text-dark shadow-lg transition-all font-bold rounded-xl px-6"
-                    >
-                      <Plus size={18} />
-                      Nuevo
-                    </Button>
-                    <Button
-                      onClick={() => setBulkUploadOpen(true)}
-                      className="gap-2 bg-green hover:bg-lime text-white shadow-lg transition-all font-bold rounded-xl px-6"
-                    >
-                      <Upload size={18} />
-                      Carga Masiva
-                    </Button>
-                  </>
-                )}
-              </div>
-            }
-          />
-        </div>
+              {isTecnico && (
+                <>
+                  <Button
+                    onClick={() => {
+                      setProductToEdit(null);
+                      setModalOpen(true);
+                    }}
+                    className="gap-2 bg-lime hover:bg-green text-dark shadow-lg transition-all font-bold px-6"
+                  >
+                    <Plus size={18} />
+                    Nuevo
+                  </Button>
+                  <Button
+                    onClick={() => setBulkUploadOpen(true)}
+                    className="gap-2 bg-green hover:bg-lime text-white shadow-lg transition-all font-bold px-6"
+                  >
+                    <Upload size={18} />
+                    Carga Masiva
+                  </Button>
+                </>
+              )}
+            </>
+          }
+        />
       </motion.div>
 
       {(isEmpresa || isTecnico) && (
@@ -313,9 +300,7 @@ export default function DashboardPage() {
                 <div className="p-4 bg-destructive/10 rounded-xl border border-destructive/20 flex flex-col gap-2 mt-2">
                   <span className="text-lavender font-semibold">¿Seguro que deseas borrar el siguiente producto?</span>
                   <span className="text-lavender font-black text-lg">{productToDelete?.name}</span>
-                  <span className="text-lavender/60 text-sm">
-                    {productToDelete?.type}
-                  </span>
+                  <span className="text-lavender/60 text-sm">{productToDelete?.type}</span>
                 </div>
               </GenericModal>
             </>

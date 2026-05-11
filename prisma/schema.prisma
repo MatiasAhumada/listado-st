@@ -35,20 +35,40 @@ enum ServiceOrderStatus {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  username  String   @unique
-  password  String
-  role      Role     @default(VENDEDOR)
-  companyId String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid())
+  username   String   @unique
+  password   String
+  role       Role     @default(VENDEDOR)
+  companyId  String?
+  branchId   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   productos     Producto[]
   serviceOrders ServiceOrder[]
   company       User?          @relation("CompanyVendedores", fields: [companyId], references: [id])
   vendedores    User[]         @relation("CompanyVendedores")
+  branch        Branch?        @relation(fields: [branchId], references: [id])
+  branches      Branch[]       @relation("CompanyBranches")
 
   @@map("users")
+}
+
+model Branch {
+  id        String   @id @default(uuid())
+  name      String
+  address   String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   User   @relation("CompanyBranches", fields: [companyId], references: [id], onDelete: Cascade)
+
+  vendedores    User[]
+  serviceOrders ServiceOrder[]
+
+  @@map("branches")
 }
 
 model Producto {
@@ -98,9 +118,28 @@ model ServiceOrder {
   companyId String
   company   User   @relation(fields: [companyId], references: [id])
 
-  images ServiceOrderImage[]
+  branchId String?
+  branch   Branch? @relation(fields: [branchId], references: [id])
+
+  images   ServiceOrderImage[]
+  products ServiceOrderProduct[]
 
   @@map("service_orders")
+}
+
+model ServiceOrderProduct {
+  id             String   @id @default(uuid())
+  unitPrice      Float
+  totalPrice     Float
+  createdAt      DateTime @default(now())
+
+  serviceOrderId String
+  serviceOrder   ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+
+  productName String
+  productType ProductType
+
+  @@map("service_order_products")
 }
 
 model ServiceOrderImage {

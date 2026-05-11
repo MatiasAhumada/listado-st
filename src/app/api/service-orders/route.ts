@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serviceOrderService } from "@/server/service/serviceOrder.service";
-import { apiErrorHandler } from "@/utils/handlers/apiError.handler";
+import apiErrorHandler from "@/utils/handlers/apiError.handler";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { ApiError } from "@/utils/handlers/apiError.handler";
@@ -29,8 +29,11 @@ export async function GET(request: NextRequest) {
 
     const orders = await serviceOrderService.getServiceOrdersByUser(decoded.id, decoded.role);
     return NextResponse.json(orders);
-  } catch (error) {
-    return apiErrorHandler(error);
+  } catch (error: any) {
+    return apiErrorHandler({
+      error: error instanceof ApiError ? error : new ApiError({ message: "Error al obtener órdenes" }),
+      request,
+    });
   }
 }
 
@@ -40,24 +43,31 @@ export async function POST(request: NextRequest) {
     const decoded = getAuthContext(cookieStore, request.headers);
 
     const body = await request.json();
-    
+
     let companyId = decoded.id;
+    let branchId = undefined;
+
     if (decoded.role === "VENDEDOR") {
-      const { userRepository } = await import("@/server/repositories/user.repository");
-      const vendedor = await userRepository.findById(decoded.id);
+      const { UserRepository } = await import("@/server/repositories/user.repository");
+      const vendedor = await UserRepository.findById(decoded.id);
       if (!vendedor?.companyId) {
         throw new ApiError({ status: httpStatus.FORBIDDEN, message: "Vendedor sin empresa asignada" });
       }
       companyId = vendedor.companyId;
+      branchId = vendedor.branchId || undefined;
     }
 
     const order = await serviceOrderService.createServiceOrder({
       ...body,
       companyId,
+      branchId,
     });
 
     return NextResponse.json(order, { status: 201 });
-  } catch (error) {
-    return apiErrorHandler(error);
+  } catch (error: any) {
+    return apiErrorHandler({
+      error: error instanceof ApiError ? error : new ApiError({ message: "Error al crear orden" }),
+      request,
+    });
   }
 }

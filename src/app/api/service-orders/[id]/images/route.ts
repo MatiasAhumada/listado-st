@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { r2StorageService } from "@/server/service/r2Storage.service";
 import { prisma } from "@/lib/prisma";
-import { apiErrorHandler } from "@/utils/handlers/apiError.handler";
+import apiErrorHandler, { ApiError } from "@/utils/handlers/apiError.handler";
 import { IMAGE_UPLOAD_CONFIG, IMAGE_UPLOAD_MESSAGES } from "@/constants/imageUpload.constant";
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const serviceOrderId = params.id;
+    const { id: serviceOrderId } = await params;
 
     const serviceOrder = await prisma.serviceOrder.findUnique({
       where: { id: serviceOrderId },
@@ -52,14 +52,17 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       message: IMAGE_UPLOAD_MESSAGES.UPLOAD_SUCCESS,
       images: uploadedImages,
     });
-  } catch (error) {
-    return apiErrorHandler(error);
+  } catch (error: any) {
+    return apiErrorHandler({
+      error: error instanceof ApiError ? error : new ApiError({ message: "Error al subir imágenes" }),
+      request,
+    });
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const serviceOrderId = params.id;
+    const { id: serviceOrderId } = await params;
     const { imageId } = await request.json();
 
     const image = await prisma.serviceOrderImage.findUnique({
@@ -80,7 +83,10 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     });
 
     return NextResponse.json({ message: "Imagen eliminada exitosamente" });
-  } catch (error) {
-    return apiErrorHandler(error);
+  } catch (error: any) {
+    return apiErrorHandler({
+      error: error instanceof ApiError ? error : new ApiError({ message: "Error al eliminar imagen" }),
+      request,
+    });
   }
 }

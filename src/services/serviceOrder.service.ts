@@ -1,13 +1,17 @@
-import  clientAxios  from "@/utils/clientAxios.util";
-import { ServiceOrderStatus } from "@prisma/client";
+import clientAxios from "@/utils/clientAxios.util";
+import { ServiceOrderStatus, ProductType } from "@prisma/client";
 
 export interface CreateServiceOrderDTO {
   clientName: string;
   clientPhone: string;
   deviceModel: string;
   deviceIssue: string;
-  estimatedCost: number;
   notes?: string;
+  products?: {
+    productName: string;
+    productType: ProductType;
+    unitPrice: number;
+  }[];
 }
 
 export interface UpdateServiceOrderDTO {
@@ -15,10 +19,14 @@ export interface UpdateServiceOrderDTO {
   clientPhone?: string;
   deviceModel?: string;
   deviceIssue?: string;
-  estimatedCost?: number;
   finalCost?: number;
   status?: ServiceOrderStatus;
   notes?: string;
+  products?: {
+    productName: string;
+    productType: ProductType;
+    unitPrice: number;
+  }[];
 }
 
 export async function createServiceOrder(data: CreateServiceOrderDTO) {

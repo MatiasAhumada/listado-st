@@ -49,24 +49,24 @@ export function GenericModal({
             className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
           >
             <div
-              className={`bg-card border border-border rounded-lg shadow-2xl ${SIZE_CLASSES[size]} w-full max-h-[90vh] overflow-y-auto pointer-events-auto`}
+              className={`bg-black border border-gray-800 rounded-lg shadow-2xl ${SIZE_CLASSES[size]} w-full max-h-[90vh] overflow-y-auto pointer-events-auto`}
             >
-              <div className="flex items-center justify-between p-6 border-b border-border">
+              <div className="flex items-center justify-between p-6 border-b border-gray-800">
                 <div>
-                  <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-                  {description && <p className="text-sm text-muted-foreground mt-1">{description}</p>}
+                  <h2 className="text-lg font-semibold text-white">{title}</h2>
+                  {description && <p className="text-sm text-gray-400 mt-1">{description}</p>}
                 </div>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => onOpenChange(false)}
-                  className="text-muted-foreground hover:text-foreground hover:bg-muted"
+                  className="text-gray-400 hover:text-white hover:bg-gray-800"
                 >
                   <Cancel01Icon size={20} />
                 </Button>
               </div>
-              <div className="p-6 text-foreground">{children}</div>
-              {footer && <div className="flex justify-end gap-2 p-6 border-t border-border">{footer}</div>}
+              <div className="text-white">{children}</div>
+              {footer && <div className="flex justify-end gap-2 p-6 border-t border-gray-800">{footer}</div>}
             </div>
           </motion.div>
         </>
