@@ -15,7 +15,7 @@ export async function GET() {
     }
 
     const vendedores = await vendedorRepository.findByCompanyId(session.user.id);
-    return NextResponse.json(vendedores);
+    return NextResponse.json(vendedores || []);
   } catch (error) {
     return apiErrorHandler(error);
   }

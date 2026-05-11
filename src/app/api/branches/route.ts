@@ -14,7 +14,7 @@ export async function GET() {
     }
 
     const branches = await branchRepository.findByCompanyId(session.user.id);
-    return NextResponse.json(branches);
+    return NextResponse.json(branches || []);
   } catch (error) {
     return apiErrorHandler(error);
   }
