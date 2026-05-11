@@ -91,7 +91,7 @@ export function BranchModal({ open, onOpenChange, onSuccess, branch }: BranchMod
             variant="ghost"
             onClick={() => onOpenChange(false)}
             disabled={loading}
-            className="bg-charcoal hover:bg-charcoal/80 text-lavender border border-lavender/20"
+            className="bg-gray-800 hover:bg-gray-700 text-white border border-gray-700"
           >
             Cancelar
           </Button>
@@ -101,31 +101,34 @@ export function BranchModal({ open, onOpenChange, onSuccess, branch }: BranchMod
         </>
       }
     >
-      <div className="space-y-4 p-1">
+      <div className="space-y-4 p-6">
         <div className="space-y-2">
-          <Label>Nombre *</Label>
+          <Label className="text-white">Nombre *</Label>
           <Input
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             placeholder="Nombre de la sucursal"
+            className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
           />
         </div>
 
         <div className="space-y-2">
-          <Label>Dirección</Label>
+          <Label className="text-white">Dirección</Label>
           <Input
             value={formData.address}
             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
             placeholder="Dirección de la sucursal"
+            className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
           />
         </div>
 
         <div className="space-y-2">
-          <Label>Teléfono</Label>
+          <Label className="text-white">Teléfono</Label>
           <Input
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             placeholder="Teléfono de contacto"
+            className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
           />
         </div>
       </div>

@@ -101,7 +101,7 @@ export function VendedorModal({ open, onOpenChange, onSuccess, branches, vendedo
             variant="ghost"
             onClick={() => onOpenChange(false)}
             disabled={loading}
-            className="bg-charcoal hover:bg-charcoal/80 text-lavender border border-lavender/20"
+            className="bg-gray-800 hover:bg-gray-700 text-white border border-gray-700"
           >
             Cancelar
           </Button>
@@ -111,35 +111,37 @@ export function VendedorModal({ open, onOpenChange, onSuccess, branches, vendedo
         </>
       }
     >
-      <div className="space-y-4 p-1">
+      <div className="space-y-4 p-6">
         <div className="space-y-2">
-          <Label>Usuario *</Label>
+          <Label className="text-white">Usuario *</Label>
           <Input
             value={formData.username}
             onChange={(e) => setFormData({ ...formData, username: e.target.value })}
             placeholder="Nombre de usuario"
+            className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
           />
         </div>
 
         <div className="space-y-2">
-          <Label>{vendedor ? "Nueva Contraseña (opcional)" : "Contraseña *"}</Label>
+          <Label className="text-white">{vendedor ? "Nueva Contraseña (opcional)" : "Contraseña *"}</Label>
           <Input
             type="password"
             value={formData.password}
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             placeholder={vendedor ? "Dejar vacío para mantener actual" : "Contraseña"}
+            className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
           />
         </div>
 
         <div className="space-y-2">
-          <Label>Sucursal *</Label>
+          <Label className="text-white">Sucursal *</Label>
           <Select value={formData.branchId} onValueChange={(value) => setFormData({ ...formData, branchId: value })}>
-            <SelectTrigger className="bg-charcoal border-lavender/20 text-lavender">
+            <SelectTrigger className="bg-gray-800 border-gray-700 text-white w-full">
               <SelectValue placeholder="Seleccionar sucursal" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-gray-800 border-gray-700">
               {branches.map((branch) => (
-                <SelectItem key={branch.id} value={branch.id}>
+                <SelectItem key={branch.id} value={branch.id} className="text-white hover:bg-gray-700">
                   {branch.name}
                 </SelectItem>
               ))}

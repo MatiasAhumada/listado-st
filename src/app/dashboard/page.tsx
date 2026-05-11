@@ -206,13 +206,13 @@ export default function DashboardPage() {
         className="max-w-7xl mx-auto"
       >
         <div className="mb-6">
-          <h1 className="text-4xl font-black text-lavender mb-2">Inventario Activo</h1>
+          <h1 className="text-4xl font-black text-lavender mb-2">Servicios</h1>
           <p className="text-lavender/60 text-lg">
             {isEmpresa ? "Vista administrador global" : "Catálogo disponible para venta"}
           </p>
         </div>
 
-        <div className="bg-dark/80 backdrop-blur-sm shadow-2xl rounded-2xl p-6 border border-lavender/10">
+        <div className="bg-charcoal backdrop-blur-sm shadow-2xl rounded-2xl border border-lavender/10 overflow-hidden">
           <DataTable
             title=""
             subtitle=""

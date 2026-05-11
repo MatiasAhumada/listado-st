@@ -10,7 +10,7 @@ import { Package, ClipboardList, LogOut, User, Menu, X, MapPin, Users } from "lu
 import { cn } from "@/lib/utils";
 
 export function Sidebar() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
@@ -25,7 +25,7 @@ export function Sidebar() {
 
   const menuItems = [
     {
-      label: "Productos",
+      label: "Servicios",
       icon: Package,
       path: "/dashboard",
       roles: ["EMPRESA", "VENDEDOR", "TECNICO"],
@@ -71,16 +71,14 @@ export function Sidebar() {
       <div
         className={cn(
           "fixed top-0 left-0 z-50 h-full bg-dark/95 backdrop-blur-sm border-r border-lavender/10 transform transition-all duration-300 ease-in-out",
-          "lg:translate-x-0",
-          isOpen ? "translate-x-0 w-64" : "-translate-x-full lg:translate-x-0 lg:w-16"
+          isOpen ? "w-64" : "w-16",
+          "max-lg:" + (isOpen ? "translate-x-0" : "-translate-x-full")
         )}
       >
         <div className="flex flex-col h-full">
           <div className="p-4 border-b border-lavender/10">
-            <div className="flex items-center justify-center lg:justify-between">
-              <div
-                className={cn("flex items-center gap-2 transition-opacity duration-300", !isOpen && "hidden lg:hidden")}
-              >
+            <div className="flex items-center justify-between">
+              <div className={cn("flex items-center gap-2 transition-opacity duration-300", !isOpen && "hidden")}>
                 <div className="w-8 h-8 bg-gradient-to-r from-lime to-green rounded-lg flex items-center justify-center">
                   <Package size={20} className="text-lavender" />
                 </div>
@@ -90,7 +88,7 @@ export function Sidebar() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsOpen(!isOpen)}
-                className="hidden lg:flex text-lavender/60 hover:text-lavender hover:bg-lavender/10 h-10 w-10"
+                className="text-lavender/60 hover:text-lavender hover:bg-lavender/10 h-10 w-10"
               >
                 {isOpen ? <X size={20} /> : <Menu size={20} />}
               </Button>
