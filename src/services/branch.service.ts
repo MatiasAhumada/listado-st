@@ -13,21 +13,21 @@ export interface UpdateBranchDTO {
 }
 
 export async function createBranch(data: CreateBranchDTO) {
-  const response = await clientAxios.post("/api/branches", data);
+  const response = await clientAxios.post("/branches", data);
   return response.data;
 }
 
 export async function getBranches() {
-  const response = await clientAxios.get("/api/branches");
+  const response = await clientAxios.get("/branches");
   return response.data;
 }
 
 export async function updateBranch(id: string, data: UpdateBranchDTO) {
-  const response = await clientAxios.put(`/api/branches/${id}`, data);
+  const response = await clientAxios.put(`/branches/${id}`, data);
   return response.data;
 }
 
 export async function deleteBranch(id: string) {
-  const response = await clientAxios.delete(`/api/branches/${id}`);
+  const response = await clientAxios.delete(`/branches/${id}`);
   return response.data;
 }

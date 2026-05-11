@@ -1,4 +1,4 @@
-import { clientAxios } from "@/utils/clientAxios.util";
+import clientAxios from "@/utils/clientAxios.util";
 
 export const uploadServiceOrderImages = async (serviceOrderId: string, files: File[]) => {
   const formData = new FormData();
