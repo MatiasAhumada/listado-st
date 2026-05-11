@@ -82,7 +82,7 @@ export function Sidebar() {
                 <div className="w-8 h-8 bg-gradient-to-r from-lime to-green rounded-lg flex items-center justify-center">
                   <Package size={20} className="text-lavender" />
                 </div>
-                {isOpen && <span className="text-xl font-bold text-lavender">Listado ST</span>}
+                {isOpen && <span className="text-xl font-bold text-lavender">Service Tech</span>}
               </div>
               <Button
                 variant="ghost"

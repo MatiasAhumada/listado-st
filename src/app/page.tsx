@@ -74,7 +74,7 @@ export default function LoginPage() {
           >
             <Wrench className="w-8 h-8 text-white" />
           </motion.div>
-          <h1 className="text-4xl font-bold text-lavender mb-2">Listado ST</h1>
+          <h1 className="text-4xl font-bold text-lavender mb-2">Service Tech</h1>
           <p className="text-lavender/60">Sistema Integral de Servicio Técnico</p>
         </div>
 

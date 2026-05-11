@@ -61,12 +61,17 @@ export async function POST(request: NextRequest) {
       ...body,
       companyId,
       branchId,
+      clientId: body.clientId || undefined,
+      deliveryDate: body.deliveryDate ? new Date(body.deliveryDate) : undefined,
+      advancePayment: body.advancePayment || undefined,
+      balance: body.balance || undefined,
     });
 
     return NextResponse.json(order, { status: 201 });
   } catch (error: any) {
+    console.error("Error creating service order:", error);
     return apiErrorHandler({
-      error: error instanceof ApiError ? error : new ApiError({ message: "Error al crear orden" }),
+      error: error instanceof ApiError ? error : new ApiError({ message: error.message || "Error al crear orden" }),
       request,
     });
   }
