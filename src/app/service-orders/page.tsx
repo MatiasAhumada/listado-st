@@ -6,7 +6,12 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Sidebar } from "@/components/common/Sidebar";
 import { ServiceOrderModal } from "@/components/service-orders/ServiceOrderModal";
-import { getServiceOrders, deleteServiceOrder, updateServiceOrder, UpdateServiceOrderDTO } from "@/services/serviceOrder.service";
+import {
+  getServiceOrders,
+  deleteServiceOrder,
+  updateServiceOrder,
+  UpdateServiceOrderDTO,
+} from "@/services/serviceOrder.service";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { SERVICE_ORDER_STATUS_LABELS, SERVICE_ORDER_STATUS_COLORS } from "@/constants/serviceOrder.constant";
 import { formatNumber } from "@/utils/formatters.util";
@@ -158,7 +163,9 @@ export default function ServiceOrdersPage() {
                               onValueChange={(value) => handleStatusChange(order.id, value as ServiceOrderStatus)}
                             >
                               <SelectTrigger className="w-auto border-0 bg-transparent hover:bg-skybase-700/30 transition-colors p-0">
-                                <Badge className={`${SERVICE_ORDER_STATUS_COLORS[order.status]} cursor-pointer hover:opacity-80 transition-opacity`}>
+                                <Badge
+                                  className={`${SERVICE_ORDER_STATUS_COLORS[order.status]} cursor-pointer hover:opacity-80 transition-opacity`}
+                                >
                                   {SERVICE_ORDER_STATUS_LABELS[order.status]}
                                 </Badge>
                               </SelectTrigger>
