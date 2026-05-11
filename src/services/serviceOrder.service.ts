@@ -11,7 +11,6 @@ export interface CreateServiceOrderDTO {
   products?: {
     productName: string;
     productType: string;
-    quantity: number;
     unitPrice: number;
   }[];
 }
@@ -28,7 +27,6 @@ export interface UpdateServiceOrderDTO {
   products?: {
     productName: string;
     productType: string;
-    quantity: number;
     unitPrice: number;
   }[];
 }

@@ -12,7 +12,6 @@ export interface CreateServiceOrderData {
   products?: {
     productName: string;
     productType: string;
-    quantity: number;
     unitPrice: number;
   }[];
 }
@@ -29,7 +28,6 @@ export interface UpdateServiceOrderData {
   products?: {
     productName: string;
     productType: string;
-    quantity: number;
     unitPrice: number;
   }[];
 }
@@ -46,9 +44,8 @@ export const serviceOrderRepository = {
               create: products.map((p) => ({
                 productName: p.productName,
                 productType: p.productType,
-                quantity: p.quantity,
                 unitPrice: p.unitPrice,
-                totalPrice: p.quantity * p.unitPrice,
+                totalPrice: p.unitPrice,
               })),
             }
           : undefined,
@@ -145,9 +142,8 @@ export const serviceOrderRepository = {
         create: products.map((p) => ({
           productName: p.productName,
           productType: p.productType,
-          quantity: p.quantity,
           unitPrice: p.unitPrice,
-          totalPrice: p.quantity * p.unitPrice,
+          totalPrice: p.unitPrice,
         })),
       };
     }

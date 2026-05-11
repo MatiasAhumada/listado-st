@@ -27,7 +27,6 @@ interface ServiceOrder {
   products?: {
     id: string;
     productName: string;
-    quantity: number;
     unitPrice: number;
     totalPrice: number;
   }[];
@@ -154,7 +153,7 @@ export default function ServiceOrdersPage() {
                         <td className="p-4">
                           {order.products && order.products.length > 0 ? (
                             <div className="text-xs text-lavender/70">
-                              {order.products.length} producto{order.products.length > 1 ? "s" : ""}
+                              {order.products.length} servicio{order.products.length > 1 ? "s" : ""}
                             </div>
                           ) : (
                             <span className="text-lavender/40">-</span>

@@ -49,7 +49,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
   const [existingImages, setExistingImages] = useState<{ id: string; url: string }[]>([]);
   const [productos, setProductos] = useState<any[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<
-    { productName: string; productType: string; quantity: number; unitPrice: number }[]
+    { productName: string; productType: string; unitPrice: number }[]
   >([]);
   const [formData, setFormData] = useState({
     clientName: "",
@@ -94,7 +94,6 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         order.products?.map((p) => ({
           productName: p.productName,
           productType: p.productType,
-          quantity: p.quantity,
           unitPrice: p.unitPrice,
         })) || []
       );
@@ -116,7 +115,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
   }, [order, open]);
 
   const handleAddProduct = () => {
-    setSelectedProducts([...selectedProducts, { productName: "", productType: "MODULO", quantity: 1, unitPrice: 0 }]);
+    setSelectedProducts([...selectedProducts, { productName: "", productType: "MODULO", unitPrice: 0 }]);
   };
 
   const handleRemoveProduct = (index: number) => {
@@ -144,7 +143,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
   };
 
   const calculateTotal = () => {
-    return selectedProducts.reduce((sum, p) => sum + p.quantity * p.unitPrice, 0);
+    return selectedProducts.reduce((sum, p) => sum + p.unitPrice, 0);
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -361,7 +360,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
 
           {selectedProducts.map((product, index) => (
             <div key={index} className="grid grid-cols-12 gap-2 p-3 bg-charcoal/60 rounded-lg border border-lavender/10">
-              <div className="col-span-5">
+              <div className="col-span-8">
                 <Select
                   value={product.productName}
                   onValueChange={(value) => handleProductSelect(index, value)}
@@ -378,28 +377,8 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
                   </SelectContent>
                 </Select>
               </div>
-              <div className="col-span-2">
-                <Input
-                  type="number"
-                  min="1"
-                  value={product.quantity}
-                  onChange={(e) => handleProductChange(index, "quantity", parseInt(e.target.value) || 1)}
-                  className="bg-dark border-lavender/20 text-lavender"
-                  placeholder="Cant."
-                />
-              </div>
-              <div className="col-span-3">
-                <Input
-                  type="number"
-                  min="0"
-                  value={product.unitPrice}
-                  onChange={(e) => handleProductChange(index, "unitPrice", parseFloat(e.target.value) || 0)}
-                  className="bg-dark border-lavender/20 text-lavender"
-                  placeholder="Precio"
-                />
-              </div>
-              <div className="col-span-1 flex items-center">
-                <span className="text-lime font-bold text-sm">${formatNumber(product.quantity * product.unitPrice)}</span>
+              <div className="col-span-3 flex items-center justify-end">
+                <span className="text-lime font-bold">${formatNumber(product.unitPrice)}</span>
               </div>
               <div className="col-span-1 flex items-center justify-end">
                 <Button
