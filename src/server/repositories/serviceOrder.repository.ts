@@ -4,8 +4,6 @@ import { ServiceOrderStatus, ProductType } from "@prisma/client";
 export interface CreateServiceOrderData {
   clientName: string;
   clientPhone: string;
-  deviceModel: string;
-  deviceIssue: string;
   notes?: string;
   companyId: string;
   branchId?: string;
@@ -17,17 +15,20 @@ export interface CreateServiceOrderData {
     productName: string;
     productType: ProductType;
     unitPrice: number;
+    isDry?: boolean;
+    hasImpact?: boolean;
+    isBrokenScreen?: boolean;
+    isTurnedOn?: boolean;
+    isCharging?: boolean;
+    color?: string;
+    description?: string;
   }[];
 }
 
 export interface UpdateServiceOrderData {
   clientName?: string;
   clientPhone?: string;
-  deviceModel?: string;
-  deviceIssue?: string;
-  finalCost?: number;
   status?: ServiceOrderStatus;
-  notes?: string;
   deliveryDate?: Date;
   advancePayment?: number;
   balance?: number;
@@ -35,6 +36,13 @@ export interface UpdateServiceOrderData {
     productName: string;
     productType: ProductType;
     unitPrice: number;
+    isDry?: boolean;
+    hasImpact?: boolean;
+    isBrokenScreen?: boolean;
+    isTurnedOn?: boolean;
+    isCharging?: boolean;
+    color?: string;
+    description?: string;
   }[];
 }
 
@@ -52,6 +60,13 @@ export const serviceOrderRepository = {
                 productType: p.productType,
                 unitPrice: p.unitPrice,
                 totalPrice: p.unitPrice,
+                isDry: p.isDry || false,
+                hasImpact: p.hasImpact || false,
+                isBrokenScreen: p.isBrokenScreen || false,
+                isTurnedOn: p.isTurnedOn || false,
+                isCharging: p.isCharging || false,
+                color: p.color || undefined,
+                description: p.description || undefined,
               })),
             }
           : undefined,
@@ -209,6 +224,13 @@ export const serviceOrderRepository = {
           productType: p.productType,
           unitPrice: p.unitPrice,
           totalPrice: p.unitPrice,
+          isDry: p.isDry || false,
+          hasImpact: p.hasImpact || false,
+          isBrokenScreen: p.isBrokenScreen || false,
+          isTurnedOn: p.isTurnedOn || false,
+          isCharging: p.isCharging || false,
+          color: p.color || undefined,
+          description: p.description || undefined,
         })),
       };
     }

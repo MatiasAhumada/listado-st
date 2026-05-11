@@ -18,9 +18,11 @@ import {
 import { uploadServiceOrderImages, deleteServiceOrderImage } from "@/services/serviceOrderImage.service";
 import { ServiceOrderStatus, ProductType } from "@prisma/client";
 import { SERVICE_ORDER_STATUS_LABELS } from "@/constants/serviceOrder.constant";
-import { Upload, X, Plus, Trash2 } from "lucide-react";
+import { Upload, X, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import Image from "next/image";
 import { formatNumber } from "@/utils/formatters.util";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ServiceDetails } from "./ServiceDetails";
 
 interface ServiceOrderModalProps {
   open: boolean;
@@ -30,14 +32,10 @@ interface ServiceOrderModalProps {
     id: string;
     clientName: string;
     clientPhone: string;
-    deviceModel: string;
-    deviceIssue: string;
-    finalCost?: number;
     advancePayment?: number;
     balance?: number;
     deliveryDate?: string;
     status: ServiceOrderStatus;
-    notes?: string;
     images?: { id: string; url: string }[];
     products?: {
       id: string;
@@ -45,6 +43,13 @@ interface ServiceOrderModalProps {
       productType: ProductType;
       unitPrice: number;
       totalPrice: number;
+      isDry?: boolean;
+      hasImpact?: boolean;
+      isBrokenScreen?: boolean;
+      isTurnedOn?: boolean;
+      isCharging?: boolean;
+      color?: string;
+      description?: string;
     }[];
   };
 }
@@ -55,20 +60,32 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<{ id: string; url: string }[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<
-    { productId: string; productName: string; productType: ProductType; unitPrice: number }[]
+    { 
+      productId: string; 
+      productName: string; 
+      productType: ProductType; 
+      unitPrice: number; 
+      priceType: "cash" | "credit"; 
+      cashPrice: number; 
+      creditPrice: number;
+      isDry: boolean;
+      hasImpact: boolean;
+      isBrokenScreen: boolean;
+      isTurnedOn: boolean;
+      isCharging: boolean;
+      color: string;
+      description: string;
+      showDetails: boolean;
+    }[]
   >([]);
   const [selectedClient, setSelectedClient] = useState<ClientDTO | null>(null);
   const [formData, setFormData] = useState({
     clientName: "",
     clientPhone: "",
-    deviceModel: "",
-    deviceIssue: "",
-    finalCost: 0,
     advancePayment: 0,
     balance: 0,
     deliveryDate: "",
     status: ServiceOrderStatus.RECEPCIONADO as ServiceOrderStatus,
-    notes: "",
   });
 
   useEffect(() => {
@@ -76,14 +93,10 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
       setFormData({
         clientName: order.clientName,
         clientPhone: order.clientPhone,
-        deviceModel: order.deviceModel,
-        deviceIssue: order.deviceIssue,
-        finalCost: order.finalCost || 0,
         advancePayment: order.advancePayment || 0,
         balance: order.balance || 0,
         deliveryDate: order.deliveryDate ? order.deliveryDate.split('T')[0] : "",
         status: order.status,
-        notes: order.notes || "",
       });
       setExistingImages(order.images || []);
       setSelectedProducts(
@@ -92,20 +105,27 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           productName: p.productName,
           productType: p.productType,
           unitPrice: p.unitPrice,
+          priceType: "cash" as "cash" | "credit",
+          cashPrice: p.unitPrice,
+          creditPrice: p.unitPrice,
+          isDry: p.isDry || false,
+          hasImpact: p.hasImpact || false,
+          isBrokenScreen: p.isBrokenScreen || false,
+          isTurnedOn: p.isTurnedOn || false,
+          isCharging: p.isCharging || false,
+          color: p.color || "",
+          description: p.description || "",
+          showDetails: false,
         })) || []
       );
     } else {
       setFormData({
         clientName: "",
         clientPhone: "",
-        deviceModel: "",
-        deviceIssue: "",
-        finalCost: 0,
         advancePayment: 0,
         balance: 0,
         deliveryDate: "",
         status: ServiceOrderStatus.RECEPCIONADO,
-        notes: "",
       });
       setExistingImages([]);
       setSelectedProducts([]);
@@ -114,10 +134,37 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
     setSelectedFiles([]);
   }, [order, open]);
 
+  useEffect(() => {
+    if (selectedProducts.length > 0) {
+      const total = calculateTotal();
+      const advance = formData.advancePayment;
+      setFormData(prev => ({
+        ...prev,
+        balance: total - advance
+      }));
+    }
+  }, [selectedProducts, formData.advancePayment]);
+
   const handleAddProduct = () => {
     setSelectedProducts([
       ...selectedProducts,
-      { productId: "", productName: "", productType: ProductType.MODULO, unitPrice: 0 },
+      { 
+        productId: "", 
+        productName: "", 
+        productType: ProductType.MODULO, 
+        unitPrice: 0, 
+        priceType: "cash", 
+        cashPrice: 0, 
+        creditPrice: 0,
+        isDry: false,
+        hasImpact: false,
+        isBrokenScreen: false,
+        isTurnedOn: false,
+        isCharging: false,
+        color: "",
+        description: "",
+        showDetails: true,
+      },
     ]);
   };
 
@@ -128,11 +175,22 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
   const handleProductSelect = (index: number, product: any) => {
     const updated = [...selectedProducts];
     updated[index] = {
+      ...updated[index],
       productId: product.id,
       productName: product.name,
       productType: product.type,
       unitPrice: product.cash || 0,
+      priceType: "cash",
+      cashPrice: product.cash || 0,
+      creditPrice: product.credit || 0,
     };
+    setSelectedProducts(updated);
+  };
+
+  const handlePriceTypeChange = (index: number, priceType: "cash" | "credit") => {
+    const updated = [...selectedProducts];
+    updated[index].priceType = priceType;
+    updated[index].unitPrice = priceType === "cash" ? updated[index].cashPrice : updated[index].creditPrice;
     setSelectedProducts(updated);
   };
 
@@ -162,7 +220,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
   };
 
   const handleSubmit = async () => {
-    if (!formData.clientName || !formData.clientPhone || !formData.deviceModel || !formData.deviceIssue) {
+    if (!formData.clientName || !formData.clientPhone) {
       return clientErrorHandler("Complete todos los campos obligatorios");
     }
 
@@ -173,14 +231,10 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         const updateData: UpdateServiceOrderDTO = {
           clientName: formData.clientName,
           clientPhone: formData.clientPhone,
-          deviceModel: formData.deviceModel,
-          deviceIssue: formData.deviceIssue,
-          finalCost: formData.finalCost || undefined,
           advancePayment: formData.advancePayment || undefined,
           balance: formData.balance || undefined,
           deliveryDate: formData.deliveryDate ? new Date(formData.deliveryDate) : undefined,
           status: formData.status,
-          notes: formData.notes || undefined,
         };
         await updateServiceOrder(order.id, updateData);
 
@@ -200,9 +254,6 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         const createData: CreateServiceOrderDTO = {
           clientName: formData.clientName,
           clientPhone: formData.clientPhone,
-          deviceModel: formData.deviceModel,
-          deviceIssue: formData.deviceIssue,
-          notes: formData.notes || undefined,
           clientId: selectedClient?.id,
           deliveryDate: formData.deliveryDate ? new Date(formData.deliveryDate) : undefined,
           advancePayment: formData.advancePayment || undefined,
@@ -213,6 +264,13 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
                   productName: p.productName,
                   productType: p.productType,
                   unitPrice: p.unitPrice,
+                  isDry: p.isDry,
+                  hasImpact: p.hasImpact,
+                  isBrokenScreen: p.isBrokenScreen,
+                  isTurnedOn: p.isTurnedOn,
+                  isCharging: p.isCharging,
+                  color: p.color || undefined,
+                  description: p.description || undefined,
                 }))
               : undefined,
         };
@@ -309,71 +367,6 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           </div>
         )}
 
-        <div className="space-y-2">
-          <Label className="text-white">Modelo del Dispositivo *</Label>
-          <Input
-            value={formData.deviceModel}
-            onChange={(e) => setFormData({ ...formData, deviceModel: e.target.value })}
-            placeholder="Ej: iPhone 13 Pro"
-            className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label className="text-white">Problema Reportado *</Label>
-          <Input
-            value={formData.deviceIssue}
-            onChange={(e) => setFormData({ ...formData, deviceIssue: e.target.value })}
-            placeholder="Descripción del problema"
-            className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
-          />
-        </div>
-
-        <div className="grid grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label className="text-white">Costo Final</Label>
-            <Input
-              type="number"
-              value={formData.finalCost}
-              onChange={(e) => setFormData({ ...formData, finalCost: parseFloat(e.target.value) || 0 })}
-              placeholder="0"
-              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-white">Anticipo</Label>
-            <Input
-              type="number"
-              value={formData.advancePayment}
-              onChange={(e) => setFormData({ ...formData, advancePayment: parseInt(e.target.value) || 0 })}
-              placeholder="0"
-              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-white">Saldo</Label>
-            <Input
-              type="number"
-              value={formData.balance}
-              onChange={(e) => setFormData({ ...formData, balance: parseInt(e.target.value) || 0 })}
-              placeholder="0"
-              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label className="text-white">Fecha de Entrega</Label>
-          <Input
-            type="date"
-            value={formData.deliveryDate}
-            onChange={(e) => setFormData({ ...formData, deliveryDate: e.target.value })}
-            className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
-          />
-        </div>
-
         {order && (
           <div className="space-y-2">
             <Label className="text-white">Estado</Label>
@@ -391,16 +384,6 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           </div>
         )}
 
-        <div className="space-y-2">
-          <Label className="text-white">Notas</Label>
-          <textarea
-            className="w-full min-h-20 px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-white placeholder:text-gray-500"
-            value={formData.notes}
-            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-            placeholder="Notas adicionales..."
-          />
-        </div>
-
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="text-white">Servicios</Label>
@@ -411,34 +394,124 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           </div>
 
           {selectedProducts.map((product, index) => (
-            <div key={index} className="grid grid-cols-12 gap-2 p-3 bg-gray-900 rounded-lg border border-gray-700">
-              <div className="col-span-8">
-                <ProductSearch
-                  value={product.productName}
-                  onSelect={(p) => handleProductSelect(index, p)}
-                  placeholder="Buscar servicio..."
+            <div key={index} className="space-y-2">
+              <div className="grid grid-cols-12 gap-2 p-3 bg-gray-900 rounded-lg border border-gray-700">
+                <div className="col-span-6">
+                  <ProductSearch
+                    value={product.productName}
+                    onSelect={(p) => handleProductSelect(index, p)}
+                    placeholder="Buscar servicio..."
+                  />
+                </div>
+                <div className="col-span-3">
+                  <Select value={product.priceType} onValueChange={(value) => handlePriceTypeChange(index, value as "cash" | "credit")}>
+                    <SelectTrigger className="w-full bg-gray-800 border-gray-700 text-white hover:bg-gray-700">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="cash">Efectivo</SelectItem>
+                      <SelectItem value="credit">Crédito</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="col-span-2 flex items-center justify-end">
+                  <span className="text-lime font-bold">${formatNumber(product.unitPrice)}</span>
+                </div>
+                <div className="col-span-1 flex items-center justify-end gap-1">
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => {
+                      const updated = [...selectedProducts];
+                      updated[index].showDetails = !updated[index].showDetails;
+                      setSelectedProducts(updated);
+                    }}
+                    className="h-8 w-8 text-lavender hover:bg-lavender/20"
+                  >
+                    {product.showDetails ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleRemoveProduct(index)}
+                    className="h-8 w-8 text-red-500 hover:bg-red-500/20"
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
+              </div>
+              
+              {product.showDetails && (
+                <ServiceDetails
+                  index={index}
+                  isDry={product.isDry}
+                  hasImpact={product.hasImpact}
+                  isBrokenScreen={product.isBrokenScreen}
+                  isTurnedOn={product.isTurnedOn}
+                  isCharging={product.isCharging}
+                  color={product.color}
+                  description={product.description}
+                  onChange={(field, value) => {
+                    const updated = [...selectedProducts];
+                    updated[index] = { ...updated[index], [field]: value };
+                    setSelectedProducts(updated);
+                  }}
                 />
-              </div>
-              <div className="col-span-3 flex items-center justify-end">
-                <span className="text-lime font-bold">${formatNumber(product.unitPrice)}</span>
-              </div>
-              <div className="col-span-1 flex items-center justify-end">
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => handleRemoveProduct(index)}
-                  className="h-8 w-8 text-red-500 hover:bg-red-500/20"
-                >
-                  <Trash2 size={16} />
-                </Button>
-              </div>
+              )}
             </div>
           ))}
 
           {selectedProducts.length > 0 && (
-            <div className="flex justify-end p-3 bg-lime/10 rounded-lg border border-lime/30">
-              <span className="text-lg font-bold text-lime">Total: ${formatNumber(calculateTotal())}</span>
+            <div className="space-y-2">
+              <div className="flex justify-end p-3 bg-lime/10 rounded-lg border border-lime/30">
+                <span className="text-lg font-bold text-lime">Total: ${formatNumber(calculateTotal())}</span>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="space-y-2">
+                  <Label className="text-white text-sm">Anticipo</Label>
+                  <Input
+                    type="number"
+                    value={formData.advancePayment === 0 ? "" : formData.advancePayment}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const advance = value === "" ? 0 : parseInt(value);
+                      const total = calculateTotal();
+                      setFormData({ 
+                        ...formData, 
+                        advancePayment: advance,
+                        balance: total - advance
+                      });
+                    }}
+                    placeholder="0"
+                    className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white text-sm">Saldo</Label>
+                  <Input
+                    type="number"
+                    value={formData.balance}
+                    disabled
+                    placeholder="0"
+                    className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 opacity-60 cursor-not-allowed"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white text-sm">Fecha de Entrega</Label>
+                  <Input
+                    type="date"
+                    value={formData.deliveryDate}
+                    onChange={(e) => setFormData({ ...formData, deliveryDate: e.target.value })}
+                    className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+                  />
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -446,57 +519,61 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         <div className="space-y-2">
           <Label className="text-white">Imágenes</Label>
           <div className="space-y-3">
-            {existingImages.length > 0 && (
-              <div className="grid grid-cols-3 gap-2">
-                {existingImages.map((img) => (
-                  <div key={img.id} className="relative group">
-                    <Image
-                      src={img.url}
-                      alt="Imagen de orden"
-                      width={150}
-                      height={150}
-                      className="w-full h-24 object-cover rounded-lg border border-gray-700"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteExistingImage(img.id)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {selectedFiles.length > 0 && (
-              <div className="grid grid-cols-3 gap-2">
-                {selectedFiles.map((file, index) => (
-                  <div key={index} className="relative group">
-                    <Image
-                      src={URL.createObjectURL(file)}
-                      alt="Nueva imagen"
-                      width={150}
-                      height={150}
-                      className="w-full h-24 object-cover rounded-lg border border-lime"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveSelectedFile(index)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
             <label className="flex items-center justify-center gap-2 w-full h-24 border-2 border-dashed border-gray-700 bg-gray-900 rounded-lg cursor-pointer hover:border-lime transition-colors">
               <Upload size={20} className="text-gray-400" />
               <span className="text-sm text-gray-400">Seleccionar imágenes</span>
               <input type="file" accept="image/*" multiple onChange={handleFileSelect} className="hidden" />
             </label>
+
+            {existingImages.length > 0 && (
+              <div className="overflow-x-auto">
+                <div className="flex gap-2 pb-2">
+                  {existingImages.map((img) => (
+                    <div key={img.id} className="relative group flex-shrink-0">
+                      <Image
+                        src={img.url}
+                        alt="Imagen de orden"
+                        width={150}
+                        height={150}
+                        className="w-32 h-24 object-cover rounded-lg border border-gray-700"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteExistingImage(img.id)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedFiles.length > 0 && (
+              <div className="overflow-x-auto">
+                <div className="flex gap-2 pb-2">
+                  {selectedFiles.map((file, index) => (
+                    <div key={index} className="relative group flex-shrink-0">
+                      <Image
+                        src={URL.createObjectURL(file)}
+                        alt="Nueva imagen"
+                        width={150}
+                        height={150}
+                        className="w-32 h-24 object-cover rounded-lg border border-lime"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSelectedFile(index)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -5,35 +5,42 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/common/DataTable";
 import { ServiceOrderModal } from "@/components/service-orders/ServiceOrderModal";
-import { getServiceOrders, deleteServiceOrder } from "@/services/serviceOrder.service";
+import { getServiceOrders, deleteServiceOrder, updateServiceOrder, UpdateServiceOrderDTO } from "@/services/serviceOrder.service";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { SERVICE_ORDER_STATUS_LABELS, SERVICE_ORDER_STATUS_COLORS } from "@/constants/serviceOrder.constant";
 import { formatNumber } from "@/utils/formatters.util";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { ServiceOrderStatus, ProductType } from "@prisma/client";
 import { motion } from "framer-motion";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ServiceOrder {
   id: string;
   clientName: string;
   clientPhone: string;
-  deviceModel: string;
-  deviceIssue: string;
-  estimatedCost: number;
-  finalCost?: number;
+  advancePayment?: number;
+  balance?: number;
+  deliveryDate?: string;
   status: ServiceOrderStatus;
   receivedAt: string;
-  notes?: string;
   branch?: {
     id: string;
     name: string;
   };
+  images?: { id: string; url: string }[];
   products?: {
     id: string;
     productName: string;
     productType: ProductType;
     unitPrice: number;
     totalPrice: number;
+    isDry?: boolean;
+    hasImpact?: boolean;
+    isBrokenScreen?: boolean;
+    isTurnedOn?: boolean;
+    isCharging?: boolean;
+    color?: string;
+    description?: string;
   }[];
 }
 
@@ -75,6 +82,19 @@ export default function ServiceOrdersPage() {
     }
   };
 
+  const handleStatusChange = async (orderId: string, newStatus: ServiceOrderStatus) => {
+    try {
+      const updateData: UpdateServiceOrderDTO = {
+        status: newStatus,
+      };
+      await updateServiceOrder(orderId, updateData);
+      clientSuccessHandler("Estado actualizado correctamente");
+      loadOrders();
+    } catch (error) {
+      clientErrorHandler(error);
+    }
+  };
+
   const handleEdit = (order: ServiceOrder) => {
     setSelectedOrder(order);
     setModalOpen(true);
@@ -94,8 +114,6 @@ export default function ServiceOrdersPage() {
     () => [
       { key: "clientName", label: "Cliente", render: (item: ServiceOrder) => <span className="text-lavender font-bold">{item.clientName}</span> },
       { key: "clientPhone", label: "Teléfono", render: (item: ServiceOrder) => <span className="text-lavender/80">{item.clientPhone}</span> },
-      { key: "deviceModel", label: "Dispositivo", render: (item: ServiceOrder) => <span className="text-lavender/80 font-semibold">{item.deviceModel}</span> },
-      { key: "deviceIssue", label: "Problema", render: (item: ServiceOrder) => <span className="text-lavender/80 max-w-xs truncate block">{item.deviceIssue}</span> },
       {
         key: "branch",
         label: "Sucursal",
@@ -130,7 +148,25 @@ export default function ServiceOrdersPage() {
         key: "status",
         label: "Estado",
         render: (item: ServiceOrder) => (
-          <Badge className={SERVICE_ORDER_STATUS_COLORS[item.status]}>{SERVICE_ORDER_STATUS_LABELS[item.status]}</Badge>
+          <Select
+            value={item.status}
+            onValueChange={(value) => handleStatusChange(item.id, value as ServiceOrderStatus)}
+          >
+            <SelectTrigger className="w-auto border-0 bg-transparent hover:bg-lavender/5 transition-colors p-0">
+              <Badge className={`${SERVICE_ORDER_STATUS_COLORS[item.status]} cursor-pointer hover:opacity-80 transition-opacity`}>
+                {SERVICE_ORDER_STATUS_LABELS[item.status]}
+              </Badge>
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(SERVICE_ORDER_STATUS_LABELS).map(([value, label]) => (
+                <SelectItem key={value} value={value}>
+                  <Badge className={SERVICE_ORDER_STATUS_COLORS[value as ServiceOrderStatus]}>
+                    {label}
+                  </Badge>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         ),
       },
       {

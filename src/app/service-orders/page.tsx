@@ -6,24 +6,38 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Sidebar } from "@/components/common/Sidebar";
 import { ServiceOrderModal } from "@/components/service-orders/ServiceOrderModal";
-import { getServiceOrders, deleteServiceOrder } from "@/services/serviceOrder.service";
+import { getServiceOrders, deleteServiceOrder, updateServiceOrder, UpdateServiceOrderDTO } from "@/services/serviceOrder.service";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { SERVICE_ORDER_STATUS_LABELS, SERVICE_ORDER_STATUS_COLORS } from "@/constants/serviceOrder.constant";
 import { formatNumber } from "@/utils/formatters.util";
 import { Plus, Edit, Trash2 } from "lucide-react";
-import { ServiceOrderStatus } from "@prisma/client";
+import { ServiceOrderStatus, ProductType } from "@prisma/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ServiceOrder {
   id: string;
   clientName: string;
   clientPhone: string;
-  deviceModel: string;
-  deviceIssue: string;
-  estimatedCost: number;
-  finalCost?: number;
+  advancePayment?: number;
+  balance?: number;
+  deliveryDate?: string;
   status: ServiceOrderStatus;
   receivedAt: string;
-  notes?: string;
+  images?: { id: string; url: string }[];
+  products?: {
+    id: string;
+    productName: string;
+    productType: ProductType;
+    unitPrice: number;
+    totalPrice: number;
+    isDry?: boolean;
+    hasImpact?: boolean;
+    isBrokenScreen?: boolean;
+    isTurnedOn?: boolean;
+    isCharging?: boolean;
+    color?: string;
+    description?: string;
+  }[];
 }
 
 export default function ServiceOrdersPage() {
@@ -54,6 +68,19 @@ export default function ServiceOrdersPage() {
     try {
       await deleteServiceOrder(id);
       clientSuccessHandler("Orden eliminada correctamente");
+      loadOrders();
+    } catch (error) {
+      clientErrorHandler(error);
+    }
+  };
+
+  const handleStatusChange = async (orderId: string, newStatus: ServiceOrderStatus) => {
+    try {
+      const updateData: UpdateServiceOrderDTO = {
+        status: newStatus,
+      };
+      await updateServiceOrder(orderId, updateData);
+      clientSuccessHandler("Estado actualizado correctamente");
       loadOrders();
     } catch (error) {
       clientErrorHandler(error);
@@ -103,9 +130,6 @@ export default function ServiceOrdersPage() {
                     <tr className="border-b border-skybase-700/50">
                       <th className="text-left p-4 text-skybase-300 font-semibold">Cliente</th>
                       <th className="text-left p-4 text-skybase-300 font-semibold">Teléfono</th>
-                      <th className="text-left p-4 text-skybase-300 font-semibold">Dispositivo</th>
-                      <th className="text-left p-4 text-skybase-300 font-semibold">Problema</th>
-                      <th className="text-left p-4 text-skybase-300 font-semibold">Costo Est.</th>
                       <th className="text-left p-4 text-skybase-300 font-semibold">Estado</th>
                       <th className="text-left p-4 text-skybase-300 font-semibold">Acciones</th>
                     </tr>
@@ -113,13 +137,13 @@ export default function ServiceOrdersPage() {
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan={7} className="text-center p-8 text-skybase-400">
+                        <td colSpan={4} className="text-center p-8 text-skybase-400">
                           Cargando...
                         </td>
                       </tr>
                     ) : orders.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="text-center p-8 text-skybase-400">
+                        <td colSpan={4} className="text-center p-8 text-skybase-400">
                           No hay órdenes de servicio
                         </td>
                       </tr>
@@ -128,13 +152,26 @@ export default function ServiceOrdersPage() {
                         <tr key={order.id} className="border-b border-skybase-800/30 hover:bg-skybase-800/20">
                           <td className="p-4 text-white font-medium">{order.clientName}</td>
                           <td className="p-4 text-skybase-300">{order.clientPhone}</td>
-                          <td className="p-4 text-skybase-300">{order.deviceModel}</td>
-                          <td className="p-4 text-skybase-300 max-w-xs truncate">{order.deviceIssue}</td>
-                          <td className="p-4 text-bluegreen-400 font-semibold">${formatNumber(order.estimatedCost)}</td>
                           <td className="p-4">
-                            <Badge className={SERVICE_ORDER_STATUS_COLORS[order.status]}>
-                              {SERVICE_ORDER_STATUS_LABELS[order.status]}
-                            </Badge>
+                            <Select
+                              value={order.status}
+                              onValueChange={(value) => handleStatusChange(order.id, value as ServiceOrderStatus)}
+                            >
+                              <SelectTrigger className="w-auto border-0 bg-transparent hover:bg-skybase-700/30 transition-colors p-0">
+                                <Badge className={`${SERVICE_ORDER_STATUS_COLORS[order.status]} cursor-pointer hover:opacity-80 transition-opacity`}>
+                                  {SERVICE_ORDER_STATUS_LABELS[order.status]}
+                                </Badge>
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Object.entries(SERVICE_ORDER_STATUS_LABELS).map(([value, label]) => (
+                                  <SelectItem key={value} value={value}>
+                                    <Badge className={SERVICE_ORDER_STATUS_COLORS[value as ServiceOrderStatus]}>
+                                      {label}
+                                    </Badge>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </td>
                           <td className="p-4">
                             <div className="flex gap-2">

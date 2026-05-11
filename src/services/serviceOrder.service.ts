@@ -4,8 +4,6 @@ import { ServiceOrderStatus, ProductType } from "@prisma/client";
 export interface CreateServiceOrderDTO {
   clientName: string;
   clientPhone: string;
-  deviceModel: string;
-  deviceIssue: string;
   notes?: string;
   clientId?: string;
   deliveryDate?: Date;
@@ -15,17 +13,20 @@ export interface CreateServiceOrderDTO {
     productName: string;
     productType: ProductType;
     unitPrice: number;
+    isDry?: boolean;
+    hasImpact?: boolean;
+    isBrokenScreen?: boolean;
+    isTurnedOn?: boolean;
+    isCharging?: boolean;
+    color?: string;
+    description?: string;
   }[];
 }
 
 export interface UpdateServiceOrderDTO {
   clientName?: string;
   clientPhone?: string;
-  deviceModel?: string;
-  deviceIssue?: string;
-  finalCost?: number;
   status?: ServiceOrderStatus;
-  notes?: string;
   deliveryDate?: Date;
   advancePayment?: number;
   balance?: number;
@@ -33,6 +34,13 @@ export interface UpdateServiceOrderDTO {
     productName: string;
     productType: ProductType;
     unitPrice: number;
+    isDry?: boolean;
+    hasImpact?: boolean;
+    isBrokenScreen?: boolean;
+    isTurnedOn?: boolean;
+    isCharging?: boolean;
+    color?: string;
+    description?: string;
   }[];
 }
 
