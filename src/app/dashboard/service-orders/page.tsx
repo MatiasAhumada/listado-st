@@ -24,6 +24,10 @@ interface ServiceOrder {
   status: ServiceOrderStatus;
   receivedAt: string;
   notes?: string;
+  branch?: {
+    id: string;
+    name: string;
+  };
   products?: {
     id: string;
     productName: string;
@@ -116,6 +120,7 @@ export default function ServiceOrdersPage() {
                   <th className="text-left p-4 text-lavender font-bold">Teléfono</th>
                   <th className="text-left p-4 text-lavender font-bold">Dispositivo</th>
                   <th className="text-left p-4 text-lavender font-bold">Problema</th>
+                  <th className="text-left p-4 text-lavender font-bold">Sucursal</th>
                   <th className="text-left p-4 text-lavender font-bold">Productos</th>
                   <th className="text-left p-4 text-lavender font-bold">Total</th>
                   <th className="text-left p-4 text-lavender font-bold">Estado</th>
@@ -125,13 +130,13 @@ export default function ServiceOrdersPage() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={8} className="text-center p-8 text-lavender/60 font-semibold">
+                    <td colSpan={9} className="text-center p-8 text-lavender/60 font-semibold">
                       Cargando...
                     </td>
                   </tr>
                 ) : orders.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="text-center p-8">
+                    <td colSpan={9} className="text-center p-8">
                       <div className="flex flex-col items-center gap-3">
                         <div className="w-16 h-16 rounded-full bg-lime/20 flex items-center justify-center">
                           <Plus size={32} className="text-lime" />
@@ -150,6 +155,15 @@ export default function ServiceOrdersPage() {
                         <td className="p-4 text-lavender/80">{order.clientPhone}</td>
                         <td className="p-4 text-lavender/80 font-semibold">{order.deviceModel}</td>
                         <td className="p-4 text-lavender/80 max-w-xs truncate">{order.deviceIssue}</td>
+                        <td className="p-4">
+                          {order.branch ? (
+                            <Badge className="bg-lime/20 text-lime border-lime/30">
+                              {order.branch.name}
+                            </Badge>
+                          ) : (
+                            <span className="text-lavender/40">-</span>
+                          )}
+                        </td>
                         <td className="p-4">
                           {order.products && order.products.length > 0 ? (
                             <div className="text-xs text-lavender/70">

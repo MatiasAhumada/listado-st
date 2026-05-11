@@ -9,6 +9,7 @@ export interface CreateServiceOrderData {
   estimatedCost: number;
   notes?: string;
   companyId: string;
+  branchId?: string;
   products?: {
     productName: string;
     productType: string;
@@ -53,6 +54,12 @@ export const serviceOrderRepository = {
       include: {
         images: true,
         products: true,
+        branch: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         company: {
           select: {
             id: true,
@@ -70,6 +77,12 @@ export const serviceOrderRepository = {
       include: {
         images: true,
         products: true,
+        branch: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         company: {
           select: {
             id: true,
@@ -87,6 +100,12 @@ export const serviceOrderRepository = {
       include: {
         images: true,
         products: true,
+        branch: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -97,7 +116,7 @@ export const serviceOrderRepository = {
   async findByVendedor(vendedorId: string) {
     const vendedor = await prisma.user.findUnique({
       where: { id: vendedorId },
-      select: { companyId: true },
+      select: { companyId: true, branchId: true },
     });
 
     if (!vendedor?.companyId) {
@@ -105,10 +124,19 @@ export const serviceOrderRepository = {
     }
 
     return prisma.serviceOrder.findMany({
-      where: { companyId: vendedor.companyId },
+      where: {
+        companyId: vendedor.companyId,
+        branchId: vendedor.branchId || undefined,
+      },
       include: {
         images: true,
         products: true,
+        branch: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -154,6 +182,12 @@ export const serviceOrderRepository = {
       include: {
         images: true,
         products: true,
+        branch: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         company: {
           select: {
             id: true,

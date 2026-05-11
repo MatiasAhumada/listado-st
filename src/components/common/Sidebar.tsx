@@ -6,7 +6,7 @@ import { useAuthStore } from "@/hooks/useAuthStore";
 import { logoutUsuario } from "@/services/auth.service";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, ClipboardList, LogOut, User, Menu, X } from "lucide-react";
+import { Package, ClipboardList, LogOut, User, Menu, X, MapPin, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function Sidebar() {
@@ -35,6 +35,18 @@ export function Sidebar() {
       icon: ClipboardList,
       path: "/dashboard/service-orders",
       roles: ["EMPRESA", "VENDEDOR"],
+    },
+    {
+      label: "Sucursales",
+      icon: MapPin,
+      path: "/dashboard/branches",
+      roles: ["EMPRESA"],
+    },
+    {
+      label: "Vendedores",
+      icon: Users,
+      path: "/dashboard/vendedores",
+      roles: ["EMPRESA"],
     },
   ];
 
