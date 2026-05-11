@@ -246,7 +246,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         </>
       }
     >
-      <div className="space-y-4 p-4 bg-black rounded-lg">
+      <div className="space-y-4 p-6 bg-black rounded-lg">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="text-white">Cliente *</Label>
