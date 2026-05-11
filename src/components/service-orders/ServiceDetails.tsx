@@ -95,31 +95,29 @@ export function ServiceDetails({
         <Label className="text-white text-sm">Color</Label>
         <div className="grid grid-cols-6 gap-2">
           {[
-            { name: 'Negro', value: 'Negro', hex: '#000000' },
-            { name: 'Blanco', value: 'Blanco', hex: '#FFFFFF' },
-            { name: 'Gris', value: 'Gris', hex: '#808080' },
-            { name: 'Azul', value: 'Azul', hex: '#0000FF' },
-            { name: 'Rojo', value: 'Rojo', hex: '#FF0000' },
-            { name: 'Verde', value: 'Verde', hex: '#00FF00' },
-            { name: 'Amarillo', value: 'Amarillo', hex: '#FFFF00' },
-            { name: 'Naranja', value: 'Naranja', hex: '#FFA500' },
-            { name: 'Rosa', value: 'Rosa', hex: '#FFC0CB' },
-            { name: 'Morado', value: 'Morado', hex: '#800080' },
-            { name: 'Dorado', value: 'Dorado', hex: '#FFD700' },
-            { name: 'Plateado', value: 'Plateado', hex: '#C0C0C0' },
+            { name: "Negro", value: "Negro", hex: "#000000" },
+            { name: "Blanco", value: "Blanco", hex: "#FFFFFF" },
+            { name: "Gris", value: "Gris", hex: "#808080" },
+            { name: "Azul", value: "Azul", hex: "#0000FF" },
+            { name: "Rojo", value: "Rojo", hex: "#FF0000" },
+            { name: "Verde", value: "Verde", hex: "#00FF00" },
+            { name: "Amarillo", value: "Amarillo", hex: "#FFFF00" },
+            { name: "Naranja", value: "Naranja", hex: "#FFA500" },
+            { name: "Rosa", value: "Rosa", hex: "#FFC0CB" },
+            { name: "Morado", value: "Morado", hex: "#800080" },
+            { name: "Dorado", value: "Dorado", hex: "#FFD700" },
+            { name: "Plateado", value: "Plateado", hex: "#C0C0C0" },
           ].map((colorOption) => (
             <button
               key={colorOption.value}
               type="button"
-              onClick={() => onChange('color', colorOption.value)}
+              onClick={() => onChange("color", colorOption.value)}
               className="relative group flex flex-col items-center"
               title={colorOption.name}
             >
               <div
                 className={`w-8 h-8 rounded-md border-2 transition-all ${
-                  color === colorOption.value
-                    ? 'border-lime scale-110'
-                    : 'border-gray-600 hover:border-lavender/40'
+                  color === colorOption.value ? "border-lime scale-110" : "border-gray-600 hover:border-lavender/40"
                 }`}
                 style={{ backgroundColor: colorOption.hex }}
               >
@@ -129,9 +127,7 @@ export function ServiceDetails({
                   </div>
                 )}
               </div>
-              <span className="text-xs text-lavender/80 mt-1 truncate w-full text-center">
-                {colorOption.name}
-              </span>
+              <span className="text-xs text-lavender/80 mt-1 truncate w-full text-center">{colorOption.name}</span>
             </button>
           ))}
         </div>

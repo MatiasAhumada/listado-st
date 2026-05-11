@@ -224,14 +224,30 @@ export default function DashboardPage() {
                   <SelectValue placeholder="Filtrar Trabajo" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-800 border-gray-700">
-                  <SelectItem value="TODOS" className="text-white hover:bg-gray-700">Todos los Trabajos</SelectItem>
-                  <SelectItem value="MODULO" className="text-white hover:bg-gray-700">Módulos</SelectItem>
-                  <SelectItem value="BATERIA" className="text-white hover:bg-gray-700">Baterías</SelectItem>
-                  <SelectItem value="PIN" className="text-white hover:bg-gray-700">Pines</SelectItem>
-                  <SelectItem value="CONSOLA" className="text-white hover:bg-gray-700">Consolas</SelectItem>
-                  <SelectItem value="MANTENIMIENTO" className="text-white hover:bg-gray-700">Mantenimiento</SelectItem>
-                  <SelectItem value="VIDRIOS_CAMARA" className="text-white hover:bg-gray-700">Vidrios de Cámara</SelectItem>
-                  <SelectItem value="VARIOS" className="text-white hover:bg-gray-700">Varios</SelectItem>
+                  <SelectItem value="TODOS" className="text-white hover:bg-gray-700">
+                    Todos los Trabajos
+                  </SelectItem>
+                  <SelectItem value="MODULO" className="text-white hover:bg-gray-700">
+                    Módulos
+                  </SelectItem>
+                  <SelectItem value="BATERIA" className="text-white hover:bg-gray-700">
+                    Baterías
+                  </SelectItem>
+                  <SelectItem value="PIN" className="text-white hover:bg-gray-700">
+                    Pines
+                  </SelectItem>
+                  <SelectItem value="CONSOLA" className="text-white hover:bg-gray-700">
+                    Consolas
+                  </SelectItem>
+                  <SelectItem value="MANTENIMIENTO" className="text-white hover:bg-gray-700">
+                    Mantenimiento
+                  </SelectItem>
+                  <SelectItem value="VIDRIOS_CAMARA" className="text-white hover:bg-gray-700">
+                    Vidrios de Cámara
+                  </SelectItem>
+                  <SelectItem value="VARIOS" className="text-white hover:bg-gray-700">
+                    Varios
+                  </SelectItem>
                 </SelectContent>
               </Select>
 

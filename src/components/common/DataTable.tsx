@@ -109,9 +109,13 @@ export function DataTable<T>({
                   >
                     {columns.map((column) => (
                       <td key={column.key} className={`p-4 ${column.className || ""}`}>
-                        {column.render
-                          ? column.render(item)
-                          : <span className="text-lavender">{String((item as Record<string, unknown>)[column.key] ?? "")}</span>}
+                        {column.render ? (
+                          column.render(item)
+                        ) : (
+                          <span className="text-lavender">
+                            {String((item as Record<string, unknown>)[column.key] ?? "")}
+                          </span>
+                        )}
                       </td>
                     ))}
                   </tr>

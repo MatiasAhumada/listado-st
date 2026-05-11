@@ -5,7 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/common/DataTable";
 import { ServiceOrderModal } from "@/components/service-orders/ServiceOrderModal";
-import { getServiceOrders, deleteServiceOrder, updateServiceOrder, UpdateServiceOrderDTO } from "@/services/serviceOrder.service";
+import {
+  getServiceOrders,
+  deleteServiceOrder,
+  updateServiceOrder,
+  UpdateServiceOrderDTO,
+} from "@/services/serviceOrder.service";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { SERVICE_ORDER_STATUS_LABELS, SERVICE_ORDER_STATUS_COLORS } from "@/constants/serviceOrder.constant";
 import { formatNumber } from "@/utils/formatters.util";
@@ -112,8 +117,16 @@ export default function ServiceOrdersPage() {
 
   const columns = useMemo(
     () => [
-      { key: "clientName", label: "Cliente", render: (item: ServiceOrder) => <span className="text-lavender font-bold">{item.clientName}</span> },
-      { key: "clientPhone", label: "Teléfono", render: (item: ServiceOrder) => <span className="text-lavender/80">{item.clientPhone}</span> },
+      {
+        key: "clientName",
+        label: "Cliente",
+        render: (item: ServiceOrder) => <span className="text-lavender font-bold">{item.clientName}</span>,
+      },
+      {
+        key: "clientPhone",
+        label: "Teléfono",
+        render: (item: ServiceOrder) => <span className="text-lavender/80">{item.clientPhone}</span>,
+      },
       {
         key: "branch",
         label: "Sucursal",
@@ -153,16 +166,16 @@ export default function ServiceOrdersPage() {
             onValueChange={(value) => handleStatusChange(item.id, value as ServiceOrderStatus)}
           >
             <SelectTrigger className="w-auto border-0 bg-transparent hover:bg-lavender/5 transition-colors p-0">
-              <Badge className={`${SERVICE_ORDER_STATUS_COLORS[item.status]} cursor-pointer hover:opacity-80 transition-opacity`}>
+              <Badge
+                className={`${SERVICE_ORDER_STATUS_COLORS[item.status]} cursor-pointer hover:opacity-80 transition-opacity`}
+              >
                 {SERVICE_ORDER_STATUS_LABELS[item.status]}
               </Badge>
             </SelectTrigger>
             <SelectContent>
               {Object.entries(SERVICE_ORDER_STATUS_LABELS).map(([value, label]) => (
                 <SelectItem key={value} value={value}>
-                  <Badge className={SERVICE_ORDER_STATUS_COLORS[value as ServiceOrderStatus]}>
-                    {label}
-                  </Badge>
+                  <Badge className={SERVICE_ORDER_STATUS_COLORS[value as ServiceOrderStatus]}>{label}</Badge>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -223,7 +236,12 @@ export default function ServiceOrdersPage() {
         />
       </motion.div>
 
-      <ServiceOrderModal open={modalOpen} onOpenChange={handleModalClose} onSuccess={loadOrders} order={selectedOrder} />
+      <ServiceOrderModal
+        open={modalOpen}
+        onOpenChange={handleModalClose}
+        onSuccess={loadOrders}
+        order={selectedOrder}
+      />
     </div>
   );
 }
