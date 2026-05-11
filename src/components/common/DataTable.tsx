@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search01Icon } from "hugeicons-react";
+import { Search } from "lucide-react";
 
 interface Column<T> {
   key: string;
@@ -11,12 +11,13 @@ interface Column<T> {
 }
 
 interface DataTableProps<T> {
-  title: string;
+  title?: string;
   subtitle?: string;
   columns: Column<T>[];
   data: T[];
   keyExtractor: (item: T) => string;
   emptyMessage?: string;
+  emptyIcon?: ReactNode;
   loading?: boolean;
   searchPlaceholder?: string;
   onSearch?: (value: string) => void;
@@ -32,6 +33,7 @@ export function DataTable<T>({
   data,
   keyExtractor,
   emptyMessage = "No hay datos disponibles",
+  emptyIcon,
   loading = false,
   searchPlaceholder = "Buscar...",
   onSearch,
@@ -41,34 +43,36 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{title}</h1>
-          {subtitle && <p className="text-muted-foreground mt-1 text-sm sm:text-base">{subtitle}</p>}
+      {(title || subtitle || actions) && (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            {title && <h1 className="text-4xl font-black text-lavender">{title}</h1>}
+            {subtitle && <p className="text-lavender/60 text-lg mt-1">{subtitle}</p>}
+          </div>
+          {actions && <div className="flex gap-3">{actions}</div>}
         </div>
-        {actions && <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">{actions}</div>}
-      </div>
+      )}
 
-      <div className="border border-border rounded-lg shadow-lg bg-card">
+      <div className="bg-dark/80 backdrop-blur-sm border border-lavender/10 shadow-2xl rounded-lg overflow-hidden">
         {onSearch && (
-          <div className="p-4 lg:p-6 border-b border-border">
-            <div className="relative w-full sm:max-w-md">
-              <Search01Icon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <div className="p-4 border-b border-lavender/10">
+            <div className="relative w-full max-w-md">
+              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-lavender/50" />
               <Input
                 placeholder={searchPlaceholder}
                 onChange={(e) => onSearch(e.target.value)}
-                className="pl-10 bg-background border-border text-foreground placeholder:text-muted-foreground"
+                className="pl-10 bg-charcoal border-lavender/20 text-lavender placeholder:text-lavender/50"
               />
             </div>
           </div>
         )}
 
-        <div className="p-4 lg:p-6 overflow-x-auto">
-          <table className="w-full min-w-[600px]">
+        <div className="overflow-x-auto">
+          <table className="w-full">
             <thead>
-              <tr className="border-b border-border text-left text-xs text-muted-foreground uppercase tracking-wide">
+              <tr className="border-b border-lavender/10">
                 {columns.map((column) => (
-                  <th key={column.key} className={`pb-3 font-medium ${column.className || ""}`}>
+                  <th key={column.key} className={`text-left p-4 text-lavender font-bold ${column.className || ""}`}>
                     {column.label}
                   </th>
                 ))}
@@ -77,14 +81,21 @@ export function DataTable<T>({
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={columns.length} className="py-8 text-center text-muted-foreground">
+                  <td colSpan={columns.length} className="text-center p-8 text-lavender/60 font-semibold">
                     Cargando...
                   </td>
                 </tr>
               ) : data.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length} className="py-8 text-center text-muted-foreground">
-                    {emptyMessage}
+                  <td colSpan={columns.length} className="text-center p-8">
+                    <div className="flex flex-col items-center gap-3">
+                      {emptyIcon && (
+                        <div className="w-16 h-16 rounded-full bg-lime/20 flex items-center justify-center">
+                          {emptyIcon}
+                        </div>
+                      )}
+                      <p className="text-lavender font-semibold text-lg">{emptyMessage}</p>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -92,15 +103,15 @@ export function DataTable<T>({
                   <tr
                     key={keyExtractor(item)}
                     onClick={() => onRowClick?.(item)}
-                    className={`border-b border-border hover:bg-muted/30 transition-colors ${
+                    className={`border-b border-lavender/10 hover:bg-lavender/5 transition-all ${
                       onRowClick ? "cursor-pointer" : ""
                     }`}
                   >
                     {columns.map((column) => (
-                      <td key={column.key} className={`py-4 ${column.className || ""}`}>
+                      <td key={column.key} className={`p-4 ${column.className || ""}`}>
                         {column.render
                           ? column.render(item)
-                          : String((item as Record<string, unknown>)[column.key] ?? "")}
+                          : <span className="text-lavender">{String((item as Record<string, unknown>)[column.key] ?? "")}</span>}
                       </td>
                     ))}
                   </tr>
@@ -111,8 +122,8 @@ export function DataTable<T>({
         </div>
 
         {totalLabel && (
-          <div className="px-4 lg:px-6 pb-4 lg:pb-6">
-            <p className="text-sm text-muted-foreground uppercase tracking-wide">{totalLabel}</p>
+          <div className="p-4 border-t border-lavender/10">
+            <p className="text-sm text-lavender/60">{totalLabel}</p>
           </div>
         )}
       </div>

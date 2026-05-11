@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { DataTable } from "@/components/common/DataTable";
 import { ServiceOrderModal } from "@/components/service-orders/ServiceOrderModal";
 import { getServiceOrders, deleteServiceOrder } from "@/services/serviceOrder.service";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
@@ -90,130 +90,104 @@ export default function ServiceOrdersPage() {
     setSelectedOrder(undefined);
   };
 
+  const columns = useMemo(
+    () => [
+      { key: "clientName", label: "Cliente", render: (item: ServiceOrder) => <span className="text-lavender font-bold">{item.clientName}</span> },
+      { key: "clientPhone", label: "Teléfono", render: (item: ServiceOrder) => <span className="text-lavender/80">{item.clientPhone}</span> },
+      { key: "deviceModel", label: "Dispositivo", render: (item: ServiceOrder) => <span className="text-lavender/80 font-semibold">{item.deviceModel}</span> },
+      { key: "deviceIssue", label: "Problema", render: (item: ServiceOrder) => <span className="text-lavender/80 max-w-xs truncate block">{item.deviceIssue}</span> },
+      {
+        key: "branch",
+        label: "Sucursal",
+        render: (item: ServiceOrder) =>
+          item.branch ? (
+            <Badge className="bg-lime/20 text-lime border-lime/30">{item.branch.name}</Badge>
+          ) : (
+            <span className="text-lavender/40">-</span>
+          ),
+      },
+      {
+        key: "products",
+        label: "Productos",
+        render: (item: ServiceOrder) =>
+          item.products && item.products.length > 0 ? (
+            <div className="text-xs text-lavender/70">
+              {item.products.length} servicio{item.products.length > 1 ? "s" : ""}
+            </div>
+          ) : (
+            <span className="text-lavender/40">-</span>
+          ),
+      },
+      {
+        key: "total",
+        label: "Total",
+        render: (item: ServiceOrder) => {
+          const total = item.products?.reduce((sum, p) => sum + p.totalPrice, 0) || 0;
+          return <span className="text-lime font-bold text-lg">${formatNumber(total)}</span>;
+        },
+      },
+      {
+        key: "status",
+        label: "Estado",
+        render: (item: ServiceOrder) => (
+          <Badge className={SERVICE_ORDER_STATUS_COLORS[item.status]}>{SERVICE_ORDER_STATUS_LABELS[item.status]}</Badge>
+        ),
+      },
+      {
+        key: "actions",
+        label: "Acciones",
+        render: (item: ServiceOrder) => (
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => handleEdit(item)}
+              className="text-lime hover:text-green hover:bg-lime/20 transition-all"
+            >
+              <Edit size={18} />
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => handleDelete(item.id)}
+              className="text-destructive hover:text-destructive/80 hover:bg-destructive/20 transition-all"
+            >
+              <Trash2 size={18} />
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
+
   return (
     <div className="min-h-screen bg-charcoal p-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-7xl mx-auto space-y-6"
+        className="max-w-7xl mx-auto"
       >
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-4xl font-black text-lavender">Órdenes de Servicio</h1>
-            <p className="text-lavender/60 text-lg mt-1">Gestión de servicios técnicos</p>
-          </div>
-          <Button
-            onClick={handleCreate}
-            className="bg-lime hover:bg-green text-dark font-bold px-6 py-6 text-lg shadow-lg"
-          >
-            <Plus className="mr-2" size={24} />
-            Nueva Orden
-          </Button>
-        </div>
-
-        <Card className="bg-dark/80 backdrop-blur-sm border border-lavender/10 shadow-2xl">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-lavender/10">
-                  <th className="text-left p-4 text-lavender font-bold">Cliente</th>
-                  <th className="text-left p-4 text-lavender font-bold">Teléfono</th>
-                  <th className="text-left p-4 text-lavender font-bold">Dispositivo</th>
-                  <th className="text-left p-4 text-lavender font-bold">Problema</th>
-                  <th className="text-left p-4 text-lavender font-bold">Sucursal</th>
-                  <th className="text-left p-4 text-lavender font-bold">Productos</th>
-                  <th className="text-left p-4 text-lavender font-bold">Total</th>
-                  <th className="text-left p-4 text-lavender font-bold">Estado</th>
-                  <th className="text-left p-4 text-lavender font-bold">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan={9} className="text-center p-8 text-lavender/60 font-semibold">
-                      Cargando...
-                    </td>
-                  </tr>
-                ) : orders.length === 0 ? (
-                  <tr>
-                    <td colSpan={9} className="text-center p-8">
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="w-16 h-16 rounded-full bg-lime/20 flex items-center justify-center">
-                          <Plus size={32} className="text-lime" />
-                        </div>
-                        <p className="text-lavender font-semibold text-lg">No hay órdenes de servicio</p>
-                        <p className="text-lavender/60">Crea tu primera orden para comenzar</p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  orders.map((order) => {
-                    const total = order.products?.reduce((sum, p) => sum + p.totalPrice, 0) || 0;
-                    return (
-                      <tr key={order.id} className="border-b border-lavender/10 hover:bg-lavender/5 transition-all">
-                        <td className="p-4 text-lavender font-bold">{order.clientName}</td>
-                        <td className="p-4 text-lavender/80">{order.clientPhone}</td>
-                        <td className="p-4 text-lavender/80 font-semibold">{order.deviceModel}</td>
-                        <td className="p-4 text-lavender/80 max-w-xs truncate">{order.deviceIssue}</td>
-                        <td className="p-4">
-                          {order.branch ? (
-                            <Badge className="bg-lime/20 text-lime border-lime/30">{order.branch.name}</Badge>
-                          ) : (
-                            <span className="text-lavender/40">-</span>
-                          )}
-                        </td>
-                        <td className="p-4">
-                          {order.products && order.products.length > 0 ? (
-                            <div className="text-xs text-lavender/70">
-                              {order.products.length} servicio{order.products.length > 1 ? "s" : ""}
-                            </div>
-                          ) : (
-                            <span className="text-lavender/40">-</span>
-                          )}
-                        </td>
-                        <td className="p-4 text-lime font-bold text-lg">${formatNumber(total)}</td>
-                        <td className="p-4">
-                          <Badge className={SERVICE_ORDER_STATUS_COLORS[order.status]}>
-                            {SERVICE_ORDER_STATUS_LABELS[order.status]}
-                          </Badge>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleEdit(order)}
-                              className="text-lime hover:text-green hover:bg-lime/20 transition-all"
-                            >
-                              <Edit size={18} />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleDelete(order.id)}
-                              className="text-destructive hover:text-destructive/80 hover:bg-destructive/20 transition-all"
-                            >
-                              <Trash2 size={18} />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+        <DataTable
+          title="Órdenes de Servicio"
+          subtitle="Gestión de servicios técnicos"
+          data={orders}
+          columns={columns}
+          keyExtractor={(item: ServiceOrder) => item.id}
+          loading={loading}
+          emptyMessage="No hay órdenes de servicio"
+          emptyIcon={<Plus size={32} className="text-lime" />}
+          actions={
+            <Button onClick={handleCreate} className="bg-lime hover:bg-green text-dark font-bold px-6 py-3 shadow-lg">
+              <Plus className="mr-2" size={20} />
+              Nueva Orden
+            </Button>
+          }
+        />
       </motion.div>
 
-      <ServiceOrderModal
-        open={modalOpen}
-        onOpenChange={handleModalClose}
-        onSuccess={loadOrders}
-        order={selectedOrder}
-      />
+      <ServiceOrderModal open={modalOpen} onOpenChange={handleModalClose} onSuccess={loadOrders} order={selectedOrder} />
     </div>
   );
 }
