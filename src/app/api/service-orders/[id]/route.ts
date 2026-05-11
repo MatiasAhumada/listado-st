@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serviceOrderService } from "@/server/service/serviceOrder.service";
-import { apiErrorHandler } from "@/utils/handlers/apiError.handler";
+import apiErrorHandler from "@/utils/handlers/apiError.handler";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {

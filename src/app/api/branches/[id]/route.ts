@@ -22,15 +22,16 @@ function getAuthContext(cookieStore: any, headers?: Headers) {
   return jwt.verify(token, JWT_SECRET) as { id: string; role: string };
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const cookieStore = await cookies();
     getAuthContext(cookieStore, request.headers);
 
+    const { id } = await params;
     const body = await request.json();
     const { name, address, phone } = body;
 
-    const branch = await branchRepository.update(params.id, {
+    const branch = await branchRepository.update(id, {
       name,
       address,
       phone,
@@ -45,12 +46,13 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const cookieStore = await cookies();
     getAuthContext(cookieStore, request.headers);
 
-    await branchRepository.delete(params.id);
+    const { id } = await params;
+    await branchRepository.delete(id);
     return NextResponse.json({ message: BRANCH_MESSAGES.DELETED });
   } catch (error: any) {
     return apiErrorHandler({

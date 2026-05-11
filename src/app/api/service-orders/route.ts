@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serviceOrderService } from "@/server/service/serviceOrder.service";
-import { apiErrorHandler } from "@/utils/handlers/apiError.handler";
+import apiErrorHandler from "@/utils/handlers/apiError.handler";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { ApiError } from "@/utils/handlers/apiError.handler";

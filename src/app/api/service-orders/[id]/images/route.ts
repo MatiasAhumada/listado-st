@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { r2StorageService } from "@/server/service/r2Storage.service";
 import { prisma } from "@/lib/prisma";
-import { apiErrorHandler } from "@/utils/handlers/apiError.handler";
+import apiErrorHandler from "@/utils/handlers/apiError.handler";
 import { IMAGE_UPLOAD_CONFIG, IMAGE_UPLOAD_MESSAGES } from "@/constants/imageUpload.constant";
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
