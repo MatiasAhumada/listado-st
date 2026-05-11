@@ -20,15 +20,18 @@ enum ProductType {
   MODULO
   BATERIA
   PIN
+  CONSOLA
+  MANTENIMIENTO
+  VIDRIOS_CAMARA
   VARIOS
 }
 
-enum ProductQuality {
-  INCELL
-  OLED
-  ORIGINAL
-  SERVICEPACK
-  REMANOFACTURADO
+enum ServiceOrderStatus {
+  RECEPCIONADO
+  RETIRADO_POR_TECNICO
+  DEVUELTO_POR_TECNICO
+  ENTREGADO_A_CLIENTE
+  COBRADO
 }
 
 model User {
@@ -40,9 +43,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  productos Producto[]
-  company   User?     @relation("CompanyVendedores", fields: [companyId], references: [id])
-  vendedores User[]   @relation("CompanyVendedores")
+  productos     Producto[]
+  serviceOrders ServiceOrder[]
+  company       User?          @relation("CompanyVendedores", fields: [companyId], references: [id])
+  vendedores    User[]         @relation("CompanyVendedores")
 
   @@map("users")
 }
@@ -51,7 +55,6 @@ model Producto {
   id               String          @id @default(uuid())
   name             String
   type             ProductType
-  quality          ProductQuality?
   available        Boolean         @default(true)
   costTech         Float           @default(0)
   costTechMargin   Float           @default(0)
@@ -72,4 +75,41 @@ model Producto {
   company   User?   @relation(fields: [companyId], references: [id])
 
   @@map("productos")
+}
+
+model ServiceOrder {
+  id                String             @id @default(uuid())
+  clientName        String
+  clientPhone       String
+  deviceModel       String
+  deviceIssue       String
+  estimatedCost     Float
+  finalCost         Float?
+  status            ServiceOrderStatus @default(RECEPCIONADO)
+  receivedAt        DateTime           @default(now())
+  pickedUpAt        DateTime?
+  returnedAt        DateTime?
+  deliveredAt       DateTime?
+  paidAt            DateTime?
+  notes             String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  companyId String
+  company   User   @relation(fields: [companyId], references: [id])
+
+  images ServiceOrderImage[]
+
+  @@map("service_orders")
+}
+
+model ServiceOrderImage {
+  id             String   @id @default(uuid())
+  url            String
+  uploadedAt     DateTime @default(now())
+
+  serviceOrderId String
+  serviceOrder   ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+
+  @@map("service_order_images")
 }

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma, ProductType, ProductQuality, Role } from "@prisma/client";
+import { Prisma, ProductType, Role } from "@prisma/client";
 
 export type UserRole = Role | "TECNICO";
 
@@ -7,20 +7,12 @@ export class ProductoRepository {
   static async findAll(
     userRole: UserRole,
     userId: string,
-    filters?: { type?: string; quality?: string; search?: string }
+    filters?: { type?: string; search?: string }
   ) {
     const where: Prisma.ProductoWhereInput = {};
 
     if (filters?.type && filters.type !== "TODOS") {
       where.type = filters.type as ProductType;
-    }
-
-    if (filters?.quality && filters.quality !== "TODAS") {
-      if (filters.quality === "NINGUNA") {
-        where.quality = null;
-      } else {
-        where.quality = filters.quality as ProductQuality;
-      }
     }
 
     if (filters?.search) {
@@ -45,7 +37,6 @@ export class ProductoRepository {
           id: true,
           name: true,
           type: true,
-          quality: true,
           available: true,
           cash: true,
           credit: true,
@@ -65,7 +56,6 @@ export class ProductoRepository {
           id: true,
           name: true,
           type: true,
-          quality: true,
           available: true,
           costTech: true,
           costTechMargin: true,
@@ -90,7 +80,6 @@ export class ProductoRepository {
         id: true,
         name: true,
         type: true,
-        quality: true,
         available: true,
         costTech: true,
         costTechMargin: true,
@@ -152,6 +141,25 @@ export class ProductoRepository {
     return prisma.producto.updateMany({
       where: { masterProductId },
       data: { cost: newCost },
+    });
+  }
+
+  static async updateCopiasAllFields(
+    masterProductId: string,
+    data: {
+      costTech: number;
+      costTechMargin: number;
+      cost: number;
+      costMargin: number;
+      cash: number;
+      cashMargin: number;
+      credit: number;
+      creditMargin: number;
+    }
+  ) {
+    return prisma.producto.updateMany({
+      where: { masterProductId },
+      data,
     });
   }
 }

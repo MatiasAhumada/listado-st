@@ -5,7 +5,6 @@ import httpStatus from "http-status";
 export interface CreateProductoDTO {
   name: string;
   type: string;
-  quality?: string | null;
   available: boolean;
   costTech?: number;
   costTechMargin?: number;
@@ -17,16 +16,21 @@ export interface CreateProductoDTO {
 export interface BulkProductoDTO {
   name: string;
   type: string;
-  quality?: string | null;
   costTech: number;
   costTechMargin: number;
+  cost: number;
+  costMargin: number;
+  cash: number;
+  cashMargin: number;
+  credit: number;
+  creditMargin: number;
 }
 
 export class ProductoService {
   static async getAll(
     userRole: UserRole,
     companyId: string,
-    filters?: { type?: string; quality?: string; search?: string }
+    filters?: { type?: string; search?: string }
   ) {
     return await ProductoRepository.findAll(userRole, companyId, filters);
   }
@@ -46,7 +50,6 @@ export class ProductoService {
     const masterProduct = await ProductoRepository.create({
       name: data.name,
       type: data.type,
-      quality: data.quality,
       available: data.available,
       costTech: data.costTech,
       costTechMargin,
@@ -66,7 +69,6 @@ export class ProductoService {
       await ProductoRepository.create({
         name: data.name,
         type: data.type,
-        quality: data.quality,
         available: data.available,
         costTech: data.costTech,
         costTechMargin,
@@ -106,7 +108,6 @@ export class ProductoService {
       await ProductoRepository.update(id, {
         name: data.name,
         type: data.type,
-        quality: data.quality,
         available: data.available,
         costTech,
         costTechMargin,
@@ -131,7 +132,6 @@ export class ProductoService {
     return await ProductoRepository.update(id, {
       name: data.name,
       type: data.type,
-      quality: data.quality,
       available: data.available,
       cashMargin,
       cash,
@@ -171,31 +171,43 @@ export class ProductoService {
     for (const producto of productos) {
       try {
         const existente = await ProductoRepository.findByName(producto.name);
-        const cost = producto.costTech * (1 + producto.costTechMargin / 100);
 
         if (existente) {
           await ProductoRepository.update(existente.id, {
             costTech: producto.costTech,
             costTechMargin: producto.costTechMargin,
-            cost,
+            cost: producto.cost,
+            costMargin: producto.costMargin,
+            cash: producto.cash,
+            cashMargin: producto.cashMargin,
+            credit: producto.credit,
+            creditMargin: producto.creditMargin,
           });
 
-          await ProductoRepository.updateCopiasCost(existente.id, cost);
+          await ProductoRepository.updateCopiasAllFields(existente.id, {
+            costTech: producto.costTech,
+            costTechMargin: producto.costTechMargin,
+            cost: producto.cost,
+            costMargin: producto.costMargin,
+            cash: producto.cash,
+            cashMargin: producto.cashMargin,
+            credit: producto.credit,
+            creditMargin: producto.creditMargin,
+          });
           resultados.actualizados++;
         } else {
           const masterProduct = await ProductoRepository.create({
             name: producto.name,
             type: producto.type,
-            quality: producto.quality,
             available: true,
             costTech: producto.costTech,
             costTechMargin: producto.costTechMargin,
-            cost,
-            costMargin: 0,
-            cash: 0,
-            cashMargin: 0,
-            credit: 0,
-            creditMargin: 0,
+            cost: producto.cost,
+            costMargin: producto.costMargin,
+            cash: producto.cash,
+            cashMargin: producto.cashMargin,
+            credit: producto.credit,
+            creditMargin: producto.creditMargin,
             companyId: null,
             masterProductId: null,
           });
@@ -206,16 +218,15 @@ export class ProductoService {
             await ProductoRepository.create({
               name: producto.name,
               type: producto.type,
-              quality: producto.quality,
               available: true,
               costTech: producto.costTech,
               costTechMargin: producto.costTechMargin,
-              cost,
-              costMargin: 0,
-              cash: 0,
-              cashMargin: 0,
-              credit: 0,
-              creditMargin: 0,
+              cost: producto.cost,
+              costMargin: producto.costMargin,
+              cash: producto.cash,
+              cashMargin: producto.cashMargin,
+              credit: producto.credit,
+              creditMargin: producto.creditMargin,
               companyId: empresa.id,
               masterProductId: masterProduct.id,
             });

@@ -1,0 +1,63 @@
+import { NextRequest, NextResponse } from "next/server";
+import { serviceOrderService } from "@/server/service/serviceOrder.service";
+import { apiErrorHandler } from "@/utils/handlers/apiError.handler";
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
+import { ApiError } from "@/utils/handlers/apiError.handler";
+import httpStatus from "http-status";
+
+const JWT_SECRET = process.env.JWT_SECRET || "super-secret";
+
+function getAuthContext(cookieStore: any, headers?: Headers) {
+  let token = cookieStore.get("auth-token")?.value;
+  if (!token && headers) {
+    const authHeader = headers.get("authorization") || headers.get("Authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      token = authHeader.slice(7);
+    }
+  }
+  if (!token) {
+    throw new ApiError({ status: httpStatus.UNAUTHORIZED, message: "No autenticado" });
+  }
+  return jwt.verify(token, JWT_SECRET) as { id: string; role: string };
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const cookieStore = await cookies();
+    const decoded = getAuthContext(cookieStore, request.headers);
+
+    const orders = await serviceOrderService.getServiceOrdersByUser(decoded.id, decoded.role);
+    return NextResponse.json(orders);
+  } catch (error) {
+    return apiErrorHandler(error);
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const cookieStore = await cookies();
+    const decoded = getAuthContext(cookieStore, request.headers);
+
+    const body = await request.json();
+    
+    let companyId = decoded.id;
+    if (decoded.role === "VENDEDOR") {
+      const { userRepository } = await import("@/server/repositories/user.repository");
+      const vendedor = await userRepository.findById(decoded.id);
+      if (!vendedor?.companyId) {
+        throw new ApiError({ status: httpStatus.FORBIDDEN, message: "Vendedor sin empresa asignada" });
+      }
+      companyId = vendedor.companyId;
+    }
+
+    const order = await serviceOrderService.createServiceOrder({
+      ...body,
+      companyId,
+    });
+
+    return NextResponse.json(order, { status: 201 });
+  } catch (error) {
+    return apiErrorHandler(error);
+  }
+}

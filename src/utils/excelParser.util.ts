@@ -9,8 +9,13 @@ export interface ProductoProcesado {
   name: string;
   costTech: number;
   costTechMargin: number;
+  cost: number;
+  costMargin: number;
+  cash: number;
+  cashMargin: number;
+  credit: number;
+  creditMargin: number;
   type: string;
-  quality: string;
 }
 
 export function limpiarPrecio(precioStr: string | number): number {
@@ -135,13 +140,20 @@ export async function procesarExcelFile(file: File): Promise<ProductoProcesado[]
     for (const [nombreProducto, items] of agrupados) {
       const precios = items.map((p) => p.precio);
       const promedio = precios.reduce((a, b) => a + b, 0) / precios.length;
+      const costTech = Math.round(promedio);
+      const cost = costTech * 2;
 
       productosProcesados.push({
         name: nombreProducto,
-        costTech: Math.round(promedio),
+        costTech,
         costTechMargin: 100,
+        cost,
+        costMargin: 100,
+        cash: cost * 2,
+        cashMargin: 100,
+        credit: cost * 2.2,
+        creditMargin: 120,
         type: "MODULO",
-        quality: "OLED",
       });
 
       const itemsCM = items.filter((p) => /c\/m/i.test(p.descripcion));
@@ -149,13 +161,20 @@ export async function procesarExcelFile(file: File): Promise<ProductoProcesado[]
       if (itemsCM.length > 0) {
         const preciosCM = itemsCM.map((p) => p.precio);
         const promedioCM = preciosCM.reduce((a, b) => a + b, 0) / preciosCM.length;
+        const costTechCM = Math.round(promedioCM);
+        const costCM = costTechCM * 2;
 
         productosProcesados.push({
           name: `${nombreProducto} C/M`,
-          costTech: Math.round(promedioCM),
+          costTech: costTechCM,
           costTechMargin: 100,
+          cost: costCM,
+          costMargin: 100,
+          cash: costCM * 2,
+          cashMargin: 100,
+          credit: costCM * 2.2,
+          creditMargin: 120,
           type: "MODULO",
-          quality: "OLED",
         });
       }
     }

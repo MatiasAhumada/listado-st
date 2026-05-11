@@ -4,7 +4,6 @@ import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/hooks/useAuthStore";
 import { getProductos, deleteProducto } from "@/services/producto.service";
-import { logoutUsuario } from "@/services/auth.service";
 import { DataTable } from "@/components/common/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,9 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AddProductModal } from "@/components/dashboard/AddProductModal";
 import { BulkUploadModal } from "@/components/dashboard/BulkUploadModal";
 import { GenericModal } from "@/components/common/GenericModal";
-import { LogOut, Plus, Edit, Trash, Upload } from "lucide-react";
+import { Plus, Edit, Trash, Upload } from "lucide-react";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { formatNumber } from "@/utils/formatters.util";
+import { motion } from "framer-motion";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -30,12 +30,6 @@ export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedType, setSelectedType] = useState("TODOS");
-  const [selectedQuality, setSelectedQuality] = useState("TODAS");
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -49,7 +43,6 @@ export default function DashboardPage() {
       setLoading(true);
       const productos = await getProductos({
         type: selectedType !== "TODOS" ? selectedType : undefined,
-        quality: selectedQuality !== "TODAS" ? selectedQuality : undefined,
         search: debouncedSearch || undefined,
       });
       setData(productos);
@@ -63,19 +56,8 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    if (!isHydrated) return;
-    if (!user) {
-      router.push("/");
-      return;
-    }
     fetchData();
-  }, [user, isHydrated, router, debouncedSearch, selectedType, selectedQuality]);
-
-  const handleLogout = async () => {
-    await logoutUsuario();
-    logout();
-    router.push("/");
-  };
+  }, [debouncedSearch, selectedType]);
 
   const handleDelete = async () => {
     if (!productToDelete) return;
@@ -96,19 +78,16 @@ export default function DashboardPage() {
   const columns = useMemo(() => {
     const baseCols: { key: string; label: string; render?: (item: any) => any; className?: string }[] = [
       { key: "name", label: "Producto" },
-      { key: "type", label: "Tipo" },
-      {
-        key: "quality",
-        label: "Calidad",
-        render: (item: any) => item.quality || <span className="text-skybase-200 font-bold">-</span>,
-      },
+      { key: "type", label: "Trabajo" },
       {
         key: "available",
         label: "Estado",
         render: (item: any) => (
           <Badge
             className={
-              item.available ? "bg-bluegreen-500 hover:bg-bluegreen-600" : "bg-princeton-500 hover:bg-princeton-600"
+              item.available 
+                ? "bg-lime text-dark shadow-md" 
+                : "bg-destructive text-white shadow-md"
             }
           >
             {item.available ? "Disponible" : "Sin Stock"}
@@ -122,13 +101,13 @@ export default function DashboardPage() {
         key: "costTech",
         label: "Costo Repuesto",
         render: (item: any) => (
-          <span className="font-semibold text-purple-600">${formatNumber(item.costTech || 0)}</span>
+          <span className="font-bold text-lavender">${formatNumber(item.costTech || 0)}</span>
         ),
       });
       baseCols.push({
         key: "cost",
         label: "Costo Cliente",
-        render: (item: any) => <span className="font-bold text-deepspace-500">${formatNumber(item.cost || 0)}</span>,
+        render: (item: any) => <span className="font-bold text-lime">${formatNumber(item.cost || 0)}</span>,
       });
     }
 
@@ -136,17 +115,17 @@ export default function DashboardPage() {
       baseCols.push({
         key: "cost",
         label: "Costo",
-        render: (item: any) => <span className="font-semibold text-deepspace-500">${formatNumber(item.cost)}</span>,
+        render: (item: any) => <span className="font-bold text-destructive">${formatNumber(item.cost)}</span>,
       });
       baseCols.push({
         key: "cash",
         label: "Efectivo",
-        render: (item: any) => <span className="font-bold text-bluegreen-500">${formatNumber(item.cash)}</span>,
+        render: (item: any) => <span className="font-bold text-lime">${formatNumber(item.cash)}</span>,
       });
       baseCols.push({
         key: "credit",
         label: "Tarjeta",
-        render: (item: any) => <span className="font-bold text-amber-500">${formatNumber(item.credit)}</span>,
+        render: (item: any) => <span className="font-bold text-green">${formatNumber(item.credit)}</span>,
       });
     }
 
@@ -154,12 +133,12 @@ export default function DashboardPage() {
       baseCols.push({
         key: "cash",
         label: "Efectivo",
-        render: (item: any) => <span className="font-bold text-bluegreen-500">${formatNumber(item.cash || 0)}</span>,
+        render: (item: any) => <span className="font-bold text-lime">${formatNumber(item.cash || 0)}</span>,
       });
       baseCols.push({
         key: "credit",
         label: "Tarjeta",
-        render: (item: any) => <span className="font-bold text-amber-500">${formatNumber(item.credit || 0)}</span>,
+        render: (item: any) => <span className="font-bold text-green">${formatNumber(item.credit || 0)}</span>,
       });
     }
 
@@ -173,26 +152,26 @@ export default function DashboardPage() {
             <Button
               size="icon"
               variant="ghost"
-              className="hover:bg-bluegreen-100/50 hover:text-bluegreen-600"
+              className="hover:bg-lime/20 hover:text-lime transition-all"
               onClick={(e) => {
                 e.stopPropagation();
                 setProductToEdit(item);
                 setModalOpen(true);
               }}
             >
-              <Edit size={16} className="text-bluegreen-500" />
+              <Edit size={16} className="text-lime" />
             </Button>
             <Button
               size="icon"
               variant="ghost"
-              className="hover:bg-red-50 hover:text-red-600"
+              className="hover:bg-destructive/20 hover:text-destructive transition-all"
               onClick={(e) => {
                 e.stopPropagation();
                 setProductToDelete(item);
                 setDeleteModalOpen(true);
               }}
             >
-              <Trash size={16} className="text-red-500" />
+              <Trash size={16} className="text-destructive" />
             </Button>
           </div>
         ),
@@ -209,14 +188,14 @@ export default function DashboardPage() {
             <Button
               size="icon"
               variant="ghost"
-              className="hover:bg-bluegreen-100/50 hover:text-bluegreen-600"
+              className="hover:bg-lime/20 hover:text-lime transition-all"
               onClick={(e) => {
                 e.stopPropagation();
                 setProductToEdit(item);
                 setModalOpen(true);
               }}
             >
-              <Edit size={16} className="text-bluegreen-500" />
+              <Edit size={16} className="text-lime" />
             </Button>
           </div>
         ),
@@ -226,44 +205,23 @@ export default function DashboardPage() {
     return baseCols;
   }, [isEmpresa, isTecnico]);
 
-  if (!isHydrated || !user) return null;
-
   return (
-    <div className="min-h-screen bg-skybase-900 relative overflow-hidden">
-      {/* Decorative background for Dashboard */}
-      <div className="absolute top-0 w-full h-80 bg-gradient-to-r from-deepspace-500 via-deepspace-400 to-deepspace-300 rounded-b-[4rem] shadow-xl z-0 pointer-events-none"></div>
-
-      {/* Top Navbar */}
-      <header className="relative z-10 mx-auto max-w-7xl pt-6 px-4">
-        <div className="bg-white/95 backdrop-blur-md shadow-lg border border-skybase-700/50 rounded-2xl h-16 flex items-center justify-between px-6">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-black text-deepspace-500">Listado ST</h1>
-            <Badge className="bg-amber-500 hover:bg-amber-400 uppercase text-deepspace-100 font-bold border-0 shadow-sm">
-              {user.role}
-            </Badge>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-skybase-200 font-medium">
-              Hola, <b className="text-deepspace-500 font-bold">{user.username}</b>
-            </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleLogout}
-              className="text-skybase-200 hover:text-princeton-500 hover:bg-skybase-900 rounded-full transition-colors"
-            >
-              <LogOut size={18} />
-            </Button>
-          </div>
+    <div className="min-h-screen bg-charcoal p-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-7xl mx-auto"
+      >
+        <div className="mb-6">
+          <h1 className="text-4xl font-black text-lavender mb-2">Inventario Activo</h1>
+          <p className="text-lavender/60 text-lg">{isEmpresa ? "Vista administrador global" : "Catálogo disponible para venta"}</p>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="relative z-10 container mx-auto px-4 py-8 pb-32 max-w-7xl">
-        <div className="bg-white shadow-xl rounded-2xl p-6 border border-skybase-800">
+        <div className="bg-dark/80 backdrop-blur-sm shadow-2xl rounded-2xl p-6 border border-lavender/10">
           <DataTable
-            title="Inventario Activo"
-            subtitle={isEmpresa ? "Vista administrador global" : "Catálogo disponible para venta"}
+            title=""
+            subtitle=""
             data={data}
             columns={columns}
             keyExtractor={(item: any) => item.id}
@@ -274,63 +232,48 @@ export default function DashboardPage() {
             actions={
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mt-4 sm:mt-0">
                 <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger className="w-full sm:w-[150px] bg-white border-border">
-                    <SelectValue placeholder="Filtrar Tipo" />
+                  <SelectTrigger className="w-full sm:w-[180px] bg-charcoal border-lavender/20 text-lavender hover:border-lime transition-all">
+                    <SelectValue placeholder="Filtrar Trabajo" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="TODOS">Todos los Tipos</SelectItem>
+                    <SelectItem value="TODOS">Todos los Trabajos</SelectItem>
                     <SelectItem value="MODULO">Módulos</SelectItem>
                     <SelectItem value="BATERIA">Baterías</SelectItem>
                     <SelectItem value="PIN">Pines</SelectItem>
+                    <SelectItem value="CONSOLA">Consolas</SelectItem>
+                    <SelectItem value="MANTENIMIENTO">Mantenimiento</SelectItem>
+                    <SelectItem value="VIDRIOS_CAMARA">Vidrios de Cámara</SelectItem>
                     <SelectItem value="VARIOS">Varios</SelectItem>
                   </SelectContent>
                 </Select>
 
-                <Select value={selectedQuality} onValueChange={setSelectedQuality}>
-                  <SelectTrigger className="w-full sm:w-[160px] bg-white border-border">
-                    <SelectValue placeholder="Filtrar Calidad" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="TODAS">Todas las Calidades</SelectItem>
-                    <SelectItem value="INCELL">Incell</SelectItem>
-                    <SelectItem value="OLED">OLED</SelectItem>
-                    <SelectItem value="ORIGINAL">Original</SelectItem>
-                    <SelectItem value="SERVICEPACK">Service Pack</SelectItem>
-                    <SelectItem value="REMANOFACTURADO">Remanufacturado</SelectItem>
-                    <SelectItem value="NINGUNA">Ninguna</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                {(isEmpresa || isTecnico) && (
+                {isTecnico && (
                   <>
                     <Button
                       onClick={() => {
                         setProductToEdit(null);
                         setModalOpen(true);
                       }}
-                      className="gap-2 bg-gradient-to-r from-bluegreen-500 to-bluegreen-400 hover:shadow-lg hover:shadow-bluegreen-400/30 transition-all font-bold text-white rounded-xl px-4"
+                      className="gap-2 bg-lime hover:bg-green text-dark shadow-lg transition-all font-bold rounded-xl px-6"
                     >
                       <Plus size={18} />
                       Nuevo
                     </Button>
-                    {isTecnico && (
-                      <Button
-                        onClick={() => setBulkUploadOpen(true)}
-                        className="gap-2 bg-gradient-to-r from-purple-500 to-purple-600 hover:shadow-lg hover:shadow-purple-400/30 transition-all font-bold text-white rounded-xl px-4"
-                      >
-                        <Upload size={18} />
-                        Carga Masiva
-                      </Button>
-                    )}
+                    <Button
+                      onClick={() => setBulkUploadOpen(true)}
+                      className="gap-2 bg-green hover:bg-lime text-white shadow-lg transition-all font-bold rounded-xl px-6"
+                    >
+                      <Upload size={18} />
+                      Carga Masiva
+                    </Button>
                   </>
                 )}
               </div>
             }
           />
         </div>
-      </main>
+      </motion.div>
 
-      {/* Modals */}
       {(isEmpresa || isTecnico) && (
         <>
           <AddProductModal
@@ -341,40 +284,42 @@ export default function DashboardPage() {
             userRole={isTecnico ? "TECNICO" : "EMPRESA"}
           />
           {isTecnico && (
-            <BulkUploadModal open={bulkUploadOpen} onOpenChange={setBulkUploadOpen} onSuccess={fetchData} />
+            <>
+              <BulkUploadModal open={bulkUploadOpen} onOpenChange={setBulkUploadOpen} onSuccess={fetchData} />
+              <GenericModal
+                open={deleteModalOpen}
+                onOpenChange={setDeleteModalOpen}
+                title="Confirmar Eliminación"
+                description="Esta acción es irreversible, el producto y todos sus datos se borrarán para siempre."
+                footer={
+                  <>
+                    <Button
+                      variant="ghost"
+                      className="hover:bg-lavender/10 text-lavender h-11 px-6 font-semibold border border-lavender/20"
+                      onClick={() => setDeleteModalOpen(false)}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      className="bg-destructive hover:bg-destructive/90 text-white shadow-lg h-11 px-6 font-bold tracking-wide transition-all hover:scale-105"
+                      onClick={handleDelete}
+                    >
+                      Eliminar Producto
+                    </Button>
+                  </>
+                }
+              >
+                <div className="p-4 bg-destructive/10 rounded-xl border border-destructive/20 flex flex-col gap-2 mt-2">
+                  <span className="text-lavender font-semibold">¿Seguro que deseas borrar el siguiente producto?</span>
+                  <span className="text-lavender font-black text-lg">{productToDelete?.name}</span>
+                  <span className="text-lavender/60 text-sm">
+                    {productToDelete?.type}
+                  </span>
+                </div>
+              </GenericModal>
+            </>
           )}
-          <GenericModal
-            open={deleteModalOpen}
-            onOpenChange={setDeleteModalOpen}
-            title="Confirmar Eliminación"
-            description="Esta acción es irreversible, el producto y todos sus datos se borrarán para siempre."
-            footer={
-              <>
-                <Button
-                  variant="ghost"
-                  className="hover:bg-skybase-900 text-deepspace-500 h-11 px-6 font-semibold"
-                  onClick={() => setDeleteModalOpen(false)}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  variant="destructive"
-                  className="bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30 h-11 px-6 font-bold tracking-wide transition-all hover:scale-[1.02]"
-                  onClick={handleDelete}
-                >
-                  Eliminar Producto
-                </Button>
-              </>
-            }
-          >
-            <div className="p-4 bg-red-50/50 rounded-xl border border-red-100 flex flex-col gap-2 mt-2">
-              <span className="text-red-800 font-semibold">¿Seguro que deseas borrar el siguiente producto?</span>
-              <span className="text-deepspace-500 font-black text-lg">{productToDelete?.name}</span>
-              <span className="text-muted-foreground text-sm">
-                {productToDelete?.type} - {productToDelete?.quality || "Ninguna"}
-              </span>
-            </div>
-          </GenericModal>
         </>
       )}
     </div>
