@@ -34,6 +34,7 @@ export class ProductoRepository {
           name: true,
           type: true,
           available: true,
+          cost: true,
           cash: true,
           credit: true,
           createdAt: true,

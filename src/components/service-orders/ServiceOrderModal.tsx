@@ -12,6 +12,7 @@ import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clien
 import {
   createServiceOrder,
   updateServiceOrder,
+  getServiceOrderById,
   CreateServiceOrderDTO,
   UpdateServiceOrderDTO,
 } from "@/services/serviceOrder.service";
@@ -68,6 +69,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
       productName: string;
       productType: ProductType;
       unitPrice: number;
+      cost: number;
       priceType: "cash" | "credit";
       cashPrice: number;
       creditPrice: number;
@@ -108,6 +110,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           productName: p.productName,
           productType: p.productType,
           unitPrice: p.unitPrice,
+          cost: 0,
           priceType: "cash" as "cash" | "credit",
           cashPrice: p.unitPrice,
           creditPrice: p.unitPrice,
@@ -156,6 +159,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         productName: "",
         productType: ProductType.MODULO,
         unitPrice: 0,
+        cost: 0,
         priceType: "cash",
         cashPrice: 0,
         creditPrice: 0,
@@ -183,6 +187,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
       productName: product.name,
       productType: product.type,
       unitPrice: product.cash || 0,
+      cost: product.cost || 0,
       priceType: "cash",
       cashPrice: product.cash || 0,
       creditPrice: product.credit || 0,
@@ -267,6 +272,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
                   productName: p.productName,
                   productType: p.productType,
                   unitPrice: p.unitPrice,
+                  cost: p.cost,
                   isDry: p.isDry,
                   hasImpact: p.hasImpact,
                   isBrokenScreen: p.isBrokenScreen,
@@ -292,10 +298,8 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
 
         clientSuccessHandler("Orden creada correctamente");
 
-        setCreatedOrder({
-          ...newOrder,
-          clientAddress: selectedClient?.address,
-        });
+        const orderWithClient = await getServiceOrderById(newOrder.id);
+        setCreatedOrder(orderWithClient);
         setShowReceipt(true);
       }
 

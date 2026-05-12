@@ -24,6 +24,10 @@ export const serviceOrderService = {
   },
 
   async getServiceOrdersByUser(userId: string, userRole: string) {
+    if (userRole === "TECNICO") {
+      return serviceOrderRepository.findAll();
+    }
+
     if (userRole === "EMPRESA") {
       return serviceOrderRepository.findByCompanyId(userId);
     }

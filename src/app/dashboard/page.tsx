@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/hooks/useAuthStore";
+import { useUserRole } from "@/hooks/useUserRole";
 import { getProductos, deleteProducto } from "@/services/producto.service";
 import { DataTable } from "@/components/common/DataTable";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +19,8 @@ import { motion } from "framer-motion";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const { logout } = useAuthStore();
+  const { isEmpresa, isTecnico, canManageProducts } = useUserRole();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -71,9 +73,6 @@ export default function DashboardPage() {
       clientErrorHandler(error);
     }
   };
-
-  const isEmpresa = user?.role === "EMPRESA";
-  const isTecnico = user?.role === "TECNICO";
 
   const columns = useMemo(() => {
     const baseCols: { key: string; label: string; render?: (item: any) => any; className?: string }[] = [

@@ -6,6 +6,7 @@ export interface CreateServiceOrderData {
   clientPhone: string;
   notes?: string;
   companyId: string;
+  sellerId?: string;
   branchId?: string;
   clientId?: string;
   deliveryDate?: Date;
@@ -15,6 +16,7 @@ export interface CreateServiceOrderData {
     productName: string;
     productType: ProductType;
     unitPrice: number;
+    cost?: number;
     isDry?: boolean;
     hasImpact?: boolean;
     isBrokenScreen?: boolean;
@@ -36,6 +38,7 @@ export interface UpdateServiceOrderData {
     productName: string;
     productType: ProductType;
     unitPrice: number;
+    cost?: number;
     isDry?: boolean;
     hasImpact?: boolean;
     isBrokenScreen?: boolean;
@@ -60,6 +63,7 @@ export const serviceOrderRepository = {
                 productType: p.productType,
                 unitPrice: p.unitPrice,
                 totalPrice: p.unitPrice,
+                costTech: p.cost || 0,
                 isDry: p.isDry || false,
                 hasImpact: p.hasImpact || false,
                 isBrokenScreen: p.isBrokenScreen || false,
@@ -86,6 +90,7 @@ export const serviceOrderRepository = {
             fullName: true,
             dni: true,
             phone: true,
+            address: true,
           },
         },
         company: {
@@ -95,6 +100,52 @@ export const serviceOrderRepository = {
             role: true,
           },
         },
+        seller: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+      },
+    });
+  },
+
+  async findAll() {
+    return prisma.serviceOrder.findMany({
+      include: {
+        images: true,
+        products: true,
+        branch: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        client: {
+          select: {
+            id: true,
+            fullName: true,
+            dni: true,
+            phone: true,
+            address: true,
+          },
+        },
+        company: {
+          select: {
+            id: true,
+            username: true,
+            role: true,
+          },
+        },
+        seller: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
   },
@@ -117,6 +168,7 @@ export const serviceOrderRepository = {
             fullName: true,
             dni: true,
             phone: true,
+            address: true,
           },
         },
         company: {
@@ -124,6 +176,12 @@ export const serviceOrderRepository = {
             id: true,
             username: true,
             role: true,
+          },
+        },
+        seller: {
+          select: {
+            id: true,
+            username: true,
           },
         },
       },
@@ -148,6 +206,13 @@ export const serviceOrderRepository = {
             fullName: true,
             dni: true,
             phone: true,
+            address: true,
+          },
+        },
+        seller: {
+          select: {
+            id: true,
+            username: true,
           },
         },
       },
@@ -187,6 +252,13 @@ export const serviceOrderRepository = {
             fullName: true,
             dni: true,
             phone: true,
+            address: true,
+          },
+        },
+        seller: {
+          select: {
+            id: true,
+            username: true,
           },
         },
       },
@@ -224,6 +296,7 @@ export const serviceOrderRepository = {
           productType: p.productType,
           unitPrice: p.unitPrice,
           totalPrice: p.unitPrice,
+          costTech: p.cost || 0,
           isDry: p.isDry || false,
           hasImpact: p.hasImpact || false,
           isBrokenScreen: p.isBrokenScreen || false,
@@ -260,6 +333,12 @@ export const serviceOrderRepository = {
             id: true,
             username: true,
             role: true,
+          },
+        },
+        seller: {
+          select: {
+            id: true,
+            username: true,
           },
         },
       },

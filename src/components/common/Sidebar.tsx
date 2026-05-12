@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/hooks/useAuthStore";
+import { useUserRole } from "@/hooks/useUserRole";
 import { logoutUsuario } from "@/services/auth.service";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,7 @@ export function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
+  const { isEmpresa, isVendedor, isTecnico } = useUserRole();
 
   if (!user) return null;
 
@@ -28,29 +30,29 @@ export function Sidebar() {
       label: "Servicios",
       icon: Package,
       path: "/dashboard",
-      roles: ["EMPRESA", "VENDEDOR", "TECNICO"],
+      show: isEmpresa || isVendedor || isTecnico,
     },
     {
       label: "Órdenes de Servicio",
       icon: ClipboardList,
       path: "/dashboard/service-orders",
-      roles: ["EMPRESA", "VENDEDOR"],
+      show: isEmpresa || isVendedor,
     },
     {
       label: "Sucursales",
       icon: MapPin,
       path: "/dashboard/branches",
-      roles: ["EMPRESA"],
+      show: isEmpresa,
     },
     {
       label: "Vendedores",
       icon: Users,
       path: "/dashboard/vendedores",
-      roles: ["EMPRESA"],
+      show: isEmpresa,
     },
   ];
 
-  const filteredMenu = menuItems.filter((item) => item.roles.includes(user?.role || ""));
+  const filteredMenu = menuItems.filter((item) => item.show);
 
   return (
     <>

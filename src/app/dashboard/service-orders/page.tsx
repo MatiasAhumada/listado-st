@@ -14,10 +14,14 @@ import {
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { SERVICE_ORDER_STATUS_LABELS, SERVICE_ORDER_STATUS_COLORS } from "@/constants/serviceOrder.constant";
 import { formatNumber } from "@/utils/formatters.util";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, Printer } from "lucide-react";
 import { ServiceOrderStatus, ProductType } from "@prisma/client";
 import { motion } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ViewServiceOrderModal } from "@/components/service-orders/ViewServiceOrderModal";
+import { ServiceOrderReceipt } from "@/components/service-orders/ServiceOrderReceipt";
+import { WarrantyReceipt } from "@/components/service-orders/WarrantyReceipt";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface ServiceOrder {
   id: string;
@@ -47,13 +51,27 @@ interface ServiceOrder {
     color?: string;
     description?: string;
   }[];
+  seller?: {
+    id: string;
+    username: string;
+  };
+  client?: {
+    fullName: string;
+    dni: string;
+    phone?: string;
+    address?: string;
+  };
 }
 
 export default function ServiceOrdersPage() {
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<ServiceOrder | undefined>();
+  const [printOrder, setPrintOrder] = useState<ServiceOrder | null>(null);
+  const [warrantyOrder, setWarrantyOrder] = useState<ServiceOrder | null>(null);
+  const { canViewCompanyColumns } = useUserRole();
 
   const loadOrders = async () => {
     try {
@@ -105,6 +123,19 @@ export default function ServiceOrdersPage() {
     setModalOpen(true);
   };
 
+  const handleView = (order: ServiceOrder) => {
+    setSelectedOrder(order);
+    setViewModalOpen(true);
+  };
+
+  const handlePrint = (order: ServiceOrder) => {
+    if (order.status === ServiceOrderStatus.ENTREGADO_A_CLIENTE || order.status === ServiceOrderStatus.COBRADO) {
+      setWarrantyOrder(order);
+    } else {
+      setPrintOrder(order);
+    }
+  };
+
   const handleCreate = () => {
     setSelectedOrder(undefined);
     setModalOpen(true);
@@ -115,8 +146,8 @@ export default function ServiceOrdersPage() {
     setSelectedOrder(undefined);
   };
 
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    const baseColumns = [
       {
         key: "clientName",
         label: "Cliente",
@@ -127,28 +158,34 @@ export default function ServiceOrdersPage() {
         label: "Teléfono",
         render: (item: ServiceOrder) => <span className="text-lavender/80">{item.clientPhone}</span>,
       },
-      {
-        key: "branch",
-        label: "Sucursal",
-        render: (item: ServiceOrder) =>
-          item.branch ? (
-            <Badge className="bg-lime/20 text-lime border-lime/30">{item.branch.name}</Badge>
-          ) : (
-            <span className="text-lavender/40">-</span>
-          ),
-      },
-      {
-        key: "products",
-        label: "Productos",
-        render: (item: ServiceOrder) =>
-          item.products && item.products.length > 0 ? (
-            <div className="text-xs text-lavender/70">
-              {item.products.length} servicio{item.products.length > 1 ? "s" : ""}
-            </div>
-          ) : (
-            <span className="text-lavender/40">-</span>
-          ),
-      },
+    ];
+
+    if (canViewCompanyColumns) {
+      baseColumns.push(
+        {
+          key: "branch",
+          label: "Sucursal",
+          render: (item: ServiceOrder) =>
+            item.branch ? (
+              <Badge className="bg-lime/20 text-lime border-lime/30">{item.branch.name}</Badge>
+            ) : (
+              <span className="text-lavender/40">-</span>
+            ),
+        },
+        {
+          key: "seller",
+          label: "Vendedor",
+          render: (item: ServiceOrder) =>
+            item.seller ? (
+              <span className="text-lavender/80">{item.seller.username}</span>
+            ) : (
+              <span className="text-lavender/40">-</span>
+            ),
+        }
+      );
+    }
+
+    baseColumns.push(
       {
         key: "total",
         label: "Total",
@@ -190,10 +227,26 @@ export default function ServiceOrdersPage() {
             <Button
               size="sm"
               variant="ghost"
+              onClick={() => handleView(item)}
+              className="text-blue-400 hover:text-blue-300 hover:bg-blue-400/20 transition-all"
+            >
+              <Eye size={18} />
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
               onClick={() => handleEdit(item)}
               className="text-lime hover:text-green hover:bg-lime/20 transition-all"
             >
               <Edit size={18} />
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => handlePrint(item)}
+              className="text-yellow-400 hover:text-yellow-300 hover:bg-yellow-400/20 transition-all"
+            >
+              <Printer size={18} />
             </Button>
             <Button
               size="sm"
@@ -205,10 +258,11 @@ export default function ServiceOrdersPage() {
             </Button>
           </div>
         ),
-      },
-    ],
-    []
-  );
+      }
+    );
+
+    return baseColumns;
+  }, [canViewCompanyColumns, handleStatusChange, handleView, handleEdit, handlePrint, handleDelete]);
 
   return (
     <div className="min-h-screen bg-charcoal p-8">
@@ -242,6 +296,13 @@ export default function ServiceOrdersPage() {
         onSuccess={loadOrders}
         order={selectedOrder}
       />
+
+      {selectedOrder && (
+        <ViewServiceOrderModal open={viewModalOpen} onOpenChange={setViewModalOpen} order={selectedOrder} />
+      )}
+
+      {printOrder && <ServiceOrderReceipt order={printOrder} onClose={() => setPrintOrder(null)} />}
+      {warrantyOrder && <WarrantyReceipt order={warrantyOrder} onClose={() => setWarrantyOrder(null)} />}
     </div>
   );
 }
