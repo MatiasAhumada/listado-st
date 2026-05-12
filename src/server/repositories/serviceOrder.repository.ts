@@ -16,6 +16,7 @@ export interface CreateServiceOrderData {
     productName: string;
     productType: ProductType;
     unitPrice: number;
+    cost?: number;
     isDry?: boolean;
     hasImpact?: boolean;
     isBrokenScreen?: boolean;
@@ -37,6 +38,7 @@ export interface UpdateServiceOrderData {
     productName: string;
     productType: ProductType;
     unitPrice: number;
+    cost?: number;
     isDry?: boolean;
     hasImpact?: boolean;
     isBrokenScreen?: boolean;
@@ -61,6 +63,7 @@ export const serviceOrderRepository = {
                 productType: p.productType,
                 unitPrice: p.unitPrice,
                 totalPrice: p.unitPrice,
+                costTech: p.cost || 0,
                 isDry: p.isDry || false,
                 hasImpact: p.hasImpact || false,
                 isBrokenScreen: p.isBrokenScreen || false,
@@ -293,6 +296,7 @@ export const serviceOrderRepository = {
           productType: p.productType,
           unitPrice: p.unitPrice,
           totalPrice: p.unitPrice,
+          costTech: p.cost || 0,
           isDry: p.isDry || false,
           hasImpact: p.hasImpact || false,
           isBrokenScreen: p.isBrokenScreen || false,

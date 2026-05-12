@@ -14,6 +14,10 @@ interface ServiceOrderReceiptProps {
     balance?: number;
     deliveryDate?: string;
     receivedAt: string;
+    seller?: {
+      id: string;
+      username: string;
+    };
     products?: {
       productName: string;
       productType: ProductType;
@@ -161,7 +165,7 @@ export function ServiceOrderReceipt({ order, onClose }: ServiceOrderReceiptProps
 
               <div>
                 <label className="font-bold text-base uppercase text-blue-900">Observación:</label>
-                <div className="border-2 border-gray-800 rounded p-3 mt-1 min-h-[120px]">
+                <div className="border-2 border-gray-800 rounded p-3 mt-1 min-h-[80px]">
                   <span className="text-base text-black">{order.products?.[0]?.description || "-"}</span>
                 </div>
               </div>
@@ -189,9 +193,9 @@ export function ServiceOrderReceipt({ order, onClose }: ServiceOrderReceiptProps
                 </div>
               </div>
 
-              <div className="mt-6 p-4 bg-yellow-50 border-2 border-yellow-400 rounded leading-relaxed">
-                <p className="font-bold mb-2 text-base text-yellow-900 uppercase">DATOS IMPORTANTE:</p>
-                <p className="text-sm text-gray-800">
+              <div className="mt-4 p-3 bg-yellow-50 border-2 border-yellow-400 rounded leading-tight">
+                <p className="font-bold mb-1 text-sm text-yellow-900 uppercase">DATOS IMPORTANTE:</p>
+                <p className="text-xs text-gray-800">
                   Los equipos que no encienden se recibe bajo responsabilidad del cliente, ya que como están apagados no
                   permite verificar otros fallos, si existe una falla adicional será una reparación aparte con otro
                   cobro, equipos que son llevados a otros servicios técnicos perderán su garantía, para retirar el
@@ -239,8 +243,8 @@ export function ServiceOrderReceipt({ order, onClose }: ServiceOrderReceiptProps
       </div>
 
       <div className="hidden print:block">
-        <div className="p-12">
-          <div className="flex items-start justify-between mb-6">
+        <div className="p-10">
+          <div className="flex items-start justify-between mb-5">
             <div className="w-64 h-32 relative">
               <Image src="/logo.png" alt="Logo" fill className="object-contain" priority />
             </div>
@@ -251,99 +255,99 @@ export function ServiceOrderReceipt({ order, onClose }: ServiceOrderReceiptProps
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-2.5">
             <div>
-              <label className="font-bold text-base uppercase text-blue-900">Nombre del Cliente:</label>
-              <div className="border-2 border-gray-800 rounded p-2 mt-1 min-h-[40px]">
-                <span className="text-base text-black">{order.clientName}</span>
+              <label className="font-bold text-sm uppercase text-blue-900">Nombre del Cliente:</label>
+              <div className="border-2 border-gray-800 rounded p-2 mt-1 min-h-[36px]">
+                <span className="text-sm text-black">{order.clientName}</span>
               </div>
             </div>
 
             <div>
-              <label className="font-bold text-base uppercase text-blue-900">Domicilio:</label>
-              <div className="border-2 border-gray-800 rounded p-2 mt-1 min-h-[40px]">
-                <span className="text-base text-black">{order.client?.address || "-"}</span>
+              <label className="font-bold text-sm uppercase text-blue-900">Domicilio:</label>
+              <div className="border-2 border-gray-800 rounded p-2 mt-1 min-h-[36px]">
+                <span className="text-sm text-black">{order.client?.address || "-"}</span>
               </div>
             </div>
 
             <div>
-              <label className="font-bold text-base uppercase text-blue-900">Número de Contacto:</label>
-              <div className="border-2 border-gray-800 rounded p-2 mt-1 min-h-[40px]">
-                <span className="text-base text-black">{order.clientPhone}</span>
+              <label className="font-bold text-sm uppercase text-blue-900">Número de Contacto:</label>
+              <div className="border-2 border-gray-800 rounded p-2 mt-1 min-h-[36px]">
+                <span className="text-sm text-black">{order.clientPhone}</span>
               </div>
             </div>
 
             <div>
-              <label className="font-bold text-base uppercase text-blue-900">
+              <label className="font-bold text-sm uppercase text-blue-900">
                 Modelo de Celular y Trabajo a Realizar:
               </label>
-              <div className="border-2 border-gray-800 rounded p-3 mt-1 min-h-[80px]">
+              <div className="border-2 border-gray-800 rounded p-2 mt-1 min-h-[65px]">
                 {order.products && order.products.length > 0 ? (
-                  <ul className="space-y-1">
+                  <ul className="space-y-0.5">
                     {order.products.map((product, index) => (
-                      <li key={index} className="text-base text-black">
+                      <li key={index} className="text-sm text-black">
                         • {product.productName} - ${formatNumber(product.unitPrice)}
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <span className="text-base text-black">-</span>
+                  <span className="text-sm text-black">-</span>
                 )}
               </div>
             </div>
 
             <div>
-              <label className="font-bold text-base uppercase text-blue-900">
+              <label className="font-bold text-sm uppercase text-blue-900">
                 Estado General de Recepción de Equipo:
               </label>
-              <div className="border-2 border-gray-800 rounded p-3 mt-1 min-h-[100px]">
+              <div className="border-2 border-gray-800 rounded p-2 mt-1 min-h-[65px]">
                 {getDeviceConditions().length > 0 ? (
-                  <ul className="space-y-1">
+                  <ul className="space-y-0.5">
                     {getDeviceConditions().map((condition, index) => (
-                      <li key={index} className="text-base text-black">
+                      <li key={index} className="text-sm text-black">
                         • {condition}
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <span className="text-base text-black">-</span>
+                  <span className="text-sm text-black">-</span>
                 )}
               </div>
             </div>
 
             <div>
-              <label className="font-bold text-base uppercase text-blue-900">Observación:</label>
-              <div className="border-2 border-gray-800 rounded p-3 mt-1 min-h-[120px]">
-                <span className="text-base text-black">{order.products?.[0]?.description || "-"}</span>
+              <label className="font-bold text-sm uppercase text-blue-900">Observación:</label>
+              <div className="border-2 border-gray-800 rounded p-2 mt-1 min-h-[55px]">
+                <span className="text-sm text-black">{order.products?.[0]?.description || "-"}</span>
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="font-bold text-base uppercase text-blue-900">Precio:</label>
+                <label className="font-bold text-sm uppercase text-blue-900">Precio:</label>
                 <div className="border-2 border-gray-800 rounded p-2 mt-1 text-center">
-                  <span className="text-base font-bold text-black">${formatNumber(total)}</span>
+                  <span className="text-sm font-bold text-black">${formatNumber(total)}</span>
                 </div>
               </div>
               <div>
-                <label className="font-bold text-base uppercase text-blue-900">Entrega:</label>
+                <label className="font-bold text-sm uppercase text-blue-900">Entrega:</label>
                 <div className="border-2 border-gray-800 rounded p-2 mt-1 text-center">
-                  <span className="text-base text-black">
+                  <span className="text-sm text-black">
                     {order.deliveryDate ? formatDate(order.deliveryDate) : "-"}
                   </span>
                 </div>
               </div>
               <div>
-                <label className="font-bold text-base uppercase text-blue-900">Saldo:</label>
+                <label className="font-bold text-sm uppercase text-blue-900">Saldo:</label>
                 <div className="border-2 border-gray-800 rounded p-2 mt-1 text-center">
-                  <span className="text-base font-bold text-black">${formatNumber(balance)}</span>
+                  <span className="text-sm font-bold text-black">${formatNumber(balance)}</span>
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 p-4 bg-yellow-50 border-2 border-yellow-400 rounded leading-relaxed">
-              <p className="font-bold mb-2 text-base text-yellow-900 uppercase">DATOS IMPORTANTE:</p>
-              <p className="text-sm text-gray-800">
+            <div className="mt-2.5 p-2.5 bg-yellow-50 border-2 border-yellow-400 rounded leading-tight">
+              <p className="font-bold mb-1 text-[15px] text-yellow-900 uppercase">DATOS IMPORTANTE:</p>
+              <p className="text-[15px] text-gray-800 leading-snug">
                 Los equipos que no encienden se recibe bajo responsabilidad del cliente, ya que como están apagados no
                 permite verificar otros fallos, si existe una falla adicional será una reparación aparte con otro cobro,
                 equipos que son llevados a otros servicios técnicos perderán su garantía, para retirar el equipo debe
@@ -351,23 +355,23 @@ export function ServiceOrderReceipt({ order, onClose }: ServiceOrderReceiptProps
               </p>
             </div>
 
-            <div className="grid grid-cols-4 gap-4 mt-8 pt-8 border-t-2 border-gray-800">
+            <div className="grid grid-cols-4 gap-4 mt-10 pt-3 border-t-2 border-gray-800">
               <div className="text-center">
-                <p className="font-bold text-base text-blue-900 mb-2">FIRMA CLIENTE</p>
-                <div className="border-t-2 border-gray-800 pt-2 mt-12"></div>
+                <p className="font-bold text-sm text-blue-900 mb-6">FIRMA CLIENTE</p>
+                <div className="border-t-2 border-gray-800 pt-2 mt-9"></div>
               </div>
               <div className="text-center">
-                <p className="font-bold text-base text-blue-900 mb-2">ACLARACIÓN</p>
-                <div className="border-t-2 border-gray-800 pt-2 mt-12"></div>
+                <p className="font-bold text-sm text-blue-900 mb-6">ACLARACIÓN</p>
+                <div className="border-t-2 border-gray-800 pt-2 mt-9"></div>
               </div>
               <div className="text-center">
-                <p className="font-bold text-base text-blue-900 mb-2">DNI</p>
-                <div className="border-t-2 border-gray-800 pt-2 mt-12"></div>
+                <p className="font-bold text-sm text-blue-900 mb-4">DNI</p>
+                <div className="border-t-2 border-gray-800 pt-2 mt-9"></div>
               </div>
               <div className="text-center">
-                <p className="font-bold text-base text-blue-900 mb-2">COD VEND</p>
-                <p className="text-lg font-mono font-bold text-black mb-2">{order.id.slice(-8).toUpperCase()}</p>
-                <div className="border-t-2 border-gray-800 pt-2"></div>
+                <p className="font-bold text-sm text-blue-900 mb-3">COD VEND</p>
+                <p className="text-base font-mono font-bold text-black ">{order.seller?.id.slice(-8).toUpperCase() || order.id.slice(-8).toUpperCase()}</p>
+                <div className="border-t-2 border-gray-800"></div>
               </div>
             </div>
           </div>
