@@ -20,6 +20,7 @@ import { ServiceOrderStatus, ProductType } from "@prisma/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ViewServiceOrderModal } from "@/components/service-orders/ViewServiceOrderModal";
 import { ServiceOrderReceipt } from "@/components/service-orders/ServiceOrderReceipt";
+import { WarrantyReceipt } from "@/components/service-orders/WarrantyReceipt";
 
 interface ServiceOrder {
   id: string;
@@ -68,6 +69,7 @@ export default function ServiceOrdersPage() {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<ServiceOrder | undefined>();
   const [printOrder, setPrintOrder] = useState<ServiceOrder | null>(null);
+  const [warrantyOrder, setWarrantyOrder] = useState<ServiceOrder | null>(null);
 
   const loadOrders = async () => {
     try {
@@ -121,7 +123,11 @@ export default function ServiceOrdersPage() {
   };
 
   const handlePrint = (order: ServiceOrder) => {
-    setPrintOrder(order);
+    if (order.status === ServiceOrderStatus.ENTREGADO_A_CLIENTE || order.status === ServiceOrderStatus.COBRADO) {
+      setWarrantyOrder(order);
+    } else {
+      setPrintOrder(order);
+    }
   };
 
   const handleCreate = () => {
@@ -266,6 +272,7 @@ export default function ServiceOrdersPage() {
       )}
 
       {printOrder && <ServiceOrderReceipt order={printOrder} onClose={() => setPrintOrder(null)} />}
+      {warrantyOrder && <WarrantyReceipt order={warrantyOrder} onClose={() => setWarrantyOrder(null)} />}
     </div>
   );
 }
