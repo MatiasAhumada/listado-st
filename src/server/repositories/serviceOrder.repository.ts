@@ -86,6 +86,7 @@ export const serviceOrderRepository = {
             fullName: true,
             dni: true,
             phone: true,
+            address: true,
           },
         },
         company: {
@@ -95,6 +96,40 @@ export const serviceOrderRepository = {
             role: true,
           },
         },
+      },
+    });
+  },
+
+  async findAll() {
+    return prisma.serviceOrder.findMany({
+      include: {
+        images: true,
+        products: true,
+        branch: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        client: {
+          select: {
+            id: true,
+            fullName: true,
+            dni: true,
+            phone: true,
+            address: true,
+          },
+        },
+        company: {
+          select: {
+            id: true,
+            username: true,
+            role: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
   },
@@ -117,6 +152,7 @@ export const serviceOrderRepository = {
             fullName: true,
             dni: true,
             phone: true,
+            address: true,
           },
         },
         company: {
@@ -148,6 +184,7 @@ export const serviceOrderRepository = {
             fullName: true,
             dni: true,
             phone: true,
+            address: true,
           },
         },
       },
@@ -187,6 +224,7 @@ export const serviceOrderRepository = {
             fullName: true,
             dni: true,
             phone: true,
+            address: true,
           },
         },
       },

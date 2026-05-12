@@ -12,6 +12,7 @@ import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clien
 import {
   createServiceOrder,
   updateServiceOrder,
+  getServiceOrderById,
   CreateServiceOrderDTO,
   UpdateServiceOrderDTO,
 } from "@/services/serviceOrder.service";
@@ -292,10 +293,8 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
 
         clientSuccessHandler("Orden creada correctamente");
 
-        setCreatedOrder({
-          ...newOrder,
-          clientAddress: selectedClient?.address,
-        });
+        const orderWithClient = await getServiceOrderById(newOrder.id);
+        setCreatedOrder(orderWithClient);
         setShowReceipt(true);
       }
 

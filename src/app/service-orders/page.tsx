@@ -15,9 +15,11 @@ import {
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { SERVICE_ORDER_STATUS_LABELS, SERVICE_ORDER_STATUS_COLORS } from "@/constants/serviceOrder.constant";
 import { formatNumber } from "@/utils/formatters.util";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, Printer } from "lucide-react";
 import { ServiceOrderStatus, ProductType } from "@prisma/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ViewServiceOrderModal } from "@/components/service-orders/ViewServiceOrderModal";
+import { ServiceOrderReceipt } from "@/components/service-orders/ServiceOrderReceipt";
 
 interface ServiceOrder {
   id: string;
@@ -43,13 +45,29 @@ interface ServiceOrder {
     color?: string;
     description?: string;
   }[];
+  branch?: {
+    id: string;
+    name: string;
+  };
+  company?: {
+    id: string;
+    username: string;
+  };
+  client?: {
+    fullName: string;
+    dni: string;
+    phone?: string;
+    address?: string;
+  };
 }
 
 export default function ServiceOrdersPage() {
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<ServiceOrder | undefined>();
+  const [printOrder, setPrintOrder] = useState<ServiceOrder | null>(null);
 
   const loadOrders = async () => {
     try {
@@ -95,6 +113,15 @@ export default function ServiceOrdersPage() {
   const handleEdit = (order: ServiceOrder) => {
     setSelectedOrder(order);
     setModalOpen(true);
+  };
+
+  const handleView = (order: ServiceOrder) => {
+    setSelectedOrder(order);
+    setViewModalOpen(true);
+  };
+
+  const handlePrint = (order: ServiceOrder) => {
+    setPrintOrder(order);
   };
 
   const handleCreate = () => {
@@ -185,10 +212,26 @@ export default function ServiceOrdersPage() {
                               <Button
                                 size="sm"
                                 variant="ghost"
+                                onClick={() => handleView(order)}
+                                className="text-blue-400 hover:text-blue-300"
+                              >
+                                <Eye size={16} />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
                                 onClick={() => handleEdit(order)}
                                 className="text-blue-400 hover:text-blue-300"
                               >
                                 <Edit size={16} />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handlePrint(order)}
+                                className="text-yellow-400 hover:text-yellow-300"
+                              >
+                                <Printer size={16} />
                               </Button>
                               <Button
                                 size="sm"
@@ -217,6 +260,12 @@ export default function ServiceOrdersPage() {
         onSuccess={loadOrders}
         order={selectedOrder}
       />
+
+      {selectedOrder && (
+        <ViewServiceOrderModal open={viewModalOpen} onOpenChange={setViewModalOpen} order={selectedOrder} />
+      )}
+
+      {printOrder && <ServiceOrderReceipt order={printOrder} onClose={() => setPrintOrder(null)} />}
     </div>
   );
 }
