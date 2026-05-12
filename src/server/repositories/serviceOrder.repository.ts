@@ -6,6 +6,7 @@ export interface CreateServiceOrderData {
   clientPhone: string;
   notes?: string;
   companyId: string;
+  sellerId?: string;
   branchId?: string;
   clientId?: string;
   deliveryDate?: Date;
@@ -96,6 +97,12 @@ export const serviceOrderRepository = {
             role: true,
           },
         },
+        seller: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
       },
     });
   },
@@ -125,6 +132,12 @@ export const serviceOrderRepository = {
             id: true,
             username: true,
             role: true,
+          },
+        },
+        seller: {
+          select: {
+            id: true,
+            username: true,
           },
         },
       },
@@ -162,6 +175,12 @@ export const serviceOrderRepository = {
             role: true,
           },
         },
+        seller: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
       },
     });
   },
@@ -185,6 +204,12 @@ export const serviceOrderRepository = {
             dni: true,
             phone: true,
             address: true,
+          },
+        },
+        seller: {
+          select: {
+            id: true,
+            username: true,
           },
         },
       },
@@ -225,6 +250,12 @@ export const serviceOrderRepository = {
             dni: true,
             phone: true,
             address: true,
+          },
+        },
+        seller: {
+          select: {
+            id: true,
+            username: true,
           },
         },
       },
@@ -298,6 +329,12 @@ export const serviceOrderRepository = {
             id: true,
             username: true,
             role: true,
+          },
+        },
+        seller: {
+          select: {
+            id: true,
+            username: true,
           },
         },
       },

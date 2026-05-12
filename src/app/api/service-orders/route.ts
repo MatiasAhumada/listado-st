@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
     const order = await serviceOrderService.createServiceOrder({
       ...body,
       companyId,
+      sellerId: decoded.id,
       branchId,
       clientId: body.clientId || undefined,
       deliveryDate: body.deliveryDate ? new Date(body.deliveryDate) : undefined,

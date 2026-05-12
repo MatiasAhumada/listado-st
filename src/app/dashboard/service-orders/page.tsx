@@ -50,6 +50,10 @@ interface ServiceOrder {
     color?: string;
     description?: string;
   }[];
+  seller?: {
+    id: string;
+    username: string;
+  };
   client?: {
     fullName: string;
     dni: string;
@@ -66,6 +70,19 @@ export default function ServiceOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<ServiceOrder | undefined>();
   const [printOrder, setPrintOrder] = useState<ServiceOrder | null>(null);
   const [warrantyOrder, setWarrantyOrder] = useState<ServiceOrder | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("auth-token="))
+      ?.split("=")[1];
+
+    if (token) {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      setUserRole(payload.role);
+    }
+  }, []);
 
   const loadOrders = async () => {
     try {
@@ -140,8 +157,8 @@ export default function ServiceOrdersPage() {
     setSelectedOrder(undefined);
   };
 
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    const baseColumns = [
       {
         key: "clientName",
         label: "Cliente",
@@ -152,28 +169,34 @@ export default function ServiceOrdersPage() {
         label: "Teléfono",
         render: (item: ServiceOrder) => <span className="text-lavender/80">{item.clientPhone}</span>,
       },
-      {
-        key: "branch",
-        label: "Sucursal",
-        render: (item: ServiceOrder) =>
-          item.branch ? (
-            <Badge className="bg-lime/20 text-lime border-lime/30">{item.branch.name}</Badge>
-          ) : (
-            <span className="text-lavender/40">-</span>
-          ),
-      },
-      {
-        key: "products",
-        label: "Productos",
-        render: (item: ServiceOrder) =>
-          item.products && item.products.length > 0 ? (
-            <div className="text-xs text-lavender/70">
-              {item.products.length} servicio{item.products.length > 1 ? "s" : ""}
-            </div>
-          ) : (
-            <span className="text-lavender/40">-</span>
-          ),
-      },
+    ];
+
+    if (userRole === "EMPRESA") {
+      baseColumns.push(
+        {
+          key: "branch",
+          label: "Sucursal",
+          render: (item: ServiceOrder) =>
+            item.branch ? (
+              <Badge className="bg-lime/20 text-lime border-lime/30">{item.branch.name}</Badge>
+            ) : (
+              <span className="text-lavender/40">-</span>
+            ),
+        },
+        {
+          key: "seller",
+          label: "Vendedor",
+          render: (item: ServiceOrder) =>
+            item.seller ? (
+              <span className="text-lavender/80">{item.seller.username}</span>
+            ) : (
+              <span className="text-lavender/40">-</span>
+            ),
+        }
+      );
+    }
+
+    baseColumns.push(
       {
         key: "total",
         label: "Total",
@@ -246,10 +269,11 @@ export default function ServiceOrdersPage() {
             </Button>
           </div>
         ),
-      },
-    ],
-    []
-  );
+      }
+    );
+
+    return baseColumns;
+  }, [userRole]);
 
   return (
     <div className="min-h-screen bg-charcoal p-8">

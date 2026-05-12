@@ -134,8 +134,8 @@ export function WarrantyReceipt({ order, onClose }: WarrantyReceiptProps) {
             <div className="w-72 h-32 relative">
               <Image src="/logo.png" alt="Logo" fill className="object-contain" priority />
             </div>
-            <div className="text-right">
-              <h1 className="text-xl font-bold uppercase text-blue-900">
+            <div className="text-right flex-1">
+              <h1 className="text-lg font-bold uppercase text-blue-900 text-center">
                 Formulario Entrega y Garantía Servicio Técnico
               </h1>
             </div>
@@ -143,16 +143,16 @@ export function WarrantyReceipt({ order, onClose }: WarrantyReceiptProps) {
 
           <div className="space-y-2">
             <div>
-              <label className="font-bold text-base uppercase text-blue-900">Nombre del Cliente:</label>
+              <label className="font-bold text-sm uppercase text-blue-900">Nombre del Cliente:</label>
               <div className="border-2 border-gray-800 rounded p-2 mt-1">
-                <span className="text-base text-black">{order.client?.fullName || "-"}</span>
+                <span className="text-sm text-black">{order.client?.fullName || "-"}</span>
               </div>
             </div>
 
             <div>
-              <label className="font-bold text-base uppercase text-blue-900">Items de Garantía de Reparación:</label>
-              <div className="border-2 border-gray-800 rounded p-3 mt-1">
-                <ul className="space-y-1 text-sm text-black">
+              <label className="font-bold text-sm uppercase text-blue-900">Items de Garantía de Reparación:</label>
+              <div className="border-2 border-gray-800 rounded p-2 mt-1">
+                <ul className="space-y-1 text-xs text-black">
                   <li>• LA GARANTÍA DE LA REPARACIÓN SE RESPONSABILIZA POR FALLA DE FÁBRICA DEL REPUESTO.</li>
                   <li>• NO CUBRE ROTURA, RAYONES, GOLPES, HUMEDAD NI SALPICADURAS DE CUALQUIER ÍNDOLE.</li>
                   <li>
@@ -164,8 +164,8 @@ export function WarrantyReceipt({ order, onClose }: WarrantyReceiptProps) {
               </div>
             </div>
 
-            <div className="border-2 border-gray-800 rounded p-3">
-              <p className="text-sm text-black leading-relaxed">
+            <div className="border-2 border-gray-800 rounded p-2">
+              <p className="text-xs text-black leading-relaxed">
                 EN LA PRESENTE, SE ENTREGA AL CLIENTE( DETALLANDO SU NOMBRE EN EL COMIENZO), SU RESPECTIVO EQUIPO
                 ARREGLADO EN PERFECTAS CONDICIONES Y ACEPTA EN CONFORMIDAD LA ENTREGA DEL MISMO. DETALLANDO Y ACEPTANDO
                 LOS TÉRMINOS Y CONDICIONES DE LA REPARACIÓN.
@@ -174,20 +174,20 @@ export function WarrantyReceipt({ order, onClose }: WarrantyReceiptProps) {
 
             <div className="grid grid-cols-4 gap-4 mt-4 pt-4 border-t-2 border-gray-800">
               <div className="text-center">
-                <p className="font-bold text-base text-blue-900 mb-2">FIRMA</p>
+                <p className="font-bold text-sm text-blue-900 mb-2">FIRMA</p>
                 <div className="border-t-2 border-gray-800 pt-2 mt-8"></div>
               </div>
               <div className="text-center">
-                <p className="font-bold text-base text-blue-900 mb-2">ACLARACIÓN</p>
+                <p className="font-bold text-sm text-blue-900 mb-2">ACLARACIÓN</p>
                 <div className="border-t-2 border-gray-800 pt-2 mt-8"></div>
               </div>
               <div className="text-center">
-                <p className="font-bold text-base text-blue-900 mb-2">DNI</p>
+                <p className="font-bold text-sm text-blue-900 mb-2">DNI</p>
                 <div className="border-t-2 border-gray-800 pt-2 mt-8"></div>
               </div>
               <div className="text-center">
-                <p className="font-bold text-base text-blue-900 mb-2">FECHA</p>
-                <p className="text-lg font-bold text-black mt-2">{formatDate()}</p>
+                <p className="font-bold text-sm text-blue-900 mb-2">FECHA</p>
+                <p className="text-base font-bold text-black mt-2">{formatDate()}</p>
               </div>
             </div>
           </div>

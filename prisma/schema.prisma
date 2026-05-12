@@ -44,13 +44,14 @@ model User {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  productos     Producto[]
-  serviceOrders ServiceOrder[]
-  company       User?          @relation("CompanyVendedores", fields: [companyId], references: [id])
-  vendedores    User[]         @relation("CompanyVendedores")
-  branch        Branch?        @relation(fields: [branchId], references: [id])
-  branches      Branch[]       @relation("CompanyBranches")
-  clients       Client[]
+  productos            Producto[]
+  companyServiceOrders ServiceOrder[] @relation("CompanyServiceOrders")
+  sellerServiceOrders  ServiceOrder[] @relation("SellerServiceOrders")
+  company              User?          @relation("CompanyVendedores", fields: [companyId], references: [id])
+  vendedores           User[]         @relation("CompanyVendedores")
+  branch               Branch?        @relation(fields: [branchId], references: [id])
+  branches             Branch[]       @relation("CompanyBranches")
+  clients              Client[]
 
   @@map("users")
 }
@@ -134,7 +135,10 @@ model ServiceOrder {
   updatedAt         DateTime           @updatedAt
 
   companyId String
-  company   User   @relation(fields: [companyId], references: [id])
+  company   User   @relation("CompanyServiceOrders", fields: [companyId], references: [id])
+
+  sellerId String?
+  seller   User?   @relation("SellerServiceOrders", fields: [sellerId], references: [id])
 
   branchId String?
   branch   Branch? @relation(fields: [branchId], references: [id])

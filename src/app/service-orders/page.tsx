@@ -54,6 +54,10 @@ interface ServiceOrder {
     id: string;
     username: string;
   };
+  seller?: {
+    id: string;
+    username: string;
+  };
   client?: {
     fullName: string;
     dni: string;
@@ -168,6 +172,8 @@ export default function ServiceOrdersPage() {
                     <tr className="border-b border-skybase-700/50">
                       <th className="text-left p-4 text-skybase-300 font-semibold">Cliente</th>
                       <th className="text-left p-4 text-skybase-300 font-semibold">Teléfono</th>
+                      <th className="text-left p-4 text-skybase-300 font-semibold">Empresa</th>
+                      <th className="text-left p-4 text-skybase-300 font-semibold">Vendedor</th>
                       <th className="text-left p-4 text-skybase-300 font-semibold">Estado</th>
                       <th className="text-left p-4 text-skybase-300 font-semibold">Acciones</th>
                     </tr>
@@ -175,13 +181,13 @@ export default function ServiceOrdersPage() {
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan={4} className="text-center p-8 text-skybase-400">
+                        <td colSpan={6} className="text-center p-8 text-skybase-400">
                           Cargando...
                         </td>
                       </tr>
                     ) : orders.length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="text-center p-8 text-skybase-400">
+                        <td colSpan={6} className="text-center p-8 text-skybase-400">
                           No hay órdenes de servicio
                         </td>
                       </tr>
@@ -190,6 +196,8 @@ export default function ServiceOrdersPage() {
                         <tr key={order.id} className="border-b border-skybase-800/30 hover:bg-skybase-800/20">
                           <td className="p-4 text-white font-medium">{order.clientName}</td>
                           <td className="p-4 text-skybase-300">{order.clientPhone}</td>
+                          <td className="p-4 text-skybase-300">{order.company?.username || "-"}</td>
+                          <td className="p-4 text-skybase-300">{order.seller?.username || "-"}</td>
                           <td className="p-4">
                             <Select
                               value={order.status}
