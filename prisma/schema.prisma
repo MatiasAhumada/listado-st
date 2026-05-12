@@ -38,7 +38,7 @@ model User {
   id         String   @id @default(uuid())
   username   String   @unique
   password   String
-  role       Role     @default(VENDEDOR)
+  role       Role     @default(VENDWEDOR)
   companyId  String?
   branchId   String?
   createdAt  DateTime @default(now())

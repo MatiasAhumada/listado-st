@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ViewServiceOrderModal } from "@/components/service-orders/ViewServiceOrderModal";
 import { ServiceOrderReceipt } from "@/components/service-orders/ServiceOrderReceipt";
 import { WarrantyReceipt } from "@/components/service-orders/WarrantyReceipt";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface ServiceOrder {
   id: string;
@@ -70,19 +71,7 @@ export default function ServiceOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<ServiceOrder | undefined>();
   const [printOrder, setPrintOrder] = useState<ServiceOrder | null>(null);
   const [warrantyOrder, setWarrantyOrder] = useState<ServiceOrder | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
-
-  useEffect(() => {
-    const token = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("auth-token="))
-      ?.split("=")[1];
-
-    if (token) {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      setUserRole(payload.role);
-    }
-  }, []);
+  const { canViewCompanyColumns } = useUserRole();
 
   const loadOrders = async () => {
     try {
@@ -171,7 +160,7 @@ export default function ServiceOrdersPage() {
       },
     ];
 
-    if (userRole === "EMPRESA") {
+    if (canViewCompanyColumns) {
       baseColumns.push(
         {
           key: "branch",
@@ -273,7 +262,7 @@ export default function ServiceOrdersPage() {
     );
 
     return baseColumns;
-  }, [userRole]);
+  }, [canViewCompanyColumns, handleStatusChange, handleView, handleEdit, handlePrint, handleDelete]);
 
   return (
     <div className="min-h-screen bg-charcoal p-8">
