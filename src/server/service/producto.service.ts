@@ -42,6 +42,10 @@ export class ProductoService {
 
     const costTechMargin = data.costTechMargin ?? 0;
     const cost = data.costTech * (1 + costTechMargin / 100);
+    const cash = cost * 2;
+    const cashMargin = ((cash - cost) / cost) * 100;
+    const credit = cost * 2.2;
+    const creditMargin = ((credit - cash) / cash) * 100;
 
     const masterProduct = await ProductoRepository.create({
       name: data.name,
@@ -51,10 +55,10 @@ export class ProductoService {
       costTechMargin,
       cost,
       costMargin: 0,
-      cash: 0,
-      cashMargin: 0,
-      credit: 0,
-      creditMargin: 0,
+      cash,
+      cashMargin,
+      credit,
+      creditMargin,
       companyId: null,
       masterProductId: null,
     });
@@ -70,10 +74,10 @@ export class ProductoService {
         costTechMargin,
         cost,
         costMargin: 0,
-        cash: 0,
-        cashMargin: 0,
-        credit: 0,
-        creditMargin: 0,
+        cash,
+        cashMargin,
+        credit,
+        creditMargin,
         companyId: empresa.id,
         masterProductId: masterProduct.id,
       });
@@ -100,6 +104,10 @@ export class ProductoService {
       const costTech = data.costTech ?? existing.costTech;
       const costTechMargin = data.costTechMargin ?? existing.costTechMargin;
       const cost = costTech * (1 + costTechMargin / 100);
+      const cash = cost * 2;
+      const cashMargin = ((cash - cost) / cost) * 100;
+      const credit = cost * 2.2;
+      const creditMargin = ((credit - cash) / cash) * 100;
 
       await ProductoRepository.update(id, {
         name: data.name,
@@ -108,9 +116,22 @@ export class ProductoService {
         costTech,
         costTechMargin,
         cost,
+        cash,
+        cashMargin,
+        credit,
+        creditMargin,
       });
 
-      await ProductoRepository.updateCopiasCost(id, cost);
+      await ProductoRepository.updateCopiasAllFields(id, {
+        costTech,
+        costTechMargin,
+        cost,
+        costMargin: 0,
+        cash,
+        cashMargin,
+        credit,
+        creditMargin,
+      });
 
       return await ProductoRepository.findById(id);
     }
