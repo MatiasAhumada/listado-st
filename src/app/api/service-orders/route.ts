@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serviceOrderService } from "@/server/service/serviceOrder.service";
 import { emailService } from "@/server/service/email.service";
+import { ProductoRepository } from "@/server/repositories/producto.repository";
 import apiErrorHandler from "@/utils/handlers/apiError.handler";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
@@ -70,17 +71,18 @@ export async function POST(request: NextRequest) {
     });
 
     try {
-      const totalTech = order.products?.reduce((sum, p) => sum + p.costTech, 0) || 0;
+      const productNames = order.products?.map(p => p.productName) || [];
+      const { productos, totalCost } = await ProductoRepository.findCostByNames(productNames, order.companyId);
       
       await emailService.sendServiceOrderNotification({
         clientName: order.clientName,
         clientPhone: order.clientPhone,
         branchName: order.branch?.name,
-        products: order.products?.map(p => ({
-          productName: p.productName,
-          cost: p.costTech,
-        })) || [],
-        totalTech,
+        products: productos.map(p => ({
+          productName: p.name,
+          cost: p.cost,
+        })),
+        totalTech: totalCost,
         deliveryDate: order.deliveryDate?.toISOString(),
         orderNumber: order.id.slice(0, 8).toUpperCase(),
       });

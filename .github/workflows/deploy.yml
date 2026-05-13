@@ -28,5 +28,8 @@ jobs:
             pnpm install
             pnpm prisma generate
             pnpm migrate
-            pnpm build
+            if ! pnpm build; then
+              echo "Build failed"
+              exit 1
+            fi
             pm2 restart listado-st || pm2 start "pnpm start" --name listado-st

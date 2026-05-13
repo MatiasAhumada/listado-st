@@ -159,4 +159,24 @@ export class ProductoRepository {
       data,
     });
   }
+
+  static async findCostByNames(names: string[], companyId: string) {
+    const productos = await prisma.producto.findMany({
+      where: {
+        name: { in: names },
+        companyId,
+      },
+      select: {
+        name: true,
+        cost: true,
+      },
+    });
+
+    const totalCost = productos.reduce((sum, p) => sum + p.cost, 0);
+
+    return {
+      productos,
+      totalCost,
+    };
+  }
 }
