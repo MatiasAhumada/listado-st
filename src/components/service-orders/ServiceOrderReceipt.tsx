@@ -2,41 +2,11 @@
 
 import { useEffect } from "react";
 import Image from "next/image";
-import { formatNumber } from "@/utils/formatters.util";
-import { ProductType } from "@prisma/client";
+import { formatNumber, formatDate } from "@/utils/formatters.util";
+import { ServiceOrderReceipt as ServiceOrderReceiptType } from "@/types/serviceOrder.types";
 
 interface ServiceOrderReceiptProps {
-  order: {
-    id: string;
-    clientName: string;
-    clientPhone: string;
-    advancePayment?: number;
-    balance?: number;
-    deliveryDate?: string;
-    receivedAt: string;
-    seller?: {
-      id: string;
-      username: string;
-    };
-    products?: {
-      productName: string;
-      productType: ProductType;
-      unitPrice: number;
-      isDry?: boolean;
-      hasImpact?: boolean;
-      isBrokenScreen?: boolean;
-      isTurnedOn?: boolean;
-      isCharging?: boolean;
-      color?: string;
-      description?: string;
-    }[];
-    client?: {
-      fullName: string;
-      dni: string;
-      phone?: string;
-      address?: string;
-    };
-  };
+  order: ServiceOrderReceiptType;
   onClose: () => void;
 }
 
@@ -58,9 +28,9 @@ export function ServiceOrderReceipt({ order, onClose }: ServiceOrderReceiptProps
     };
   }, [onClose]);
 
-  const total = order.products?.reduce((sum, p) => sum + p.unitPrice, 0) || 0;
-  const advancePayment = order.advancePayment || 0;
-  const balance = order.balance || total - advancePayment;
+  const total = order.products?.reduce((sum, p) => sum + p.unitPrice, 0) ?? 0;
+  const advancePayment = order.advancePayment ?? 0;
+  const balance = order.balance ?? total - advancePayment;
 
   const getDeviceConditions = () => {
     if (!order.products || order.products.length === 0) return [];
@@ -76,15 +46,6 @@ export function ServiceOrderReceipt({ order, onClose }: ServiceOrderReceiptProps
     if (product.color) conditions.push(`Color: ${product.color}`);
 
     return conditions;
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("es-AR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
   };
 
   return (
@@ -355,21 +316,22 @@ export function ServiceOrderReceipt({ order, onClose }: ServiceOrderReceiptProps
               </p>
             </div>
 
-            <div className="grid grid-cols-4 gap-4 mt-10 pt-3 border-t-2 border-gray-800">
+            <div className="grid grid-cols-4 gap-4">
               <div className="text-center">
-                <p className="font-bold text-sm text-blue-900 mb-6">FIRMA CLIENTE</p>
+                <p className="font-bold text-sm text-blue-900 pb-7">FIRMA CLIENTE</p>
                 <div className="border-t-2 border-gray-800 pt-2 mt-9"></div>
               </div>
               <div className="text-center">
-                <p className="font-bold text-sm text-blue-900 mb-6">ACLARACIÓN</p>
+                <p className="font-bold text-sm text-blue-900 pb-7">ACLARACIÓN</p>
                 <div className="border-t-2 border-gray-800 pt-2 mt-9"></div>
               </div>
               <div className="text-center">
-                <p className="font-bold text-sm text-blue-900 mb-4">DNI</p>
+                <p className="font-bold text-sm text-blue-900 pb-7">DNI</p>
+
                 <div className="border-t-2 border-gray-800 pt-2 mt-9"></div>
               </div>
               <div className="text-center">
-                <p className="font-bold text-sm text-blue-900 mb-3">COD VEND</p>
+                <p className="font-bold text-sm text-blue-900 mb-10">COD VEND</p>
                 <p className="text-base font-mono font-bold text-black ">
                   {order.seller?.id.slice(-8).toUpperCase() || order.id.slice(-8).toUpperCase()}
                 </p>
