@@ -269,15 +269,17 @@ export const serviceOrderRepository = {
     const { products, status, ...updateData } = data;
     const finalUpdateData = { ...updateData, status };
 
-    const timestamps = {
+    const timestamps: Partial<Record<ServiceOrderStatus, object>> = {
       [ServiceOrderStatus.RETIRADO_POR_TECNICO]: { pickedUpAt: new Date() },
       [ServiceOrderStatus.DEVUELTO_POR_TECNICO]: { returnedAt: new Date() },
       [ServiceOrderStatus.ENTREGADO_A_CLIENTE]: { deliveredAt: new Date() },
       [ServiceOrderStatus.COBRADO]: { paidAt: new Date() },
     };
 
-    const timestampUpdate = status ? timestamps[status] : {};
-    Object.assign(finalUpdateData, timestampUpdate);
+    const timestampUpdate = status ? timestamps[status] : undefined;
+    if (timestampUpdate) {
+      Object.assign(finalUpdateData, timestampUpdate);
+    }
 
     if (products) {
       await prisma.serviceOrderProduct.deleteMany({
