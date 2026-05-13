@@ -2,13 +2,11 @@
 
 import { useEffect } from "react";
 import Image from "next/image";
+import { formatDate } from "@/utils/formatters.util";
+import { WarrantyOrder } from "@/types/serviceOrder.types";
 
 interface WarrantyReceiptProps {
-  order: {
-    client?: {
-      fullName: string;
-    };
-  };
+  order: WarrantyOrder;
   onClose: () => void;
 }
 
@@ -30,13 +28,8 @@ export function WarrantyReceipt({ order, onClose }: WarrantyReceiptProps) {
     };
   }, [onClose]);
 
-  const formatDate = () => {
-    const date = new Date();
-    return date.toLocaleDateString("es-AR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
+  const getCurrentDate = () => {
+    return formatDate(new Date().toISOString());
   };
 
   return (
@@ -105,7 +98,7 @@ export function WarrantyReceipt({ order, onClose }: WarrantyReceiptProps) {
               <div className="text-right mt-4">
                 <p className="font-bold text-base text-blue-900">FECHA</p>
                 <div className="border-t-2 border-gray-800 pt-2 mt-2 inline-block min-w-[200px]">
-                  <span className="text-base text-black">{formatDate()}</span>
+                  <span className="text-base text-black">{getCurrentDate()}</span>
                 </div>
               </div>
             </div>
@@ -187,7 +180,7 @@ export function WarrantyReceipt({ order, onClose }: WarrantyReceiptProps) {
               </div>
               <div className="text-center">
                 <p className="font-bold text-sm text-blue-900 mb-2">FECHA</p>
-                <p className="text-base font-bold text-black mt-2">{formatDate()}</p>
+                <p className="text-base font-bold text-black mt-2">{getCurrentDate()}</p>
               </div>
             </div>
           </div>

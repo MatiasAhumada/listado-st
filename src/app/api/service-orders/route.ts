@@ -71,14 +71,14 @@ export async function POST(request: NextRequest) {
     });
 
     try {
-      const productNames = order.products?.map(p => p.productName) || [];
+      const productNames = order.products?.map((p) => p.productName) || [];
       const { productos, totalCost } = await ProductoRepository.findCostByNames(productNames, order.companyId);
-      
+
       await emailService.sendServiceOrderNotification({
         clientName: order.clientName,
         clientPhone: order.clientPhone,
         branchName: order.branch?.name,
-        products: productos.map(p => ({
+        products: productos.map((p) => ({
           productName: p.name,
           cost: p.cost,
         })),

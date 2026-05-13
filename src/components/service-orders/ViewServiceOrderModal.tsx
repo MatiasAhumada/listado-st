@@ -1,11 +1,13 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { GenericModal } from "@/components/common/GenericModal";
 import { Badge } from "@/components/ui/badge";
 import { SERVICE_ORDER_STATUS_LABELS, SERVICE_ORDER_STATUS_COLORS } from "@/constants/serviceOrder.constant";
-import { formatNumber } from "@/utils/formatters.util";
+import { formatNumber, formatDate } from "@/utils/formatters.util";
 import { ServiceOrderStatus, ProductType } from "@prisma/client";
 import Image from "next/image";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 interface ViewServiceOrderModalProps {
   open: boolean;
@@ -52,18 +54,55 @@ interface ViewServiceOrderModalProps {
 }
 
 export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewServiceOrderModalProps) {
-  const total = order.products?.reduce((sum, p) => sum + p.totalPrice, 0) || 0;
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const total = order.products?.reduce((sum, p) => sum + p.totalPrice, 0) ?? 0;
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("es-AR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (selectedImageIndex === null) return;
+
+      if (e.key === "Escape") {
+        handleCloseImageViewer();
+      }
+      if (e.key === "ArrowLeft") {
+        handlePreviousImage();
+      }
+      if (e.key === "ArrowRight") {
+        handleNextImage();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedImageIndex, order.images]);
+
+  const handlePreviousImage = () => {
+    if (selectedImageIndex === null || !order.images) return;
+    setSelectedImageIndex((selectedImageIndex - 1 + order.images.length) % order.images.length);
   };
 
-  const getDeviceConditions = (product: any) => {
+  const handleNextImage = () => {
+    if (selectedImageIndex === null || !order.images) return;
+    setSelectedImageIndex((selectedImageIndex + 1) % order.images.length);
+  };
+
+  const handleCloseImageViewer = () => {
+    setSelectedImageIndex(null);
+  };
+
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      handleCloseImageViewer();
+    }
+  };
+
+  const getDeviceConditions = (product: {
+    isDry?: boolean;
+    hasImpact?: boolean;
+    isBrokenScreen?: boolean;
+    isTurnedOn?: boolean;
+    isCharging?: boolean;
+  }) => {
     const conditions: string[] = [];
     if (!product.isDry) conditions.push("Mojado");
     if (product.hasImpact) conditions.push("Golpeado");
@@ -198,8 +237,12 @@ export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewService
           <div className="border-t border-lavender/10 pt-4">
             <label className="text-lavender font-medium">Imágenes</label>
             <div className="grid grid-cols-3 gap-2 mt-2">
-              {order.images.map((img) => (
-                <div key={img.id} className="relative aspect-square">
+              {order.images.map((img, index) => (
+                <div
+                  key={img.id}
+                  className="relative aspect-square cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => setSelectedImageIndex(index)}
+                >
                   <Image
                     src={img.url}
                     alt="Imagen de orden"
@@ -212,6 +255,44 @@ export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewService
           </div>
         )}
       </div>
+
+      {selectedImageIndex !== null && order.images && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center"
+          onClick={handleBackdropClick}
+        >
+          <button
+            onClick={handleCloseImageViewer}
+            className="absolute top-4 right-4 text-white hover:text-lime transition-colors z-10"
+          >
+            <X size={32} />
+          </button>
+
+          <button
+            onClick={handlePreviousImage}
+            className="absolute left-4 text-white hover:text-lime transition-colors z-10"
+            disabled={order.images.length <= 1}
+          >
+            <ChevronLeft size={48} />
+          </button>
+
+          <div className="relative w-full h-full max-w-5xl max-h-[90vh] flex items-center justify-center p-8">
+            <Image src={order.images[selectedImageIndex].url} alt="Imagen ampliada" fill className="object-contain" />
+          </div>
+
+          <button
+            onClick={handleNextImage}
+            className="absolute right-4 text-white hover:text-lime transition-colors z-10"
+            disabled={order.images.length <= 1}
+          >
+            <ChevronRight size={48} />
+          </button>
+
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm">
+            {selectedImageIndex + 1} / {order.images.length}
+          </div>
+        </div>
+      )}
     </GenericModal>
   );
 }

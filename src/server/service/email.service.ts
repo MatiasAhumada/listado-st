@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { formatDate } from "@/utils/formatters.util";
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -136,7 +137,7 @@ export const emailService = {
                 data.deliveryDate
                   ? `
               <div class="info-row">
-                <span class="label">Fecha de Entrega:</span> ${new Date(data.deliveryDate).toLocaleDateString("es-AR")}
+                <span class="label">Fecha de Entrega:</span> <strong>${formatDate(data.deliveryDate)}</strong>
               </div>
               `
                   : ""
