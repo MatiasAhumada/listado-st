@@ -56,13 +56,25 @@ export const serviceOrderService = {
   },
 
   async deleteServiceOrder(id: string) {
-    const exists = await serviceOrderRepository.findById(id);
+    const order = await serviceOrderRepository.findById(id);
 
-    if (!exists) {
+    if (!order) {
       throw new ApiError({ status: httpStatus.NOT_FOUND, message: "Orden de servicio no encontrada" });
     }
 
-    return serviceOrderRepository.delete(id);
+    const deletedOrder = await serviceOrderRepository.delete(id);
+
+    if (deletedOrder && order.images.length > 0) {
+      const { r2StorageService } = await import("./r2Storage.service");
+      const folderName = r2StorageService.generateFolderName(order.clientName, order.createdAt);
+      try {
+        await r2StorageService.deleteServiceOrderFolder(folderName);
+      } catch (error) {
+        console.error("Error al eliminar carpeta de R2:", error);
+      }
+    }
+
+    return deletedOrder;
   },
 
   async addImageToOrder(serviceOrderId: string, url: string) {

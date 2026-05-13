@@ -343,6 +343,15 @@ export const serviceOrderRepository = {
   },
 
   async delete(id: string) {
+    const order = await prisma.serviceOrder.findUnique({
+      where: { id },
+      include: { images: true },
+    });
+
+    if (!order) {
+      return null;
+    }
+
     return prisma.serviceOrder.delete({
       where: { id },
     });
