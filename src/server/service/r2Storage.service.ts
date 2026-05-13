@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { IMAGE_UPLOAD_CONFIG } from "@/constants/imageUpload.constant";
 import { ApiError } from "@/utils/handlers/apiError.handler";
 import httpStatus from "http-status";
@@ -96,8 +96,47 @@ export const r2StorageService = {
     return url.replace(`${process.env.R2_PUBLIC_URL}/`, "");
   },
 
-  generateServiceOrderKey(serviceOrderId: string, index: number): string {
-    return `service-orders/${serviceOrderId}/${index}.webp`;
+  generateServiceOrderKey(folderName: string, index: number): string {
+    return `service-orders/${folderName}/${index}.webp`;
+  },
+
+  generateFolderName(clientName: string, date: Date): string {
+    const formattedDate = date.toISOString().split("T")[0];
+    const sanitizedName = clientName.replace(/[^a-zA-Z0-9]/g, "_");
+    return `${sanitizedName}_${formattedDate}`;
+  },
+
+  async deleteServiceOrderFolder(folderName: string): Promise<void> {
+    if (!process.env.R2_BUCKET_NAME) {
+      throw new ApiError({
+        status: httpStatus.INTERNAL_SERVER_ERROR,
+        message: "Configuración de almacenamiento no disponible",
+      });
+    }
+
+    try {
+      const prefix = `service-orders/${folderName}/`;
+      const listCommand = new ListObjectsV2Command({
+        Bucket: process.env.R2_BUCKET_NAME,
+        Prefix: prefix,
+      });
+
+      const listedObjects = await s3Client.send(listCommand);
+
+      if (listedObjects.Contents && listedObjects.Contents.length > 0) {
+        for (const object of listedObjects.Contents) {
+          if (object.Key) {
+            await this.deleteImage(object.Key);
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`Error deleting folder ${folderName}:`, error);
+      throw new ApiError({
+        status: httpStatus.INTERNAL_SERVER_ERROR,
+        message: "Error al eliminar carpeta de imágenes",
+      });
+    }
   },
 
   async deleteServiceOrderImages(serviceOrderId: string, imageUrls: string[]): Promise<void> {

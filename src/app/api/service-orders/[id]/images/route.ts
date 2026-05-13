@@ -26,6 +26,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const uploadedImages = [];
     const currentImageCount = serviceOrder.images.length;
+    const folderName = r2StorageService.generateFolderName(serviceOrder.clientName, serviceOrder.createdAt);
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       }
 
       const buffer = Buffer.from(await file.arrayBuffer());
-      const key = r2StorageService.generateServiceOrderKey(serviceOrderId, currentImageCount + i);
+      const key = r2StorageService.generateServiceOrderKey(folderName, currentImageCount + i);
       const { url } = await r2StorageService.uploadImage(buffer, key);
 
       const image = await prisma.serviceOrderImage.create({
