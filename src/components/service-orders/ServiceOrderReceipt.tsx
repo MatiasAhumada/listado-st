@@ -370,7 +370,9 @@ export function ServiceOrderReceipt({ order, onClose }: ServiceOrderReceiptProps
               </div>
               <div className="text-center">
                 <p className="font-bold text-sm text-blue-900 mb-3">COD VEND</p>
-                <p className="text-base font-mono font-bold text-black ">{order.seller?.id.slice(-8).toUpperCase() || order.id.slice(-8).toUpperCase()}</p>
+                <p className="text-base font-mono font-bold text-black ">
+                  {order.seller?.id.slice(-8).toUpperCase() || order.id.slice(-8).toUpperCase()}
+                </p>
                 <div className="border-t-2 border-gray-800"></div>
               </div>
             </div>

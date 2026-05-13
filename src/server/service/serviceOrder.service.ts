@@ -3,6 +3,12 @@ import {
   CreateServiceOrderData,
   UpdateServiceOrderData,
 } from "@/server/repositories/serviceOrder.repository";
+import { ApiError } from "@/utils/handlers/apiError.handler";
+import httpStatus from "http-status";
+
+const ROLE_TECNICO = "TECNICO";
+const ROLE_EMPRESA = "EMPRESA";
+const ROLE_VENDEDOR = "VENDEDOR";
 
 export const serviceOrderService = {
   async createServiceOrder(data: CreateServiceOrderData) {
@@ -13,7 +19,7 @@ export const serviceOrderService = {
     const order = await serviceOrderRepository.findById(id);
 
     if (!order) {
-      throw new Error("Orden de servicio no encontrada");
+      throw new ApiError({ status: httpStatus.NOT_FOUND, message: "Orden de servicio no encontrada" });
     }
 
     return order;
@@ -24,15 +30,15 @@ export const serviceOrderService = {
   },
 
   async getServiceOrdersByUser(userId: string, userRole: string) {
-    if (userRole === "TECNICO") {
+    if (userRole === ROLE_TECNICO) {
       return serviceOrderRepository.findAll();
     }
 
-    if (userRole === "EMPRESA") {
+    if (userRole === ROLE_EMPRESA) {
       return serviceOrderRepository.findByCompanyId(userId);
     }
 
-    if (userRole === "VENDEDOR") {
+    if (userRole === ROLE_VENDEDOR) {
       return serviceOrderRepository.findByVendedor(userId);
     }
 
@@ -43,7 +49,7 @@ export const serviceOrderService = {
     const exists = await serviceOrderRepository.findById(id);
 
     if (!exists) {
-      throw new Error("Orden de servicio no encontrada");
+      throw new ApiError({ status: httpStatus.NOT_FOUND, message: "Orden de servicio no encontrada" });
     }
 
     return serviceOrderRepository.update(id, data);
@@ -53,7 +59,7 @@ export const serviceOrderService = {
     const exists = await serviceOrderRepository.findById(id);
 
     if (!exists) {
-      throw new Error("Orden de servicio no encontrada");
+      throw new ApiError({ status: httpStatus.NOT_FOUND, message: "Orden de servicio no encontrada" });
     }
 
     return serviceOrderRepository.delete(id);
@@ -63,7 +69,7 @@ export const serviceOrderService = {
     const exists = await serviceOrderRepository.findById(serviceOrderId);
 
     if (!exists) {
-      throw new Error("Orden de servicio no encontrada");
+      throw new ApiError({ status: httpStatus.NOT_FOUND, message: "Orden de servicio no encontrada" });
     }
 
     return serviceOrderRepository.addImage(serviceOrderId, url);

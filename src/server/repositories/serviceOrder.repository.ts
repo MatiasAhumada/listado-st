@@ -61,13 +61,13 @@ export const serviceOrderRepository = {
                 productType: p.productType,
                 unitPrice: p.unitPrice,
                 totalPrice: p.unitPrice,
-                isDry: p.isDry || false,
-                hasImpact: p.hasImpact || false,
-                isBrokenScreen: p.isBrokenScreen || false,
-                isTurnedOn: p.isTurnedOn || false,
-                isCharging: p.isCharging || false,
-                color: p.color || undefined,
-                description: p.description || undefined,
+                isDry: p.isDry ?? false,
+                hasImpact: p.hasImpact ?? false,
+                isBrokenScreen: p.isBrokenScreen ?? false,
+                isTurnedOn: p.isTurnedOn ?? false,
+                isCharging: p.isCharging ?? false,
+                color: p.color,
+                description: p.description,
               })),
             }
           : undefined,
@@ -232,7 +232,7 @@ export const serviceOrderRepository = {
     return prisma.serviceOrder.findMany({
       where: {
         companyId: vendedor.companyId,
-        branchId: vendedor.branchId || undefined,
+        branchId: vendedor.branchId,
       },
       include: {
         images: true,
@@ -266,42 +266,41 @@ export const serviceOrderRepository = {
   },
 
   async update(id: string, data: UpdateServiceOrderData) {
-    const { products, ...updateData } = data;
-    const finalUpdateData: Record<string, unknown> = { ...updateData };
+    const { products, status, ...updateData } = data;
+    const finalUpdateData = { ...updateData, status };
 
-    if (data.status === ServiceOrderStatus.RETIRADO_POR_TECNICO) {
-      finalUpdateData.pickedUpAt = new Date();
-    }
-    if (data.status === ServiceOrderStatus.DEVUELTO_POR_TECNICO) {
-      finalUpdateData.returnedAt = new Date();
-    }
-    if (data.status === ServiceOrderStatus.ENTREGADO_A_CLIENTE) {
-      finalUpdateData.deliveredAt = new Date();
-    }
-    if (data.status === ServiceOrderStatus.COBRADO) {
-      finalUpdateData.paidAt = new Date();
-    }
+    const timestamps = {
+      [ServiceOrderStatus.RETIRADO_POR_TECNICO]: { pickedUpAt: new Date() },
+      [ServiceOrderStatus.DEVUELTO_POR_TECNICO]: { returnedAt: new Date() },
+      [ServiceOrderStatus.ENTREGADO_A_CLIENTE]: { deliveredAt: new Date() },
+      [ServiceOrderStatus.COBRADO]: { paidAt: new Date() },
+    };
+
+    const timestampUpdate = status ? timestamps[status] : {};
+    Object.assign(finalUpdateData, timestampUpdate);
 
     if (products) {
       await prisma.serviceOrderProduct.deleteMany({
         where: { serviceOrderId: id },
       });
 
-      finalUpdateData.products = {
-        create: products.map((p) => ({
-          productName: p.productName,
-          productType: p.productType,
-          unitPrice: p.unitPrice,
-          totalPrice: p.unitPrice,
-          isDry: p.isDry || false,
-          hasImpact: p.hasImpact || false,
-          isBrokenScreen: p.isBrokenScreen || false,
-          isTurnedOn: p.isTurnedOn || false,
-          isCharging: p.isCharging || false,
-          color: p.color || undefined,
-          description: p.description || undefined,
-        })),
-      };
+      Object.assign(finalUpdateData, {
+        products: {
+          create: products.map((p) => ({
+            productName: p.productName,
+            productType: p.productType,
+            unitPrice: p.unitPrice,
+            totalPrice: p.unitPrice,
+            isDry: p.isDry ?? false,
+            hasImpact: p.hasImpact ?? false,
+            isBrokenScreen: p.isBrokenScreen ?? false,
+            isTurnedOn: p.isTurnedOn ?? false,
+            isCharging: p.isCharging ?? false,
+            color: p.color,
+            description: p.description,
+          })),
+        },
+      });
     }
 
     return prisma.serviceOrder.update({

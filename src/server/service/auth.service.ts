@@ -24,8 +24,8 @@ export class AuthService {
         id: user.id,
         username: user.username,
         role: user.role,
-        companyId: user.companyId || undefined,
-        branchId: user.branchId || undefined,
+        companyId: user.companyId,
+        branchId: user.branchId,
       },
       JWT_SECRET,
       { expiresIn: "1d" }
