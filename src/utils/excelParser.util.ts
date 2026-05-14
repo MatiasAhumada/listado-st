@@ -84,11 +84,64 @@ export async function procesarExcelFile(file: File, productType: string = "MODUL
   const worksheet = workbook.Sheets[sheetName];
   const data: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
+  if (productType === "VIDRIOS_CAMARA" || productType === "BOTON_POWER" || productType === "BANDEJA_SIM") {
+    return procesarFormatoTresColumnas(data, productType);
+  }
+
   if (productType === "BATERIA" || productType === "PIN" || productType === "CONSOLA") {
     return procesarFormatoSimple(data, productType);
   }
 
   return procesarFormatoModulos(data, productType);
+}
+
+function procesarFormatoTresColumnas(data: any[][], productType: string): ProductoProcesado[] {
+  const productosProcesados: ProductoProcesado[] = [];
+  const agrupados = new Map<string, number[]>();
+
+  for (let i = 0; i < data.length; i++) {
+    const fila = data[i];
+
+    if (!fila || fila.length < 3 || (!fila[0] && !fila[1] && !fila[2])) {
+      continue;
+    }
+
+    const columna1 = fila[0]?.toString().trim() || "";
+    const columna2 = fila[1]?.toString().trim() || "";
+    const precio = limpiarPrecio(fila[2]);
+
+    if (precio > 0 && columna1 && columna2) {
+      const nombreCompleto = `${columna1} ${columna2}`.trim();
+      const nombreLimpio = extraerNombreBase(nombreCompleto);
+      const clave = nombreLimpio.trim();
+
+      if (!agrupados.has(clave)) {
+        agrupados.set(clave, []);
+      }
+      agrupados.get(clave)!.push(precio);
+    }
+  }
+
+  for (const [nombreProducto, precios] of agrupados) {
+    const promedio = precios.reduce((a, b) => a + b, 0) / precios.length;
+    const costTech = Math.round(promedio);
+    const cost = costTech * 8;
+
+    productosProcesados.push({
+      name: nombreProducto,
+      costTech,
+      costTechMargin: 700,
+      cost,
+      costMargin: 700,
+      cash: cost * 2,
+      cashMargin: 100,
+      credit: cost * 2.2,
+      creditMargin: 120,
+      type: productType,
+    });
+  }
+
+  return productosProcesados;
 }
 
 function procesarFormatoSimple(data: any[][], productType: string): ProductoProcesado[] {
@@ -119,15 +172,15 @@ function procesarFormatoSimple(data: any[][], productType: string): ProductoProc
   for (const [nombreProducto, precios] of agrupados) {
     const promedio = precios.reduce((a, b) => a + b, 0) / precios.length;
     const costTech = Math.round(promedio);
-    const cost = costTech * 2;
+    const cost = costTech * 2.5;
     const productName = `${productType} ${nombreProducto}`;
 
     productosProcesados.push({
       name: productName,
       costTech,
-      costTechMargin: 100,
+      costTechMargin: 150,
       cost,
-      costMargin: 100,
+      costMargin: 150,
       cash: cost * 2,
       cashMargin: 100,
       credit: cost * 2.2,
