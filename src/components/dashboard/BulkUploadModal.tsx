@@ -122,6 +122,8 @@ export function BulkUploadModal({ open, onOpenChange, onSuccess }: BulkUploadMod
                 <SelectItem value="CONSOLA">Consolas</SelectItem>
                 <SelectItem value="MANTENIMIENTO">Mantenimiento</SelectItem>
                 <SelectItem value="VIDRIOS_CAMARA">Vidrios de Cámara</SelectItem>
+                <SelectItem value="BOTON_POWER">Botón Power</SelectItem>
+                <SelectItem value="BANDEJA_SIM">Bandeja SIM</SelectItem>
                 <SelectItem value="VARIOS">Varios</SelectItem>
               </SelectContent>
             </Select>
