@@ -10,6 +10,7 @@ import { procesarExcelFile, ProductoProcesado } from "@/utils/excelParser.util";
 import { formatNumber } from "@/utils/formatters.util";
 import { bulkCreateOrUpdateProductos } from "@/services/producto.service";
 import { Upload, FileSpreadsheet } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface BulkUploadModalProps {
   open: boolean;
@@ -21,6 +22,7 @@ export function BulkUploadModal({ open, onOpenChange, onSuccess }: BulkUploadMod
   const [loading, setLoading] = useState(false);
   const [productos, setProductos] = useState<ProductoProcesado[]>([]);
   const [archivo, setArchivo] = useState<File | null>(null);
+  const [selectedType, setSelectedType] = useState<string>("MODULO");
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -29,7 +31,7 @@ export function BulkUploadModal({ open, onOpenChange, onSuccess }: BulkUploadMod
     setArchivo(file);
 
     try {
-      const productosProcesados = await procesarExcelFile(file);
+      const productosProcesados = await procesarExcelFile(file, selectedType);
       setProductos(productosProcesados);
       clientSuccessHandler(`${productosProcesados.length} productos detectados`);
     } catch (error) {
@@ -99,6 +101,24 @@ export function BulkUploadModal({ open, onOpenChange, onSuccess }: BulkUploadMod
                 Archivo Excel (.xlsx) con productos y precios. Primera columna: descripción, Segunda columna: precio
               </p>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-lavender font-semibold">Tipo de Producto</Label>
+            <Select value={selectedType} onValueChange={setSelectedType}>
+              <SelectTrigger className="w-full bg-charcoal border-lavender/20 text-lavender focus:ring-lime h-11">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="MODULO">Módulos</SelectItem>
+                <SelectItem value="BATERIA">Baterías</SelectItem>
+                <SelectItem value="PIN">Pines</SelectItem>
+                <SelectItem value="CONSOLA">Consolas</SelectItem>
+                <SelectItem value="MANTENIMIENTO">Mantenimiento</SelectItem>
+                <SelectItem value="VIDRIOS_CAMARA">Vidrios de Cámara</SelectItem>
+                <SelectItem value="VARIOS">Varios</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
