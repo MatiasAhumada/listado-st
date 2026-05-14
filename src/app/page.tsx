@@ -51,7 +51,7 @@ export default function LoginPage() {
   if (!isHydrated) return null;
 
   return (
-    <div className="min-h-screen bg-charcoal flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-charcoal flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
       <div className="absolute inset-0 w-full h-full bg-charcoal">
         <div className="absolute inset-0 bg-gradient-to-r from-lime/10 via-green/10 to-lime/10 animate-pulse" />
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-lime/20 rounded-full blur-3xl animate-blob" />
@@ -63,7 +63,7 @@ export default function LoginPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md z-10"
+        className="w-full max-w-md z-10 px-2 sm:px-0"
       >
         <div className="text-center mb-8">
           <motion.div
@@ -74,15 +74,15 @@ export default function LoginPage() {
           >
             <Wrench className="w-8 h-8 text-white" />
           </motion.div>
-          <h1 className="text-4xl font-bold text-lavender mb-2">Service Tech</h1>
-          <p className="text-lavender/60">Sistema Integral de Servicio Técnico</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-lavender mb-2">Service Tech</h1>
+          <p className="text-lavender/60 text-base sm:text-lg">Sistema Integral de Servicio Técnico</p>
         </div>
 
         <Card className="backdrop-blur-xl bg-dark/80 border border-lavender/10 shadow-2xl">
-          <div className="p-8">
-            <h2 className="text-2xl font-semibold text-lavender mb-6">Iniciar Sesión</h2>
+          <div className="p-4 sm:p-6 md:p-8">
+            <h2 className="text-xl sm:text-2xl font-semibold text-lavender mb-4 sm:mb-6">Iniciar Sesión</h2>
 
-            <form onSubmit={handleLogin} className="space-y-6">
+            <form onSubmit={handleLogin} className="space-y-4 sm:space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="username" className="text-lavender">
                   Usuario

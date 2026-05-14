@@ -190,10 +190,12 @@ export function AddProductModal({
         </>
       }
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 p-3 sm:p-4 md:p-6">
         {/* Datos Básicos */}
-        <div className="space-y-5">
-          <h3 className="font-bold text-lg border-b border-lavender/20 pb-2 text-lavender">Datos Básicos</h3>
+        <div className="space-y-3 sm:space-y-4 md:space-y-5">
+          <h3 className="font-bold text-base sm:text-lg border-b border-lavender/20 pb-2 text-lavender">
+            Datos Básicos
+          </h3>
 
           <div className="space-y-2">
             <Label className="text-lavender font-semibold">Nombre del Producto</Label>
@@ -234,8 +236,8 @@ export function AddProductModal({
         </div>
 
         {/* Precios y Márgenes */}
-        <div className="space-y-5">
-          <h3 className="font-bold text-lg border-b border-lavender/20 pb-2 text-lavender">
+        <div className="space-y-3 sm:space-y-4 md:space-y-5">
+          <h3 className="font-bold text-base sm:text-lg border-b border-lavender/20 pb-2 text-lavender">
             {isTecnico ? "Costo Técnico" : "Estructura de Precios"}
           </h3>
 

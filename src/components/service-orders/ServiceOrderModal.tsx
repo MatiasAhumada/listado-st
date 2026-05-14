@@ -415,15 +415,15 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
 
               {selectedProducts.map((product, index) => (
                 <div key={index} className="space-y-2">
-                  <div className="grid grid-cols-12 gap-2 p-3 bg-gray-900 rounded-lg border border-gray-700">
-                    <div className="col-span-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 bg-gray-900 rounded-lg border border-gray-700">
+                    <div className="lg:col-span-5">
                       <ProductSearch
                         value={product.productName}
                         onSelect={(p) => handleProductSelect(index, p)}
                         placeholder="Buscar servicio..."
                       />
                     </div>
-                    <div className="col-span-3">
+                    <div className="lg:col-span-3">
                       <Select
                         value={product.priceType}
                         onValueChange={(value) => handlePriceTypeChange(index, value as "cash" | "credit")}
@@ -437,10 +437,10 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="col-span-2 flex items-center justify-end">
-                      <span className="text-lime font-bold">${formatNumber(product.unitPrice)}</span>
+                    <div className="lg:col-span-2 flex items-center justify-start lg:justify-end">
+                      <span className="text-lime font-bold text-lg">${formatNumber(product.unitPrice)}</span>
                     </div>
-                    <div className="col-span-1 flex items-center justify-end gap-1">
+                    <div className="lg:col-span-2 flex items-center justify-end gap-2">
                       <Button
                         type="button"
                         size="icon"
@@ -450,18 +450,18 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
                           updated[index].showDetails = !updated[index].showDetails;
                           setSelectedProducts(updated);
                         }}
-                        className="h-8 w-8 text-lavender hover:bg-lavender/20"
+                        className="h-9 w-9 text-lavender hover:bg-lavender/20"
                       >
-                        {product.showDetails ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        {product.showDetails ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                       </Button>
                       <Button
                         type="button"
                         size="icon"
                         variant="ghost"
                         onClick={() => handleRemoveProduct(index)}
-                        className="h-8 w-8 text-red-500 hover:bg-red-500/20"
+                        className="h-9 w-9 text-red-500 hover:bg-red-500/20"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={18} />
                       </Button>
                     </div>
                   </div>
@@ -487,12 +487,12 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
               ))}
 
               {selectedProducts.length > 0 && (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div className="flex justify-end p-3 bg-lime/10 rounded-lg border border-lime/30">
                     <span className="text-lg font-bold text-lime">Total: ${formatNumber(calculateTotal())}</span>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div className="space-y-2">
                       <Label className="text-white text-sm">Anticipo</Label>
                       <Input
