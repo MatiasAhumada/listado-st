@@ -172,15 +172,15 @@ function procesarFormatoSimple(data: any[][], productType: string): ProductoProc
   for (const [nombreProducto, precios] of agrupados) {
     const promedio = precios.reduce((a, b) => a + b, 0) / precios.length;
     const costTech = Math.round(promedio);
-    const cost = costTech * 2;
+    const cost = costTech * 2.5;
     const productName = `${productType} ${nombreProducto}`;
 
     productosProcesados.push({
       name: productName,
       costTech,
-      costTechMargin: 100,
+      costTechMargin: 150,
       cost,
-      costMargin: 100,
+      costMargin: 150,
       cash: cost * 2,
       cashMargin: 100,
       credit: cost * 2.2,
