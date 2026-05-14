@@ -15,10 +15,10 @@ interface GenericModalProps {
 }
 
 const SIZE_CLASSES = {
-  sm: "max-w-sm",
-  md: "max-w-md",
-  lg: "max-w-lg",
-  xl: "max-w-xl",
+  sm: "max-w-xl",
+  md: "max-w-2xl",
+  lg: "max-w-3xl",
+  xl: "max-w-4xl",
 };
 
 export function GenericModal({
