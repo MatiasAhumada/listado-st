@@ -10,6 +10,7 @@ import { procesarExcelFile, ProductoProcesado } from "@/utils/excelParser.util";
 import { formatNumber } from "@/utils/formatters.util";
 import { bulkCreateOrUpdateProductos } from "@/services/producto.service";
 import { Upload, FileSpreadsheet } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface BulkUploadModalProps {
   open: boolean;
@@ -21,6 +22,13 @@ export function BulkUploadModal({ open, onOpenChange, onSuccess }: BulkUploadMod
   const [loading, setLoading] = useState(false);
   const [productos, setProductos] = useState<ProductoProcesado[]>([]);
   const [archivo, setArchivo] = useState<File | null>(null);
+  const [selectedType, setSelectedType] = useState<string>("MODULO");
+
+  const handleTypeChange = (newType: string) => {
+    setSelectedType(newType);
+    setArchivo(null);
+    setProductos([]);
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -29,7 +37,7 @@ export function BulkUploadModal({ open, onOpenChange, onSuccess }: BulkUploadMod
     setArchivo(file);
 
     try {
-      const productosProcesados = await procesarExcelFile(file);
+      const productosProcesados = await procesarExcelFile(file, selectedType);
       setProductos(productosProcesados);
       clientSuccessHandler(`${productosProcesados.length} productos detectados`);
     } catch (error) {
@@ -102,21 +110,41 @@ export function BulkUploadModal({ open, onOpenChange, onSuccess }: BulkUploadMod
           </div>
 
           <div className="space-y-2">
+            <Label className="text-lavender font-semibold">Tipo de Producto</Label>
+            <Select value={selectedType} onValueChange={handleTypeChange}>
+              <SelectTrigger className="w-full bg-charcoal border-lavender/20 text-lavender focus:ring-lime h-11">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="MODULO">Módulos</SelectItem>
+                <SelectItem value="BATERIA">Baterías</SelectItem>
+                <SelectItem value="PIN">Pines</SelectItem>
+                <SelectItem value="CONSOLA">Consolas</SelectItem>
+                <SelectItem value="MANTENIMIENTO">Mantenimiento</SelectItem>
+                <SelectItem value="VIDRIOS_CAMARA">Vidrios de Cámara</SelectItem>
+                <SelectItem value="VARIOS">Varios</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
             <Label className="text-lavender font-semibold">Seleccionar Archivo</Label>
-            <div className="flex items-center gap-3">
-              <Input
+            <label className="flex items-center justify-center gap-3 w-full h-24 border-2 border-dashed border-lavender/30 bg-charcoal/60 rounded-lg cursor-pointer hover:border-lime hover:bg-charcoal/80 transition-all group">
+              <Upload className="text-lavender/60 group-hover:text-lime transition-colors" size={24} />
+              <div className="flex flex-col items-center">
+                <span className="text-sm font-semibold text-lavender group-hover:text-lime transition-colors">
+                  {archivo ? archivo.name : "Click para seleccionar archivo Excel"}
+                </span>
+                <span className="text-xs text-lavender/50 mt-1">Formatos: .xlsx, .xls</span>
+              </div>
+              <input
                 type="file"
                 accept=".xlsx,.xls"
                 onChange={handleFileChange}
-                className="flex-1 bg-charcoal border-lavender/20 text-lavender focus-visible:ring-lime h-11"
+                className="hidden"
+                key={selectedType}
               />
-              <Upload className="text-lavender/60" size={20} />
-            </div>
-            {archivo && (
-              <p className="text-sm text-lavender/60">
-                Archivo: <span className="font-semibold text-lavender">{archivo.name}</span>
-              </p>
-            )}
+            </label>
           </div>
 
           {productos.length > 0 && (

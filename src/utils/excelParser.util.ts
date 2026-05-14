@@ -36,12 +36,18 @@ export function extraerNombreBase(descripcion: string): string {
   let nombre = descripcion.trim();
 
   nombre = nombre.replace(/^•\s*/, "");
+
+  nombre = nombre.replace(/\(.*?\)/g, "");
+
   nombre = nombre.replace(
-    /\s+(Mecanico|wp|gold|wuzip|Black|Negro|Blanco|Dorado|Plateado|Azul|Rojo|Verde|Rosa|Crown|Repart|REPART|GX|gx|caja naranja|naranja|S\/L|incell|oled|AMM|AMP|ASS|SERVICE PACK|PACK|\(.*?\)|1ra calidad|2da calidad).*$/i,
+    /\s+(Mecanico|wp|gold|wuzip|Black|Negro|Blanco|Dorado|Plateado|Azul|Rojo|Verde|Rosa|Crown|Repart|REPART|GX|gx|caja naranja|naranja|S\/L|incell|oled|AMM|AMP|ASS|SERVICE PACK|PACK|1ra calidad|2da calidad).*$/i,
     ""
   );
 
   nombre = nombre.replace(/\s+\/.*$/, "");
+
+  nombre = nombre.replace(/\s*-+\s*$/g, "");
+  nombre = nombre.replace(/\s+/g, " ");
 
   return nombre.trim();
 }
@@ -71,13 +77,69 @@ export function detectarMarca(linea: string): string | null {
   return null;
 }
 
-export async function procesarExcelFile(file: File): Promise<ProductoProcesado[]> {
+export async function procesarExcelFile(file: File, productType: string = "MODULO"): Promise<ProductoProcesado[]> {
   const buffer = await file.arrayBuffer();
   const workbook = XLSX.read(buffer, { type: "array" });
   const sheetName = workbook.SheetNames[0];
   const worksheet = workbook.Sheets[sheetName];
   const data: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
+  if (productType === "BATERIA" || productType === "PIN" || productType === "CONSOLA") {
+    return procesarFormatoSimple(data, productType);
+  }
+
+  return procesarFormatoModulos(data, productType);
+}
+
+function procesarFormatoSimple(data: any[][], productType: string): ProductoProcesado[] {
+  const productosProcesados: ProductoProcesado[] = [];
+  const agrupados = new Map<string, number[]>();
+
+  for (let i = 0; i < data.length; i++) {
+    const fila = data[i];
+
+    if (!fila || fila.length < 2 || (!fila[0] && !fila[1])) {
+      continue;
+    }
+
+    const descripcion = fila[0]?.toString().trim() || "";
+    const precio = limpiarPrecio(fila[1]);
+
+    if (precio > 0 && descripcion) {
+      const nombreLimpio = extraerNombreBase(descripcion);
+      const clave = nombreLimpio.trim();
+
+      if (!agrupados.has(clave)) {
+        agrupados.set(clave, []);
+      }
+      agrupados.get(clave)!.push(precio);
+    }
+  }
+
+  for (const [nombreProducto, precios] of agrupados) {
+    const promedio = precios.reduce((a, b) => a + b, 0) / precios.length;
+    const costTech = Math.round(promedio);
+    const cost = costTech * 2;
+    const productName = `${productType} ${nombreProducto}`;
+
+    productosProcesados.push({
+      name: productName,
+      costTech,
+      costTechMargin: 100,
+      cost,
+      costMargin: 100,
+      cash: cost * 2,
+      cashMargin: 100,
+      credit: cost * 2.2,
+      creditMargin: 120,
+      type: productType,
+    });
+  }
+
+  return productosProcesados;
+}
+
+function procesarFormatoModulos(data: any[][], productType: string): ProductoProcesado[] {
   const grupos: { marca: string; productos: { descripcion: string; precio: number }[] }[] = [];
   let marcaActual = "";
   let grupoActual: { descripcion: string; precio: number }[] = [];
@@ -142,9 +204,10 @@ export async function procesarExcelFile(file: File): Promise<ProductoProcesado[]
       const promedio = precios.reduce((a, b) => a + b, 0) / precios.length;
       const costTech = Math.round(promedio);
       const cost = costTech * 2;
+      const productName = `${productType} ${nombreProducto}`;
 
       productosProcesados.push({
-        name: nombreProducto,
+        name: productName,
         costTech,
         costTechMargin: 100,
         cost,
@@ -153,7 +216,7 @@ export async function procesarExcelFile(file: File): Promise<ProductoProcesado[]
         cashMargin: 100,
         credit: cost * 2.2,
         creditMargin: 120,
-        type: "MODULO",
+        type: productType,
       });
 
       const itemsCM = items.filter((p) => /c\/m/i.test(p.descripcion));
@@ -165,7 +228,7 @@ export async function procesarExcelFile(file: File): Promise<ProductoProcesado[]
         const costCM = costTechCM * 2;
 
         productosProcesados.push({
-          name: `${nombreProducto} C/M`,
+          name: `${productType} ${nombreProducto} C/M`,
           costTech: costTechCM,
           costTechMargin: 100,
           cost: costCM,
@@ -174,7 +237,7 @@ export async function procesarExcelFile(file: File): Promise<ProductoProcesado[]
           cashMargin: 100,
           credit: costCM * 2.2,
           creditMargin: 120,
-          type: "MODULO",
+          type: productType,
         });
       }
     }
