@@ -106,10 +106,8 @@ function procesarFormatoSimple(data: any[][], productType: string): ProductoProc
     const precio = limpiarPrecio(fila[1]);
 
     if (precio > 0 && descripcion) {
-      const marca = detectarMarca(descripcion);
       const nombreLimpio = extraerNombreBase(descripcion);
-      const nombreCompleto = marca ? `${marca} ${nombreLimpio}` : nombreLimpio;
-      const clave = nombreCompleto.trim();
+      const clave = nombreLimpio.trim();
 
       if (!agrupados.has(clave)) {
         agrupados.set(clave, []);
