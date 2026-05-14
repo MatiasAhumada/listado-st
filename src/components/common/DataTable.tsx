@@ -44,24 +44,26 @@ export function DataTable<T>({
   return (
     <div className="space-y-6">
       {(title || subtitle || actions) && (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            {title && <h1 className="text-4xl font-black text-lavender">{title}</h1>}
-            {subtitle && <p className="text-lavender/60 text-lg mt-1">{subtitle}</p>}
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              {title && <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-lavender">{title}</h1>}
+              {subtitle && <p className="text-lavender/60 text-sm sm:text-base md:text-lg mt-1">{subtitle}</p>}
+            </div>
           </div>
-          {actions && <div className="flex gap-3">{actions}</div>}
+          {actions && <div className="flex flex-wrap gap-2 sm:gap-3">{actions}</div>}
         </div>
       )}
 
       <div className="bg-dark/80 backdrop-blur-sm border border-lavender/10 shadow-2xl rounded-lg overflow-hidden">
         {onSearch && (
-          <div className="p-4 border-b border-lavender/10">
-            <div className="relative w-full max-w-md">
+          <div className="p-3 sm:p-4 border-b border-lavender/10">
+            <div className="relative w-full">
               <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-lavender/50" />
               <Input
                 placeholder={searchPlaceholder}
                 onChange={(e) => onSearch(e.target.value)}
-                className="pl-10 bg-charcoal border-lavender/20 text-lavender placeholder:text-lavender/50"
+                className="pl-10 bg-charcoal border-lavender/20 text-lavender placeholder:text-lavender/50 text-sm sm:text-base"
               />
             </div>
           </div>
@@ -72,7 +74,10 @@ export function DataTable<T>({
             <thead>
               <tr className="border-b border-lavender/10">
                 {columns.map((column) => (
-                  <th key={column.key} className={`text-left p-4 text-lavender font-bold ${column.className || ""}`}>
+                  <th
+                    key={column.key}
+                    className={`text-left p-2 sm:p-3 md:p-4 text-lavender font-bold text-xs sm:text-sm md:text-base ${column.className || ""}`}
+                  >
                     {column.label}
                   </th>
                 ))}
@@ -81,20 +86,23 @@ export function DataTable<T>({
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={columns.length} className="text-center p-8 text-lavender/60 font-semibold">
+                  <td
+                    colSpan={columns.length}
+                    className="text-center p-4 sm:p-6 md:p-8 text-lavender/60 font-semibold text-sm sm:text-base"
+                  >
                     Cargando...
                   </td>
                 </tr>
               ) : data.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length} className="text-center p-8">
-                    <div className="flex flex-col items-center gap-3">
+                  <td colSpan={columns.length} className="text-center p-4 sm:p-6 md:p-8">
+                    <div className="flex flex-col items-center gap-2 sm:gap-3">
                       {emptyIcon && (
-                        <div className="w-16 h-16 rounded-full bg-lime/20 flex items-center justify-center">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-lime/20 flex items-center justify-center">
                           {emptyIcon}
                         </div>
                       )}
-                      <p className="text-lavender font-semibold text-lg">{emptyMessage}</p>
+                      <p className="text-lavender font-semibold text-sm sm:text-base md:text-lg">{emptyMessage}</p>
                     </div>
                   </td>
                 </tr>
@@ -108,7 +116,10 @@ export function DataTable<T>({
                     }`}
                   >
                     {columns.map((column) => (
-                      <td key={column.key} className={`p-4 ${column.className || ""}`}>
+                      <td
+                        key={column.key}
+                        className={`p-2 sm:p-3 md:p-4 text-xs sm:text-sm md:text-base ${column.className || ""}`}
+                      >
                         {column.render ? (
                           column.render(item)
                         ) : (
@@ -126,8 +137,8 @@ export function DataTable<T>({
         </div>
 
         {totalLabel && (
-          <div className="p-4 border-t border-lavender/10">
-            <p className="text-sm text-lavender/60">{totalLabel}</p>
+          <div className="p-3 sm:p-4 border-t border-lavender/10">
+            <p className="text-xs sm:text-sm text-lavender/60">{totalLabel}</p>
           </div>
         )}
       </div>
