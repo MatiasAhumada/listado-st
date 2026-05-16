@@ -12,6 +12,7 @@ import { useAuthStore } from "@/hooks/useAuthStore";
 import { CheckIcon } from "lucide-react";
 import { MARGIN_OPTIONS } from "@/constants/pricing.constant";
 import { formatNumber } from "@/utils/formatters.util";
+import { PRODUCT_TYPE_LABELS, PRODUCT_TYPES } from "@/constants/productType.constant";
 
 interface AddProductModalProps {
   open: boolean;
@@ -21,7 +22,7 @@ interface AddProductModalProps {
   userRole?: "EMPRESA" | "TECNICO" | "VENDEDOR";
 }
 
-const PRODUCT_TYPES = ["MODULO", "BATERIA", "PIN", "CONSOLA", "MANTENIMIENTO", "VIDRIOS_CAMARA", "VARIOS"];
+const PRODUCT_TYPES_ARRAY = PRODUCT_TYPES;
 
 export function AddProductModal({
   open,
@@ -214,9 +215,9 @@ export function AddProductModal({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {PRODUCT_TYPES.map((t) => (
+                {PRODUCT_TYPES_ARRAY.map((t) => (
                   <SelectItem key={t} value={t}>
-                    {t}
+                    {PRODUCT_TYPE_LABELS[t]}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -307,7 +308,7 @@ export function AddProductModal({
                   onValueChange={(val) => setPricing({ ...pricing, cashMargin: Number(val) })}
                 >
                   <SelectTrigger className="w-full bg-dark border-lavender/20 text-lavender focus:ring-lime">
-                    <SelectValue placeholder="Seleccionar %" />
+                    <SelectValue>{pricing.cashMargin > 0 ? `+${pricing.cashMargin}%` : "Seleccionar %"}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {MARGIN_OPTIONS.map((p) => (
@@ -329,7 +330,9 @@ export function AddProductModal({
                   onValueChange={(val) => setPricing({ ...pricing, creditMargin: Number(val) })}
                 >
                   <SelectTrigger className="w-full bg-dark border-lavender/20 text-lavender focus:ring-lime">
-                    <SelectValue placeholder="Seleccionar %" />
+                    <SelectValue>
+                      {pricing.creditMargin > 0 ? `+${pricing.creditMargin}%` : "Seleccionar %"}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {MARGIN_OPTIONS.map((p) => (

@@ -16,6 +16,7 @@ import { Plus, Edit, Trash, Upload } from "lucide-react";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { formatNumber } from "@/utils/formatters.util";
 import { motion } from "framer-motion";
+import { PRODUCT_TYPE_LABELS, PRODUCT_TYPES } from "@/constants/productType.constant";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -77,7 +78,13 @@ export default function DashboardPage() {
   const columns = useMemo(() => {
     const baseCols: { key: string; label: string; render?: (item: any) => any; className?: string }[] = [
       { key: "name", label: "Producto" },
-      { key: "type", label: "Trabajo" },
+      {
+        key: "type",
+        label: "Trabajo",
+        render: (item: any) => (
+          <span className="text-lavender/80">{PRODUCT_TYPE_LABELS[item.type as keyof typeof PRODUCT_TYPE_LABELS]}</span>
+        ),
+      },
       {
         key: "available",
         label: "Estado",
@@ -197,12 +204,12 @@ export default function DashboardPage() {
   }, [isEmpresa, isTecnico]);
 
   return (
-    <div className="min-h-screen bg-charcoal p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen bg-charcoal p-4 sm:p-6 md:p-8 overflow-x-hidden">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-7xl mx-auto"
+        className="w-full max-w-7xl mx-auto"
       >
         <DataTable
           title="Servicios"
@@ -226,27 +233,11 @@ export default function DashboardPage() {
                   <SelectItem value="TODOS" className="text-white hover:bg-gray-700">
                     Todos los Trabajos
                   </SelectItem>
-                  <SelectItem value="MODULO" className="text-white hover:bg-gray-700">
-                    Módulos
-                  </SelectItem>
-                  <SelectItem value="BATERIA" className="text-white hover:bg-gray-700">
-                    Baterías
-                  </SelectItem>
-                  <SelectItem value="PIN" className="text-white hover:bg-gray-700">
-                    Pines
-                  </SelectItem>
-                  <SelectItem value="CONSOLA" className="text-white hover:bg-gray-700">
-                    Consolas
-                  </SelectItem>
-                  <SelectItem value="MANTENIMIENTO" className="text-white hover:bg-gray-700">
-                    Mantenimiento
-                  </SelectItem>
-                  <SelectItem value="VIDRIOS_CAMARA" className="text-white hover:bg-gray-700">
-                    Vidrios de Cámara
-                  </SelectItem>
-                  <SelectItem value="VARIOS" className="text-white hover:bg-gray-700">
-                    Varios
-                  </SelectItem>
+                  {PRODUCT_TYPES.map((type) => (
+                    <SelectItem key={type} value={type} className="text-white hover:bg-gray-700">
+                      {PRODUCT_TYPE_LABELS[type]}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 
@@ -315,7 +306,11 @@ export default function DashboardPage() {
                 <div className="p-4 bg-destructive/10 rounded-xl border border-destructive/20 flex flex-col gap-2 mt-2">
                   <span className="text-lavender font-semibold">¿Seguro que deseas borrar el siguiente producto?</span>
                   <span className="text-lavender font-black text-lg">{productToDelete?.name}</span>
-                  <span className="text-lavender/60 text-sm">{productToDelete?.type}</span>
+                  <span className="text-lavender/60 text-sm">
+                    {productToDelete?.type
+                      ? PRODUCT_TYPE_LABELS[productToDelete.type as keyof typeof PRODUCT_TYPE_LABELS]
+                      : ""}
+                  </span>
                 </div>
               </GenericModal>
             </>

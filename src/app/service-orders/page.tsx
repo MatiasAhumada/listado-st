@@ -148,12 +148,12 @@ export default function ServiceOrdersPage() {
     <div className="flex min-h-screen bg-skybase-900">
       <Sidebar />
 
-      <div className="flex-1 ml-64">
-        <div className="min-h-screen bg-gradient-to-br from-skybase-950 via-deepspace-900 to-skybase-900 p-8">
-          <div className="max-w-7xl mx-auto space-y-6">
-            <div className="flex justify-between items-center">
+      <div className="flex-1 lg:ml-14">
+        <div className="min-h-screen bg-gradient-to-br from-skybase-950 via-deepspace-900 to-skybase-900 p-4 sm:p-6 md:p-8 overflow-x-hidden">
+          <div className="w-full max-w-7xl mx-auto space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <h1 className="text-3xl font-bold text-white">Órdenes de Servicio</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-white">Órdenes de Servicio</h1>
                 <p className="text-skybase-300 mt-1">Gestión de servicios técnicos</p>
               </div>
               <Button
@@ -167,15 +167,27 @@ export default function ServiceOrdersPage() {
 
             <Card className="bg-skybase-900/50 border-skybase-700/50 backdrop-blur-sm">
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full min-w-max">
                   <thead>
                     <tr className="border-b border-skybase-700/50">
-                      <th className="text-left p-4 text-skybase-300 font-semibold">Cliente</th>
-                      <th className="text-left p-4 text-skybase-300 font-semibold">Teléfono</th>
-                      <th className="text-left p-4 text-skybase-300 font-semibold">Empresa</th>
-                      <th className="text-left p-4 text-skybase-300 font-semibold">Vendedor</th>
-                      <th className="text-left p-4 text-skybase-300 font-semibold">Estado</th>
-                      <th className="text-left p-4 text-skybase-300 font-semibold">Acciones</th>
+                      <th className="text-left p-2 sm:p-3 md:p-4 text-skybase-300 font-semibold whitespace-nowrap">
+                        Cliente
+                      </th>
+                      <th className="text-left p-2 sm:p-3 md:p-4 text-skybase-300 font-semibold whitespace-nowrap">
+                        Teléfono
+                      </th>
+                      <th className="text-left p-2 sm:p-3 md:p-4 text-skybase-300 font-semibold whitespace-nowrap">
+                        Empresa
+                      </th>
+                      <th className="text-left p-2 sm:p-3 md:p-4 text-skybase-300 font-semibold whitespace-nowrap">
+                        Vendedor
+                      </th>
+                      <th className="text-left p-2 sm:p-3 md:p-4 text-skybase-300 font-semibold whitespace-nowrap">
+                        Estado
+                      </th>
+                      <th className="text-left p-2 sm:p-3 md:p-4 text-skybase-300 font-semibold whitespace-nowrap">
+                        Acciones
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -194,11 +206,17 @@ export default function ServiceOrdersPage() {
                     ) : (
                       orders.map((order) => (
                         <tr key={order.id} className="border-b border-skybase-800/30 hover:bg-skybase-800/20">
-                          <td className="p-4 text-white font-medium">{order.clientName}</td>
-                          <td className="p-4 text-skybase-300">{order.clientPhone}</td>
-                          <td className="p-4 text-skybase-300">{order.company?.username || "-"}</td>
-                          <td className="p-4 text-skybase-300">{order.seller?.username || "-"}</td>
-                          <td className="p-4">
+                          <td className="p-2 sm:p-3 md:p-4 text-white font-medium whitespace-nowrap">
+                            {order.clientName}
+                          </td>
+                          <td className="p-2 sm:p-3 md:p-4 text-skybase-300 whitespace-nowrap">{order.clientPhone}</td>
+                          <td className="p-2 sm:p-3 md:p-4 text-skybase-300 whitespace-nowrap">
+                            {order.company?.username || "-"}
+                          </td>
+                          <td className="p-2 sm:p-3 md:p-4 text-skybase-300 whitespace-nowrap">
+                            {order.seller?.username || "-"}
+                          </td>
+                          <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap">
                             <Select
                               value={order.status}
                               onValueChange={(value) => handleStatusChange(order.id, value as ServiceOrderStatus)}
@@ -221,7 +239,7 @@ export default function ServiceOrdersPage() {
                               </SelectContent>
                             </Select>
                           </td>
-                          <td className="p-4">
+                          <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap">
                             <div className="flex gap-2">
                               <Button
                                 size="sm"
