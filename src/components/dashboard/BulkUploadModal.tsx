@@ -11,6 +11,7 @@ import { formatNumber } from "@/utils/formatters.util";
 import { bulkCreateOrUpdateProductos } from "@/services/producto.service";
 import { Upload, FileSpreadsheet } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PRODUCT_TYPE_LABELS, PRODUCT_TYPES } from "@/constants/productType.constant";
 
 interface BulkUploadModalProps {
   open: boolean;
@@ -116,15 +117,11 @@ export function BulkUploadModal({ open, onOpenChange, onSuccess }: BulkUploadMod
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="MODULO">Módulos</SelectItem>
-                <SelectItem value="BATERIA">Baterías</SelectItem>
-                <SelectItem value="PIN">Pines</SelectItem>
-                <SelectItem value="CONSOLA">Consolas</SelectItem>
-                <SelectItem value="MANTENIMIENTO">Mantenimiento</SelectItem>
-                <SelectItem value="VIDRIOS_CAMARA">Vidrios de Cámara</SelectItem>
-                <SelectItem value="BOTON_POWER">Botón Power</SelectItem>
-                <SelectItem value="BANDEJA_SIM">Bandeja SIM</SelectItem>
-                <SelectItem value="VARIOS">Varios</SelectItem>
+                {PRODUCT_TYPES.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {PRODUCT_TYPE_LABELS[type]}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

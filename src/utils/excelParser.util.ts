@@ -88,7 +88,13 @@ export async function procesarExcelFile(file: File, productType: string = "MODUL
     return procesarFormatoTresColumnas(data, productType);
   }
 
-  if (productType === "BATERIA" || productType === "PIN" || productType === "CONSOLA") {
+  if (
+    productType === "BATERIA" ||
+    productType === "PIN" ||
+    productType === "CONSOLA" ||
+    productType === "FLEX" ||
+    productType === "SOFTWARE"
+  ) {
     return procesarFormatoSimple(data, productType);
   }
 
