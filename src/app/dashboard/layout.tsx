@@ -22,10 +22,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (!isHydrated || !user) return null;
 
+  if (!isHydrated || !user) return null;
+
   return (
-    <div className="flex min-h-screen bg-charcoal">
+    <div className="flex min-h-screen bg-charcoal overflow-x-hidden">
       <Sidebar />
-      <div className="flex-1 lg:ml-16 transition-all duration-300 pt-16 lg:pt-0">{children}</div>
+      <div className="flex-1 lg:ml-14 transition-all duration-300 overflow-x-hidden">{children}</div>
     </div>
   );
 }

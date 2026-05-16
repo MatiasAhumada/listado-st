@@ -42,9 +42,9 @@ export function DataTable<T>({
   onRowClick,
 }: DataTableProps<T>) {
   return (
-    <div className="space-y-6">
+    <div className="w-full max-w-full space-y-6">
       {(title || subtitle || actions) && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 px-4 sm:px-0">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               {title && <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-lavender">{title}</h1>}
@@ -55,7 +55,7 @@ export function DataTable<T>({
         </div>
       )}
 
-      <div className="bg-dark/80 backdrop-blur-sm border border-lavender/10 shadow-2xl rounded-lg overflow-hidden">
+      <div className="bg-dark/80 backdrop-blur-sm border border-lavender/10 shadow-2xl rounded-lg overflow-hidden mx-4 sm:mx-0">
         {onSearch && (
           <div className="p-3 sm:p-4 border-b border-lavender/10">
             <div className="relative w-full">
@@ -69,14 +69,14 @@ export function DataTable<T>({
           </div>
         )}
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto overflow-y-visible">
+          <table className="w-full min-w-max">
             <thead>
               <tr className="border-b border-lavender/10">
                 {columns.map((column) => (
                   <th
                     key={column.key}
-                    className={`text-left p-2 sm:p-3 md:p-4 text-lavender font-bold text-xs sm:text-sm md:text-base ${column.className || ""}`}
+                    className={`text-left p-2 sm:p-3 md:p-4 text-lavender font-bold text-xs sm:text-sm md:text-base whitespace-nowrap ${column.className || ""}`}
                   >
                     {column.label}
                   </th>
@@ -118,7 +118,7 @@ export function DataTable<T>({
                     {columns.map((column) => (
                       <td
                         key={column.key}
-                        className={`p-2 sm:p-3 md:p-4 text-xs sm:text-sm md:text-base ${column.className || ""}`}
+                        className={`p-2 sm:p-3 md:p-4 text-xs sm:text-sm md:text-base whitespace-nowrap ${column.className || ""}`}
                       >
                         {column.render ? (
                           column.render(item)

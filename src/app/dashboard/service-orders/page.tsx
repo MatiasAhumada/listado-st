@@ -265,12 +265,12 @@ export default function ServiceOrdersPage() {
   }, [canViewCompanyColumns, handleStatusChange, handleView, handleEdit, handlePrint, handleDelete]);
 
   return (
-    <div className="min-h-screen bg-charcoal p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen bg-charcoal p-4 sm:p-6 md:p-8 overflow-x-hidden">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-7xl mx-auto"
+        className="w-full max-w-7xl mx-auto"
       >
         <DataTable
           title="Órdenes de Servicio"
