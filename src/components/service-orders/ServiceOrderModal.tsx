@@ -239,6 +239,21 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           balance: formData.balance || undefined,
           deliveryDate: formData.deliveryDate ? new Date(formData.deliveryDate) : undefined,
           status: formData.status,
+          products:
+            selectedProducts.length > 0
+              ? selectedProducts.map((p) => ({
+                  productName: p.productName,
+                  productType: p.productType,
+                  unitPrice: p.unitPrice,
+                  isDry: p.isDry,
+                  hasImpact: p.hasImpact,
+                  isBrokenScreen: p.isBrokenScreen,
+                  isTurnedOn: p.isTurnedOn,
+                  isCharging: p.isCharging,
+                  color: p.color || undefined,
+                  description: p.description || undefined,
+                }))
+              : undefined,
         };
         await updateServiceOrder(order.id, updateData);
 
