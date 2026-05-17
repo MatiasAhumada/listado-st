@@ -70,8 +70,8 @@ export function Sidebar() {
       <div
         className={cn(
           "fixed top-0 left-0 z-50 h-full bg-dark/95 backdrop-blur-sm border-r border-lavender/10 transition-all duration-300 ease-in-out",
-          "lg:w-14 lg:hover:w-48",
-          isOpen ? "w-56 translate-x-0" : "w-0 -translate-x-full lg:translate-x-0 lg:w-14"
+          "md:w-[20%] md:max-w-[240px] md:min-w-[180px]",
+          isOpen ? "w-[70%] max-w-[280px] translate-x-0" : "w-0 -translate-x-full md:translate-x-0"
         )}
       >
         <div className="flex flex-col h-full overflow-hidden">
@@ -81,9 +81,7 @@ export function Sidebar() {
                 <div className="w-8 h-8 bg-gradient-to-r from-lime to-green rounded-lg flex items-center justify-center flex-shrink-0">
                   <Package size={18} className="text-dark" />
                 </div>
-                <span className="text-base font-bold text-lavender truncate lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
-                  Service Tech
-                </span>
+                <span className="text-base font-bold text-lavender truncate">Service Tech</span>
               </div>
               <Button
                 variant="ghost"
