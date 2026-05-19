@@ -1,5 +1,5 @@
 import * as XLSX from "xlsx";
-import { TECH_MARGIN_MODULO } from "@/constants/pricing.constant";
+import { TECH_MARGIN_MODULO, TECH_MARGIN_BATERIA, TECH_MARGIN_BOTON } from "@/constants/pricing.constant";
 
 export interface ProductoExcelRaw {
   descripcion: string;
@@ -132,14 +132,14 @@ function procesarFormatoTresColumnas(data: any[][], productType: string): Produc
   for (const [nombreProducto, precios] of agrupados) {
     const promedio = precios.reduce((a, b) => a + b, 0) / precios.length;
     const costTech = Math.round(promedio);
-    const cost = costTech * 8;
+    const cost = costTech * (1 + TECH_MARGIN_BOTON / 100);
 
     productosProcesados.push({
       name: nombreProducto,
       costTech,
-      costTechMargin: 700,
+      costTechMargin: TECH_MARGIN_BOTON,
       cost,
-      costMargin: 700,
+      costMargin: TECH_MARGIN_BOTON,
       cash: cost * 2,
       cashMargin: 100,
       credit: cost * 2.2,
@@ -179,15 +179,15 @@ function procesarFormatoSimple(data: any[][], productType: string): ProductoProc
   for (const [nombreProducto, precios] of agrupados) {
     const promedio = precios.reduce((a, b) => a + b, 0) / precios.length;
     const costTech = Math.round(promedio);
-    const cost = costTech * 2.5;
+    const cost = costTech * (1 + TECH_MARGIN_BATERIA / 100);
     const productName = `${productType} ${nombreProducto}`;
 
     productosProcesados.push({
       name: productName,
       costTech,
-      costTechMargin: 150,
+      costTechMargin: TECH_MARGIN_BATERIA,
       cost,
-      costMargin: 150,
+      costMargin: TECH_MARGIN_BATERIA,
       cash: cost * 2,
       cashMargin: 100,
       credit: cost * 2.2,
