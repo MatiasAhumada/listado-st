@@ -1,4 +1,5 @@
 import * as XLSX from "xlsx";
+import { TECH_MARGIN_MODULO } from "@/constants/pricing.constant";
 
 export interface ProductoExcelRaw {
   descripcion: string;
@@ -259,46 +260,38 @@ function procesarFormatoModulos(data: any[][], productType: string): ProductoPro
     }
 
     for (const [nombreProducto, items] of agrupados) {
-      const precios = items.map((p) => p.precio);
-      const promedio = precios.reduce((a, b) => a + b, 0) / precios.length;
-      const costTech = Math.round(promedio);
-      const cost = costTech * 2;
-      const productName = `${productType} ${nombreProducto}`;
+      const itemsCM = items.filter((p) => /c\/m/i.test(p.descripcion));
+      const itemsSinCM = items.filter((p) => !/c\/m/i.test(p.descripcion));
+
+      let costTech: number;
+      let productName: string;
+
+      if (itemsCM.length > 0) {
+        const preciosCM = itemsCM.map((p) => p.precio);
+        const promedioCM = preciosCM.reduce((a, b) => a + b, 0) / preciosCM.length;
+        costTech = Math.round(promedioCM);
+        productName = `${productType} ${nombreProducto} C/M`;
+      } else {
+        const preciosSinCM = itemsSinCM.map((p) => p.precio);
+        const promedioSinCM = preciosSinCM.reduce((a, b) => a + b, 0) / preciosSinCM.length;
+        costTech = Math.round(promedioSinCM);
+        productName = `${productType} ${nombreProducto}`;
+      }
+
+      const cost = costTech * (1 + TECH_MARGIN_MODULO / 100);
 
       productosProcesados.push({
         name: productName,
         costTech,
-        costTechMargin: 100,
+        costTechMargin: TECH_MARGIN_MODULO,
         cost,
-        costMargin: 100,
+        costMargin: TECH_MARGIN_MODULO,
         cash: cost * 2,
         cashMargin: 100,
         credit: cost * 2.2,
         creditMargin: 120,
         type: productType,
       });
-
-      const itemsCM = items.filter((p) => /c\/m/i.test(p.descripcion));
-
-      if (itemsCM.length > 0) {
-        const preciosCM = itemsCM.map((p) => p.precio);
-        const promedioCM = preciosCM.reduce((a, b) => a + b, 0) / preciosCM.length;
-        const costTechCM = Math.round(promedioCM);
-        const costCM = costTechCM * 2;
-
-        productosProcesados.push({
-          name: `${productType} ${nombreProducto} C/M`,
-          costTech: costTechCM,
-          costTechMargin: 100,
-          cost: costCM,
-          costMargin: 100,
-          cash: costCM * 2,
-          cashMargin: 100,
-          credit: costCM * 2.2,
-          creditMargin: 120,
-          type: productType,
-        });
-      }
     }
   }
 
