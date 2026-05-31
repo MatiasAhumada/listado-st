@@ -27,6 +27,10 @@ export function limpiarPrecio(precioStr: string | number): number {
   return parseFloat(cleaned) || 0;
 }
 
+export function esVarianteRtech(descripcion: string): boolean {
+  return /r[-\s]?tech/i.test(descripcion);
+}
+
 export function tieneClaveRemovible(descripcion: string): boolean {
   return /\s+(Mecanico|wp|gold|wuzip|Black|Negro|Blanco|Dorado|Plateado|Azul|Rojo|Verde|Rosa|Crown|Repart|REPART|GX|gx|caja naranja|naranja|S\/L|incell|oled|AMM|AMP|ASS|SERVICE PACK|PACK|1ra calidad|2da calidad)/i.test(
     descripcion
@@ -232,7 +236,7 @@ function procesarFormatoModulos(data: any[][], productType: string): ProductoPro
       const descripcion = primeraColumna.trim();
       const precio = limpiarPrecio(segundaColumna);
 
-      if (precio > 0 && descripcion) {
+      if (precio > 0 && descripcion && !esVarianteRtech(descripcion)) {
         grupoActual.push({ descripcion, precio });
       }
     }

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { VendedorModal } from "@/components/vendedores/VendedorModal";
+import { ConfirmModal } from "@/components/common/GenericModal";
 import { getVendedores, deleteVendedor } from "@/services/vendedor.service";
 import { getBranches } from "@/services/branch.service";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
@@ -30,7 +31,10 @@ export default function VendedoresPage() {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [selectedVendedor, setSelectedVendedor] = useState<Vendedor | undefined>();
+  const [vendedorToDelete, setVendedorToDelete] = useState<Vendedor | undefined>();
+  const [deleting, setDeleting] = useState(false);
 
   const loadData = async () => {
     try {
@@ -58,15 +62,19 @@ export default function VendedoresPage() {
     loadData();
   }, []);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("¿Está seguro de eliminar este vendedor?")) return;
-
+  const handleDelete = async () => {
+    if (!vendedorToDelete) return;
+    setDeleting(true);
     try {
-      await deleteVendedor(id);
+      await deleteVendedor(vendedorToDelete.id);
       clientSuccessHandler("Vendedor eliminado correctamente");
       loadData();
+      setConfirmOpen(false);
+      setVendedorToDelete(undefined);
     } catch (error) {
       clientErrorHandler(error);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -176,7 +184,10 @@ export default function VendedoresPage() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => handleDelete(vendedor.id)}
+                            onClick={() => {
+                              setVendedorToDelete(vendedor);
+                              setConfirmOpen(true);
+                            }}
                             className="text-destructive hover:text-destructive/80 hover:bg-destructive/20 transition-all"
                           >
                             <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
@@ -198,6 +209,18 @@ export default function VendedoresPage() {
         onSuccess={loadData}
         branches={branches}
         vendedor={selectedVendedor}
+      />
+
+      <ConfirmModal
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Eliminar Vendedor"
+        description={`¿Seguro que querés eliminar a "${vendedorToDelete?.username}"?`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        variant="destructive"
+        loading={deleting}
+        onConfirm={handleDelete}
       />
     </div>
   );

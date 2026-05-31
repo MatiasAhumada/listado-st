@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ViewServiceOrderModal } from "@/components/service-orders/ViewServiceOrderModal";
 import { ServiceOrderReceipt } from "@/components/service-orders/ServiceOrderReceipt";
 import { WarrantyReceipt } from "@/components/service-orders/WarrantyReceipt";
+import { ConfirmModal } from "@/components/common/GenericModal";
 import { useUserRole } from "@/hooks/useUserRole";
 
 interface ServiceOrder {
@@ -51,6 +52,10 @@ interface ServiceOrder {
     color?: string;
     description?: string;
   }[];
+  company?: {
+    id: string;
+    username: string;
+  };
   seller?: {
     id: string;
     username: string;
@@ -71,19 +76,18 @@ export default function ServiceOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<ServiceOrder | undefined>();
   const [printOrder, setPrintOrder] = useState<ServiceOrder | null>(null);
   const [warrantyOrder, setWarrantyOrder] = useState<ServiceOrder | null>(null);
-  const { canViewCompanyColumns } = useUserRole();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<ServiceOrder | undefined>();
+  const [deleting, setDeleting] = useState(false);
+  const { canViewCompanyColumns, canViewTechnicianColumns, canCreateOrders, isTecnico } = useUserRole();
 
   const loadOrders = async () => {
     try {
       setLoading(true);
       const data = await getServiceOrders();
       setOrders(data);
-    } catch (error: any) {
-      if (error?.response?.status === 404) {
-        setOrders([]);
-      } else {
-        clientErrorHandler(error);
-      }
+    } catch (error) {
+      clientErrorHandler(error);
     } finally {
       setLoading(false);
     }
@@ -93,15 +97,19 @@ export default function ServiceOrdersPage() {
     loadOrders();
   }, []);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("¿Está seguro de eliminar esta orden?")) return;
-
+  const handleDelete = async () => {
+    if (!orderToDelete) return;
+    setDeleting(true);
     try {
-      await deleteServiceOrder(id);
+      await deleteServiceOrder(orderToDelete.id);
       clientSuccessHandler("Orden eliminada correctamente");
       loadOrders();
+      setConfirmOpen(false);
+      setOrderToDelete(undefined);
     } catch (error) {
       clientErrorHandler(error);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -159,6 +167,19 @@ export default function ServiceOrdersPage() {
         render: (item: ServiceOrder) => <span className="text-lavender/80">{item.clientPhone}</span>,
       },
     ];
+
+    if (canViewTechnicianColumns) {
+      baseColumns.push({
+        key: "company",
+        label: "Empresa",
+        render: (item: ServiceOrder) =>
+          item.company ? (
+            <Badge className="bg-lime/20 text-lime border-lime/30">{item.company.username}</Badge>
+          ) : (
+            <span className="text-lavender/40">-</span>
+          ),
+      });
+    }
 
     if (canViewCompanyColumns) {
       baseColumns.push(
@@ -232,14 +253,16 @@ export default function ServiceOrdersPage() {
             >
               <Eye size={18} />
             </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => handleEdit(item)}
-              className="text-lime hover:text-green hover:bg-lime/20 transition-all"
-            >
-              <Edit size={18} />
-            </Button>
+            {!isTecnico && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => handleEdit(item)}
+                className="text-lime hover:text-green hover:bg-lime/20 transition-all"
+              >
+                <Edit size={18} />
+              </Button>
+            )}
             <Button
               size="sm"
               variant="ghost"
@@ -248,21 +271,34 @@ export default function ServiceOrdersPage() {
             >
               <Printer size={18} />
             </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => handleDelete(item.id)}
-              className="text-destructive hover:text-destructive/80 hover:bg-destructive/20 transition-all"
-            >
-              <Trash2 size={18} />
-            </Button>
+            {!isTecnico && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setOrderToDelete(item);
+                  setConfirmOpen(true);
+                }}
+                className="text-destructive hover:text-destructive/80 hover:bg-destructive/20 transition-all"
+              >
+                <Trash2 size={18} />
+              </Button>
+            )}
           </div>
         ),
       }
     );
 
     return baseColumns;
-  }, [canViewCompanyColumns, handleStatusChange, handleView, handleEdit, handlePrint, handleDelete]);
+  }, [
+    canViewCompanyColumns,
+    canViewTechnicianColumns,
+    isTecnico,
+    handleStatusChange,
+    handleView,
+    handleEdit,
+    handlePrint,
+  ]);
 
   return (
     <div className="min-h-screen bg-charcoal p-4 sm:p-6 md:p-8 overflow-x-hidden">
@@ -282,10 +318,12 @@ export default function ServiceOrdersPage() {
           emptyMessage="No hay órdenes de servicio"
           emptyIcon={<Plus size={32} className="text-lime" />}
           actions={
-            <Button onClick={handleCreate} className="bg-lime hover:bg-green text-dark font-bold px-6 py-3 shadow-lg">
-              <Plus className="mr-2" size={20} />
-              Nueva Orden
-            </Button>
+            canCreateOrders ? (
+              <Button onClick={handleCreate} className="bg-lime hover:bg-green text-dark font-bold px-6 py-3 shadow-lg">
+                <Plus className="mr-2" size={20} />
+                Nueva Orden
+              </Button>
+            ) : undefined
           }
         />
       </motion.div>
@@ -302,6 +340,18 @@ export default function ServiceOrdersPage() {
       )}
 
       {printOrder && <ServiceOrderReceipt order={printOrder} onClose={() => setPrintOrder(null)} />}
+
+      <ConfirmModal
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Eliminar Orden"
+        description={`¿Seguro que querés eliminar la orden de "${orderToDelete?.clientName}"?`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        variant="destructive"
+        loading={deleting}
+        onConfirm={handleDelete}
+      />
       {warrantyOrder && <WarrantyReceipt order={warrantyOrder} onClose={() => setWarrantyOrder(null)} />}
     </div>
   );

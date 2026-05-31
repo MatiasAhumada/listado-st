@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BranchModal } from "@/components/branches/BranchModal";
+import { ConfirmModal } from "@/components/common/GenericModal";
 import { getBranches, deleteBranch } from "@/services/branch.service";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { Plus, Edit, Trash2, MapPin } from "lucide-react";
@@ -43,15 +44,23 @@ export default function BranchesPage() {
     loadBranches();
   }, []);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("¿Está seguro de eliminar esta sucursal?")) return;
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [branchToDelete, setBranchToDelete] = useState<Branch | undefined>();
+  const [deleting, setDeleting] = useState(false);
 
+  const handleDelete = async () => {
+    if (!branchToDelete) return;
+    setDeleting(true);
     try {
-      await deleteBranch(id);
+      await deleteBranch(branchToDelete.id);
       clientSuccessHandler("Sucursal eliminada correctamente");
       loadBranches();
+      setConfirmOpen(false);
+      setBranchToDelete(undefined);
     } catch (error) {
       clientErrorHandler(error);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -167,7 +176,10 @@ export default function BranchesPage() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => handleDelete(branch.id)}
+                            onClick={() => {
+                              setBranchToDelete(branch);
+                              setConfirmOpen(true);
+                            }}
                             className="text-destructive hover:text-destructive/80 hover:bg-destructive/20 transition-all"
                           >
                             <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
@@ -184,6 +196,18 @@ export default function BranchesPage() {
       </motion.div>
 
       <BranchModal open={modalOpen} onOpenChange={handleModalClose} onSuccess={loadBranches} branch={selectedBranch} />
+
+      <ConfirmModal
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Eliminar Sucursal"
+        description={`¿Seguro que querés eliminar "${branchToDelete?.name}"?`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        variant="destructive"
+        loading={deleting}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

@@ -10,10 +10,12 @@ export const useUserRole = () => {
   const canManageUsers = isEmpresa;
   const canManageBranches = isEmpresa;
   const canManageProducts = isEmpresa || isTecnico;
+  const canManageEmpresas = isTecnico;
   const canViewAllOrders = isEmpresa || isTecnico;
   const canViewBranchOrders = isEmpresa || isVendedor;
   const canCreateOrders = isEmpresa || isVendedor;
   const canViewCompanyColumns = isEmpresa;
+  const canViewTechnicianColumns = isTecnico;
 
   return {
     user,
@@ -24,9 +26,11 @@ export const useUserRole = () => {
     canManageUsers,
     canManageBranches,
     canManageProducts,
+    canManageEmpresas,
     canViewAllOrders,
     canViewBranchOrders,
     canCreateOrders,
     canViewCompanyColumns,
+    canViewTechnicianColumns,
   };
 };

@@ -7,7 +7,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { logoutUsuario } from "@/services/auth.service";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, ClipboardList, LogOut, User, Menu, X, MapPin, Users } from "lucide-react";
+import { Package, ClipboardList, LogOut, User, Menu, X, MapPin, Users, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function Sidebar() {
@@ -36,7 +36,7 @@ export function Sidebar() {
       label: "Órdenes de Servicio",
       icon: ClipboardList,
       path: "/dashboard/service-orders",
-      show: isEmpresa || isVendedor,
+      show: isEmpresa || isVendedor || isTecnico,
     },
     {
       label: "Sucursales",
@@ -49,6 +49,12 @@ export function Sidebar() {
       icon: Users,
       path: "/dashboard/vendedores",
       show: isEmpresa,
+    },
+    {
+      label: "Empresas",
+      icon: Building2,
+      path: "/dashboard/empresas",
+      show: isTecnico,
     },
   ];
 
