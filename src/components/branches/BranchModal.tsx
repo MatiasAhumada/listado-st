@@ -91,7 +91,7 @@ export function BranchModal({ open, onOpenChange, onSuccess, branch }: BranchMod
             variant="ghost"
             onClick={() => onOpenChange(false)}
             disabled={loading}
-            className="bg-gray-800 hover:bg-gray-700 text-white border border-gray-700"
+            className="hover:bg-lavender/10 text-lavender border border-lavender/20"
           >
             Cancelar
           </Button>
@@ -103,32 +103,32 @@ export function BranchModal({ open, onOpenChange, onSuccess, branch }: BranchMod
     >
       <div className="space-y-4 p-6">
         <div className="space-y-2">
-          <Label className="text-white">Nombre *</Label>
+          <Label className="text-lavender font-semibold">Nombre *</Label>
           <Input
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             placeholder="Nombre de la sucursal"
-            className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+            className="bg-charcoal border-lavender/20 text-lavender placeholder:text-lavender/50"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="text-white">Dirección</Label>
+          <Label className="text-lavender font-semibold">Dirección</Label>
           <Input
             value={formData.address}
             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
             placeholder="Dirección de la sucursal"
-            className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+            className="bg-charcoal border-lavender/20 text-lavender placeholder:text-lavender/50"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="text-white">Teléfono</Label>
+          <Label className="text-lavender font-semibold">Teléfono</Label>
           <Input
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             placeholder="Teléfono de contacto"
-            className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+            className="bg-charcoal border-lavender/20 text-lavender placeholder:text-lavender/50"
           />
         </div>
       </div>

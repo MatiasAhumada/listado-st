@@ -101,7 +101,7 @@ export function VendedorModal({ open, onOpenChange, onSuccess, branches, vendedo
             variant="ghost"
             onClick={() => onOpenChange(false)}
             disabled={loading}
-            className="bg-gray-800 hover:bg-gray-700 text-white border border-gray-700"
+            className="hover:bg-lavender/10 text-lavender border border-lavender/20"
           >
             Cancelar
           </Button>
@@ -113,35 +113,37 @@ export function VendedorModal({ open, onOpenChange, onSuccess, branches, vendedo
     >
       <div className="space-y-4 p-6">
         <div className="space-y-2">
-          <Label className="text-white">Usuario *</Label>
+          <Label className="text-lavender font-semibold">Usuario *</Label>
           <Input
             value={formData.username}
             onChange={(e) => setFormData({ ...formData, username: e.target.value })}
             placeholder="Nombre de usuario"
-            className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+            className="bg-charcoal border-lavender/20 text-lavender placeholder:text-lavender/50"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="text-white">{vendedor ? "Nueva Contraseña (opcional)" : "Contraseña *"}</Label>
+          <Label className="text-lavender font-semibold">
+            {vendedor ? "Nueva Contraseña (opcional)" : "Contraseña *"}
+          </Label>
           <Input
             type="password"
             value={formData.password}
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             placeholder={vendedor ? "Dejar vacío para mantener actual" : "Contraseña"}
-            className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+            className="bg-charcoal border-lavender/20 text-lavender placeholder:text-lavender/50"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="text-white">Sucursal *</Label>
+          <Label className="text-lavender font-semibold">Sucursal *</Label>
           <Select value={formData.branchId} onValueChange={(value) => setFormData({ ...formData, branchId: value })}>
-            <SelectTrigger className="bg-gray-800 border-gray-700 text-white w-full">
+            <SelectTrigger className="bg-charcoal border-lavender/20 text-lavender w-full">
               <SelectValue placeholder="Seleccionar sucursal" />
             </SelectTrigger>
-            <SelectContent className="bg-gray-800 border-gray-700">
+            <SelectContent className="bg-dark border-lavender/10">
               {branches.map((branch) => (
-                <SelectItem key={branch.id} value={branch.id} className="text-white hover:bg-gray-700">
+                <SelectItem key={branch.id} value={branch.id} className="text-lavender hover:bg-lavender/10">
                   {branch.name}
                 </SelectItem>
               ))}
