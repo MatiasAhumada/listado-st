@@ -44,6 +44,8 @@ export function extraerNombreBase(descripcion: string): string {
 
   nombre = nombre.replace(/\(.*?\)/g, "");
 
+  nombre = nombre.replace(/\s+-+.*$/g, "");
+
   nombre = nombre.replace(
     /\s+(Mecanico|wp|gold|wuzip|Black|Negro|Blanco|Dorado|Plateado|Azul|Rojo|Verde|Rosa|Crown|Repart|REPART|GX|gx|caja naranja|naranja|S\/L|incell|oled|AMM|AMP|ASS|SERVICE PACK|PACK|1ra calidad|2da calidad).*$/i,
     ""
