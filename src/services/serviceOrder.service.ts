@@ -13,6 +13,7 @@ export interface CreateServiceOrderDTO {
     productName: string;
     productType: ProductType;
     unitPrice: number;
+    unitCostTech?: number;
     isDry?: boolean;
     hasImpact?: boolean;
     isBrokenScreen?: boolean;
@@ -34,6 +35,7 @@ export interface UpdateServiceOrderDTO {
     productName: string;
     productType: ProductType;
     unitPrice: number;
+    unitCostTech?: number;
     isDry?: boolean;
     hasImpact?: boolean;
     isBrokenScreen?: boolean;

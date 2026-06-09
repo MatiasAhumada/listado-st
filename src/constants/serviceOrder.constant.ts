@@ -1,5 +1,16 @@
 import { ServiceOrderStatus } from "@prisma/client";
 
+export const EMAIL_HEADER_TITLE = "🔧 Nueva Orden de Servicio";
+export const EMAIL_SECTION_DETALLES = "Detalles de la Orden";
+export const EMAIL_LABEL_CLIENTE = "Cliente:";
+export const EMAIL_LABEL_TELEFONO = "Teléfono:";
+export const EMAIL_LABEL_RETIRO_SUCURSAL = "Retirar en sucursal:";
+export const EMAIL_LABEL_FECHA_ENTREGA = "Fecha de Entrega:";
+export const EMAIL_LABEL_SERVICIOS = "Servicios a Realizar:";
+export const EMAIL_LABEL_COSTO_TECNICO_OS = "Costo técnico de la orden:";
+export const EMAIL_FOOTER_AUTOMATICO = "Este es un correo automático. Por favor no responder.";
+export const EMAIL_FOOTER_SISTEMA = "Sistema de Gestión de Servicios Técnicos";
+
 export const SERVICE_ORDER_STATUS_LABELS: Record<ServiceOrderStatus, string> = {
   [ServiceOrderStatus.RECEPCIONADO]: "Recepcionado",
   [ServiceOrderStatus.RETIRADO_POR_TECNICO]: "Retirado por Técnico",
