@@ -8,6 +8,8 @@ export const EMAIL_LABEL_RETIRO_SUCURSAL = "Retirar en sucursal:";
 export const EMAIL_LABEL_FECHA_ENTREGA = "Fecha de Entrega:";
 export const EMAIL_LABEL_SERVICIOS = "Servicios a Realizar:";
 export const EMAIL_LABEL_COSTO_TECNICO_OS = "Costo técnico de la orden:";
+export const EMAIL_LABEL_PRESUPUESTO_CLIENTE = "Presupuesto al cliente:";
+export const EMAIL_LABEL_GANANCIA = "Ganancia:";
 export const EMAIL_FOOTER_AUTOMATICO = "Este es un correo automático. Por favor no responder.";
 export const EMAIL_FOOTER_SISTEMA = "Sistema de Gestión de Servicios Técnicos";
 

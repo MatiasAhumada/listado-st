@@ -9,6 +9,8 @@ import {
   EMAIL_LABEL_FECHA_ENTREGA,
   EMAIL_LABEL_SERVICIOS,
   EMAIL_LABEL_COSTO_TECNICO_OS,
+  EMAIL_LABEL_PRESUPUESTO_CLIENTE,
+  EMAIL_LABEL_GANANCIA,
   EMAIL_FOOTER_AUTOMATICO,
   EMAIL_FOOTER_SISTEMA,
 } from "@/constants/serviceOrder.constant";
@@ -30,8 +32,10 @@ interface ServiceOrderEmailData {
   products: {
     productName: string;
     unitCostTech: number;
+    unitPrice: number;
   }[];
   totalCostTech: number;
+  totalClientPrice: number;
   deliveryDate?: string;
   orderNumber: string;
 }
@@ -44,8 +48,13 @@ export const emailService = {
       return;
     }
 
+    const ganancia = data.totalClientPrice - data.totalCostTech;
+
     const productsList = data.products
-      .map((p) => `<li><strong>${p.productName}</strong>: ${formatCurrency(p.unitCostTech)}</li>`)
+      .map(
+        (p) =>
+          `<li><strong>${p.productName}</strong> — costo: ${formatCurrency(p.unitCostTech)} / cliente: ${formatCurrency(p.unitPrice)}</li>`
+      )
       .join("");
 
     const htmlContent = `
@@ -162,7 +171,9 @@ export const emailService = {
               </div>
 
               <div class="total">
-                ${EMAIL_LABEL_COSTO_TECNICO_OS} ${formatCurrency(data.totalCostTech)}
+                <div>${EMAIL_LABEL_COSTO_TECNICO_OS} ${formatCurrency(data.totalCostTech)}</div>
+                <div>${EMAIL_LABEL_PRESUPUESTO_CLIENTE} ${formatCurrency(data.totalClientPrice)}</div>
+                <div style="color: #22c55e;">${EMAIL_LABEL_GANANCIA} ${formatCurrency(ganancia)}</div>
               </div>
 
               <div class="footer">
