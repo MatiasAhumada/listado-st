@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
 
     try {
       const totalCostTech = order.products?.reduce((sum, p) => sum + p.totalCostTech, 0) ?? 0;
+      const totalClientPrice = order.products?.reduce((sum, p) => sum + p.totalPrice, 0) ?? 0;
 
       await emailService.sendServiceOrderNotification({
         clientName: order.clientName,
@@ -80,8 +81,10 @@ export async function POST(request: NextRequest) {
           order.products?.map((p) => ({
             productName: p.productName,
             unitCostTech: p.unitCostTech,
+            unitPrice: p.unitPrice,
           })) ?? [],
         totalCostTech,
+        totalClientPrice,
         deliveryDate: order.deliveryDate?.toISOString(),
         orderNumber: order.id.slice(0, 8).toUpperCase(),
       });
