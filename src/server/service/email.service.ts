@@ -1,5 +1,17 @@
 import nodemailer from "nodemailer";
-import { formatDate } from "@/utils/formatters.util";
+import { formatCurrency, formatDate } from "@/utils/formatters.util";
+import {
+  EMAIL_HEADER_TITLE,
+  EMAIL_SECTION_DETALLES,
+  EMAIL_LABEL_CLIENTE,
+  EMAIL_LABEL_TELEFONO,
+  EMAIL_LABEL_RETIRO_SUCURSAL,
+  EMAIL_LABEL_FECHA_ENTREGA,
+  EMAIL_LABEL_SERVICIOS,
+  EMAIL_LABEL_COSTO_TECNICO_OS,
+  EMAIL_FOOTER_AUTOMATICO,
+  EMAIL_FOOTER_SISTEMA,
+} from "@/constants/serviceOrder.constant";
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -17,9 +29,9 @@ interface ServiceOrderEmailData {
   branchName?: string;
   products: {
     productName: string;
-    cost: number;
+    unitCostTech: number;
   }[];
-  totalTech: number;
+  totalCostTech: number;
   deliveryDate?: string;
   orderNumber: string;
 }
@@ -29,12 +41,11 @@ export const emailService = {
     const techEmail = process.env.SMTP_TECH_EMAIL;
 
     if (!techEmail) {
-      console.error("SMTP_TECH_EMAIL no está configurado");
       return;
     }
 
     const productsList = data.products
-      .map((p) => `<li><strong>${p.productName}</strong>: $${p.cost.toLocaleString("es-AR")}</li>`)
+      .map((p) => `<li><strong>${p.productName}</strong>: ${formatCurrency(p.unitCostTech)}</li>`)
       .join("");
 
     const htmlContent = `
@@ -109,54 +120,54 @@ export const emailService = {
         <body>
           <div class="container">
             <div class="header">
-              <h1>🔧 Nueva Orden de Servicio</h1>
+              <h1>${EMAIL_HEADER_TITLE}</h1>
               <p>Orden #${data.orderNumber}</p>
             </div>
             <div class="content">
-              <h2>Detalles de la Orden</h2>
-              
+              <h2>${EMAIL_SECTION_DETALLES}</h2>
+
               <div class="info-row">
-                <span class="label">Cliente:</span> ${data.clientName}
+                <span class="label">${EMAIL_LABEL_CLIENTE}</span> ${data.clientName}
               </div>
-              
+
               <div class="info-row">
-                <span class="label">Teléfono:</span> ${data.clientPhone}
+                <span class="label">${EMAIL_LABEL_TELEFONO}</span> ${data.clientPhone}
               </div>
-              
+
               ${
                 data.branchName
                   ? `
               <div class="info-row">
-                <span class="label">Sucursal:</span> ${data.branchName}
+                <span class="label">${EMAIL_LABEL_RETIRO_SUCURSAL}</span> ${data.branchName}
               </div>
               `
                   : ""
               }
-              
+
               ${
                 data.deliveryDate
                   ? `
               <div class="info-row">
-                <span class="label">Fecha de Entrega:</span> <strong>${formatDate(data.deliveryDate)}</strong>
+                <span class="label">${EMAIL_LABEL_FECHA_ENTREGA}</span> <strong>${formatDate(data.deliveryDate)}</strong>
               </div>
               `
                   : ""
               }
-              
+
               <div class="products">
-                <h3>Servicios a Realizar:</h3>
+                <h3>${EMAIL_LABEL_SERVICIOS}</h3>
                 <ul>
                   ${productsList}
                 </ul>
               </div>
-              
+
               <div class="total">
-                Total Técnico: $${data.totalTech.toLocaleString("es-AR")}
+                ${EMAIL_LABEL_COSTO_TECNICO_OS} ${formatCurrency(data.totalCostTech)}
               </div>
-              
+
               <div class="footer">
-                <p>Este es un correo automático. Por favor no responder.</p>
-                <p>Sistema de Gestión de Servicios Técnicos</p>
+                <p>${EMAIL_FOOTER_AUTOMATICO}</p>
+                <p>${EMAIL_FOOTER_SISTEMA}</p>
               </div>
             </div>
           </div>
@@ -168,13 +179,10 @@ export const emailService = {
       await transporter.sendMail({
         from: process.env.SMTP_FROM,
         to: techEmail,
-        subject: `🔧 Nueva Orden de Servicio #${data.orderNumber} - ${data.clientName}`,
+        subject: `${EMAIL_HEADER_TITLE} #${data.orderNumber} - ${data.clientName}`,
         html: htmlContent,
       });
-
-      console.log(`Email enviado exitosamente a ${techEmail}`);
     } catch (error) {
-      console.error("Error al enviar email:", error);
       throw error;
     }
   },

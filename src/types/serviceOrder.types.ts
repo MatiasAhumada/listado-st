@@ -2,6 +2,9 @@ export interface ServiceOrderProduct {
   productName: string;
   productType: string;
   unitPrice: number;
+  totalPrice?: number;
+  unitCostTech?: number;
+  totalCostTech?: number;
   isDry?: boolean;
   hasImpact?: boolean;
   isBrokenScreen?: boolean;

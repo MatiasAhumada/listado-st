@@ -45,6 +45,8 @@ interface ServiceOrderModalProps {
       productType: ProductType;
       unitPrice: number;
       totalPrice: number;
+      unitCostTech?: number;
+      totalCostTech?: number;
       isDry?: boolean;
       hasImpact?: boolean;
       isBrokenScreen?: boolean;
@@ -69,6 +71,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
       productName: string;
       productType: ProductType;
       unitPrice: number;
+      unitCostTech: number;
       priceType: "cash" | "credit";
       cashPrice: number;
       creditPrice: number;
@@ -109,6 +112,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           productName: p.productName,
           productType: p.productType,
           unitPrice: p.unitPrice,
+          unitCostTech: p.unitCostTech ?? 0,
           priceType: "cash" as "cash" | "credit",
           cashPrice: p.unitPrice,
           creditPrice: p.unitPrice,
@@ -157,6 +161,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         productName: "",
         productType: ProductType.MODULO,
         unitPrice: 0,
+        unitCostTech: 0,
         priceType: "cash",
         cashPrice: 0,
         creditPrice: 0,
@@ -184,6 +189,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
       productName: product.name,
       productType: product.type,
       unitPrice: product.cash || 0,
+      unitCostTech: product.costTech || 0,
       priceType: "cash",
       cashPrice: product.cash || 0,
       creditPrice: product.credit || 0,
@@ -245,6 +251,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
                   productName: p.productName,
                   productType: p.productType,
                   unitPrice: p.unitPrice,
+                  unitCostTech: p.unitCostTech,
                   isDry: p.isDry,
                   hasImpact: p.hasImpact,
                   isBrokenScreen: p.isBrokenScreen,
@@ -283,6 +290,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
                   productName: p.productName,
                   productType: p.productType,
                   unitPrice: p.unitPrice,
+                  unitCostTech: p.unitCostTech,
                   isDry: p.isDry,
                   hasImpact: p.hasImpact,
                   isBrokenScreen: p.isBrokenScreen,
