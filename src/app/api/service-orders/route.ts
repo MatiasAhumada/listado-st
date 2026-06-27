@@ -3,7 +3,7 @@ import { serviceOrderService } from "@/server/service/serviceOrder.service";
 import { emailService } from "@/server/service/email.service";
 import apiErrorHandler, { ApiError } from "@/utils/handlers/apiError.handler";
 import { cookies } from "next/headers";
-import { extractAuthContext, assertWritePermission } from "@/server/guards/serviceOrder.guard";
+import { extractAuthContext } from "@/server/guards/serviceOrder.guard";
 import { SERVICE_ORDER_ERRORS } from "@/constants/serviceOrder.constant";
 import { Role } from "@prisma/client";
 import httpStatus from "http-status";
@@ -27,8 +27,6 @@ export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies();
     const auth = extractAuthContext(cookieStore, request.headers);
-
-    assertWritePermission(auth);
 
     const body = await request.json();
 
@@ -64,16 +62,16 @@ export async function POST(request: NextRequest) {
     });
 
     try {
-      const totalCostTech = order.products?.reduce((sum, p) => sum + p.totalCostTech, 0) ?? 0;
-      const totalClientPrice = order.products?.reduce((sum, p) => sum + p.totalPrice, 0) ?? 0;
+      const totalCostTech = order.items?.reduce((sum, p) => sum + p.totalCostTech, 0) ?? 0;
+      const totalClientPrice = order.items?.reduce((sum, p) => sum + p.totalPrice, 0) ?? 0;
 
       await emailService.sendServiceOrderNotification({
         clientName: order.clientName,
         clientPhone: order.clientPhone,
         branchName: order.branch?.name,
-        products:
-          order.products?.map((p) => ({
-            productName: p.productName,
+        items:
+          order.items?.map((p) => ({
+            serviceName: p.serviceName,
             unitCostTech: p.unitCostTech,
             unitPrice: p.unitPrice,
           })) ?? [],

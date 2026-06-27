@@ -1,12 +1,12 @@
 import * as XLSX from "xlsx";
 import { TECH_MARGIN_MODULO, TECH_MARGIN_BATERIA, TECH_MARGIN_BOTON } from "@/constants/pricing.constant";
 
-export interface ProductoExcelRaw {
+export interface ServicioExcelRaw {
   descripcion: string;
   precio: number;
 }
 
-export interface ProductoProcesado {
+export interface ServicioProcesado {
   name: string;
   costTech: number;
   costTechMargin: number;
@@ -18,6 +18,9 @@ export interface ProductoProcesado {
   creditMargin: number;
   type: string;
 }
+
+export type ProductoExcelRaw = ServicioExcelRaw;
+export type ProductoProcesado = ServicioProcesado;
 
 export function limpiarPrecio(precioStr: string | number): number {
   if (!precioStr) return 0;
@@ -84,7 +87,7 @@ export function detectarMarca(linea: string): string | null {
   return null;
 }
 
-export async function procesarExcelFile(file: File, productType: string = "MODULO"): Promise<ProductoProcesado[]> {
+export async function procesarExcelFile(file: File, productType: string = "MODULO"): Promise<ServicioProcesado[]> {
   const buffer = await file.arrayBuffer();
   const workbook = XLSX.read(buffer, { type: "array" });
   const sheetName = workbook.SheetNames[0];
@@ -108,8 +111,8 @@ export async function procesarExcelFile(file: File, productType: string = "MODUL
   return procesarFormatoModulos(data, productType);
 }
 
-function procesarFormatoTresColumnas(data: any[][], productType: string): ProductoProcesado[] {
-  const productosProcesados: ProductoProcesado[] = [];
+function procesarFormatoTresColumnas(data: any[][], productType: string): ServicioProcesado[] {
+  const productosProcesados: ServicioProcesado[] = [];
   const agrupados = new Map<string, number[]>();
 
   for (let i = 0; i < data.length; i++) {
@@ -157,8 +160,8 @@ function procesarFormatoTresColumnas(data: any[][], productType: string): Produc
   return productosProcesados;
 }
 
-function procesarFormatoSimple(data: any[][], productType: string): ProductoProcesado[] {
-  const productosProcesados: ProductoProcesado[] = [];
+function procesarFormatoSimple(data: any[][], productType: string): ServicioProcesado[] {
+  const productosProcesados: ServicioProcesado[] = [];
   const agrupados = new Map<string, number[]>();
 
   for (let i = 0; i < data.length; i++) {
@@ -205,7 +208,7 @@ function procesarFormatoSimple(data: any[][], productType: string): ProductoProc
   return productosProcesados;
 }
 
-function procesarFormatoModulos(data: any[][], productType: string): ProductoProcesado[] {
+function procesarFormatoModulos(data: any[][], productType: string): ServicioProcesado[] {
   const grupos: { marca: string; productos: { descripcion: string; precio: number }[] }[] = [];
   let marcaActual = "";
   let grupoActual: { descripcion: string; precio: number }[] = [];
@@ -248,7 +251,7 @@ function procesarFormatoModulos(data: any[][], productType: string): ProductoPro
     grupos.push({ marca: marcaActual, productos: [...grupoActual] });
   }
 
-  const productosProcesados: ProductoProcesado[] = [];
+  const productosProcesados: ServicioProcesado[] = [];
 
   for (const grupo of grupos) {
     if (grupo.productos.length === 0) continue;

@@ -14,7 +14,7 @@ export const useUserRole = () => {
   const canViewAllOrders = isEmpresa || isTecnico;
   const canViewBranchOrders = isEmpresa || isVendedor;
   const canCreateOrders = isEmpresa || isVendedor;
-  const canEditOrders = isEmpresa || isTecnico;
+  const canEditOrders = isEmpresa || isTecnico || isVendedor;
   const canDeleteOrders = isEmpresa || isTecnico;
   const canViewCompanyColumns = isEmpresa;
   const canViewTechnicianColumns = isTecnico;

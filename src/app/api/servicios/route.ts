@@ -38,11 +38,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(resultados);
     }
 
-    if (body.productos && Array.isArray(body.productos)) {
-      const resultados = await ServicioService.bulkCreateOrUpdate(body.productos, auth.role as never);
-      return NextResponse.json(resultados);
-    }
-
     if (auth.role !== "TECNICO") {
       throw new ApiError({ status: httpStatus.FORBIDDEN, message: "Solo técnicos pueden crear servicios" });
     }

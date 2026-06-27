@@ -1,11 +1,13 @@
-import { ProductType, ServiceOrderStatus } from "@prisma/client";
+import { ServiceType, ServiceOrderStatus } from "@prisma/client";
 
 export interface IServiceOrderProductBase {
   id: string;
-  productName: string;
-  productType: ProductType;
+  serviceName: string;
+  serviceType: ServiceType;
   unitPrice: number;
   totalPrice: number;
+  cashPrice: number;
+  creditPrice: number;
   unitCostTech: number;
   totalCostTech: number;
   isDry: boolean;
@@ -55,11 +57,11 @@ interface IServiceOrderCore {
 }
 
 export interface IServiceOrderForOthers extends IServiceOrderCore, IServiceOrderRelations {
-  products: IServiceOrderProductBase[];
+  items: IServiceOrderProductBase[];
 }
 
 export interface IServiceOrderForTecnico extends IServiceOrderCore, IServiceOrderRelations {
-  products: IServiceOrderProductWithMargin[];
+  items: IServiceOrderProductWithMargin[];
   totalClientPrice: number;
   totalCompanyCost: number;
   totalMargin: number;

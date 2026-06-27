@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
-import { procesarExcelFile, ProductoProcesado } from "@/utils/excelParser.util";
+import { procesarExcelFile, ServicioProcesado } from "@/utils/excelParser.util";
 import { formatNumber } from "@/utils/formatters.util";
-import { bulkCreateOrUpdateProductos } from "@/services/producto.service";
+import { bulkCreateOrUpdateServicios } from "@/services/servicio.service";
 import { Upload, FileSpreadsheet } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PRODUCT_TYPE_LABELS, PRODUCT_TYPES } from "@/constants/productType.constant";
@@ -21,7 +21,7 @@ interface BulkUploadModalProps {
 
 export function BulkUploadModal({ open, onOpenChange, onSuccess }: BulkUploadModalProps) {
   const [loading, setLoading] = useState(false);
-  const [productos, setProductos] = useState<ProductoProcesado[]>([]);
+  const [productos, setProductos] = useState<ServicioProcesado[]>([]);
   const [archivo, setArchivo] = useState<File | null>(null);
   const [selectedType, setSelectedType] = useState<string>("MODULO");
 
@@ -55,7 +55,7 @@ export function BulkUploadModal({ open, onOpenChange, onSuccess }: BulkUploadMod
     setLoading(true);
 
     try {
-      const resultados = await bulkCreateOrUpdateProductos(productos);
+      const resultados = await bulkCreateOrUpdateServicios(productos);
 
       clientSuccessHandler(
         `Carga completada: ${resultados.creados} creados, ${resultados.actualizados} actualizados, ${resultados.errores} errores`

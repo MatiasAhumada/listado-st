@@ -16,7 +16,7 @@ import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clien
 import { SERVICE_ORDER_STATUS_LABELS, SERVICE_ORDER_STATUS_COLORS } from "@/constants/serviceOrder.constant";
 import { formatNumber } from "@/utils/formatters.util";
 import { Plus, Edit, Trash2, Eye, Printer } from "lucide-react";
-import { ServiceOrderStatus, ProductType } from "@prisma/client";
+import { ServiceOrderStatus, ServiceType } from "@prisma/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ViewServiceOrderModal } from "@/components/service-orders/ViewServiceOrderModal";
 import { ServiceOrderReceipt } from "@/components/service-orders/ServiceOrderReceipt";
@@ -32,12 +32,14 @@ interface ServiceOrder {
   status: ServiceOrderStatus;
   receivedAt: string;
   images?: { id: string; url: string }[];
-  products?: {
+  items?: {
     id: string;
-    productName: string;
-    productType: ProductType;
+    serviceName: string;
+    serviceType: ServiceType;
     unitPrice: number;
     totalPrice: number;
+    cashPrice: number;
+    creditPrice: number;
     isDry?: boolean;
     hasImpact?: boolean;
     isBrokenScreen?: boolean;

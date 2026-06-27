@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { createProducto, updateProducto } from "@/services/producto.service";
+import { createServicio, updateServicio } from "@/services/servicio.service";
 import { GenericModal } from "@/components/common/GenericModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { useAuthStore } from "@/hooks/useAuthStore";
 import { CheckIcon } from "lucide-react";
 import { MARGIN_OPTIONS } from "@/constants/pricing.constant";
 import { formatNumber } from "@/utils/formatters.util";
-import { PRODUCT_TYPE_LABELS, PRODUCT_TYPES } from "@/constants/productType.constant";
+import { SERVICE_TYPE_LABELS, SERVICE_TYPES } from "@/constants/serviceType.constant";
 
 interface AddProductModalProps {
   open: boolean;
@@ -22,7 +22,7 @@ interface AddProductModalProps {
   userRole?: "EMPRESA" | "TECNICO" | "VENDEDOR";
 }
 
-const PRODUCT_TYPES_ARRAY = PRODUCT_TYPES;
+const PRODUCT_TYPES_ARRAY = SERVICE_TYPES;
 
 export function AddProductModal({
   open,
@@ -145,11 +145,11 @@ export function AddProductModal({
       }
 
       if (isEditing) {
-        await updateProducto(initialData.id, payload);
-        clientSuccessHandler("Producto actualizado con éxito");
+        await updateServicio(initialData.id, payload);
+        clientSuccessHandler("Servicio actualizado con éxito");
       } else if (isTecnico) {
-        await createProducto(payload);
-        clientSuccessHandler("Producto creado con éxito");
+        await createServicio(payload);
+        clientSuccessHandler("Servicio creado con éxito");
       }
 
       onSuccess();
@@ -217,7 +217,7 @@ export function AddProductModal({
               <SelectContent>
                 {PRODUCT_TYPES_ARRAY.map((t) => (
                   <SelectItem key={t} value={t}>
-                    {PRODUCT_TYPE_LABELS[t]}
+                    {SERVICE_TYPE_LABELS[t]}
                   </SelectItem>
                 ))}
               </SelectContent>

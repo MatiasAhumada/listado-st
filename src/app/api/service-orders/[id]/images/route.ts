@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import apiErrorHandler, { ApiError } from "@/utils/handlers/apiError.handler";
 import { IMAGE_UPLOAD_CONFIG, IMAGE_UPLOAD_MESSAGES } from "@/constants/imageUpload.constant";
 import { cookies } from "next/headers";
-import { extractAuthContext, assertWritePermission, assertOwnership } from "@/server/guards/serviceOrder.guard";
+import { extractAuthContext, assertOwnership } from "@/server/guards/serviceOrder.guard";
 import { SERVICE_ORDER_ERRORS } from "@/constants/serviceOrder.constant";
 import httpStatus from "http-status";
 
@@ -12,8 +12,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   try {
     const cookieStore = await cookies();
     const auth = extractAuthContext(cookieStore, request.headers);
-
-    assertWritePermission(auth);
 
     const { id: serviceOrderId } = await params;
 
@@ -73,8 +71,6 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   try {
     const cookieStore = await cookies();
     const auth = extractAuthContext(cookieStore, request.headers);
-
-    assertWritePermission(auth);
 
     const { id: serviceOrderId } = await params;
     const { imageId } = await request.json();

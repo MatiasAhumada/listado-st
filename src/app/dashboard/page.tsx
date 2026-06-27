@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/hooks/useAuthStore";
 import { useUserRole } from "@/hooks/useUserRole";
-import { getProductos, deleteProducto } from "@/services/producto.service";
+import { getServicios, deleteServicio } from "@/services/servicio.service";
 import { DataTable } from "@/components/common/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import { Plus, Edit, Trash, Upload } from "lucide-react";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { formatNumber } from "@/utils/formatters.util";
 import { motion } from "framer-motion";
-import { PRODUCT_TYPE_LABELS, PRODUCT_TYPES } from "@/constants/productType.constant";
+import { SERVICE_TYPE_LABELS, SERVICE_TYPES } from "@/constants/serviceType.constant";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -44,11 +44,11 @@ export default function DashboardPage() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const productos = await getProductos({
+      const servicios = await getServicios({
         type: selectedType !== "TODOS" ? selectedType : undefined,
         search: debouncedSearch || undefined,
       });
-      setData(productos);
+      setData(servicios);
     } catch (error) {
       console.error(error);
       logout();
@@ -65,8 +65,8 @@ export default function DashboardPage() {
   const handleDelete = async () => {
     if (!productToDelete) return;
     try {
-      await deleteProducto(productToDelete.id);
-      clientSuccessHandler("Producto eliminado exitosamente");
+      await deleteServicio(productToDelete.id);
+      clientSuccessHandler("Servicio eliminado exitosamente");
       fetchData();
       setDeleteModalOpen(false);
       setProductToDelete(null);
@@ -82,7 +82,7 @@ export default function DashboardPage() {
         key: "type",
         label: "Trabajo",
         render: (item: any) => (
-          <span className="text-lavender/80">{PRODUCT_TYPE_LABELS[item.type as keyof typeof PRODUCT_TYPE_LABELS]}</span>
+          <span className="text-lavender/80">{SERVICE_TYPE_LABELS[item.type as keyof typeof SERVICE_TYPE_LABELS]}</span>
         ),
       },
       {
@@ -233,9 +233,9 @@ export default function DashboardPage() {
                   <SelectItem value="TODOS" className="text-white hover:bg-gray-700">
                     Todos los Trabajos
                   </SelectItem>
-                  {PRODUCT_TYPES.map((type) => (
+                  {SERVICE_TYPES.map((type) => (
                     <SelectItem key={type} value={type} className="text-white hover:bg-gray-700">
-                      {PRODUCT_TYPE_LABELS[type]}
+                      {SERVICE_TYPE_LABELS[type]}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -308,7 +308,7 @@ export default function DashboardPage() {
                   <span className="text-lavender font-black text-lg">{productToDelete?.name}</span>
                   <span className="text-lavender/60 text-sm">
                     {productToDelete?.type
-                      ? PRODUCT_TYPE_LABELS[productToDelete.type as keyof typeof PRODUCT_TYPE_LABELS]
+                      ? SERVICE_TYPE_LABELS[productToDelete.type as keyof typeof SERVICE_TYPE_LABELS]
                       : ""}
                   </span>
                 </div>

@@ -29,8 +29,8 @@ interface ServiceOrderEmailData {
   clientName: string;
   clientPhone: string;
   branchName?: string;
-  products: {
-    productName: string;
+  items: {
+    serviceName: string;
     unitCostTech: number;
     unitPrice: number;
   }[];
@@ -50,10 +50,10 @@ export const emailService = {
 
     const ganancia = data.totalClientPrice - data.totalCostTech;
 
-    const productsList = data.products
+    const productsList = data.items
       .map(
         (p) =>
-          `<li><strong>${p.productName}</strong> — costo: ${formatCurrency(p.unitCostTech)} / cliente: ${formatCurrency(p.unitPrice)}</li>`
+          `<li><strong>${p.serviceName}</strong> — costo: ${formatCurrency(p.unitCostTech)} / cliente: ${formatCurrency(p.unitPrice)}</li>`
       )
       .join("");
 

@@ -38,7 +38,7 @@ export function getEffectiveCompanyId(auth: AuthContext): string | null {
   return auth.companyId;
 }
 
-export function assertWritePermission(auth: AuthContext): void {
+export function assertDeletePermission(auth: AuthContext): void {
   if (auth.role === Role.VENDEDOR) {
     throw new ApiError({ status: httpStatus.FORBIDDEN, message: SERVICE_ORDER_ERRORS.FORBIDDEN });
   }
