@@ -3,11 +3,30 @@
 import { useState, useEffect } from "react";
 import { GenericModal } from "@/components/common/GenericModal";
 import { Badge } from "@/components/ui/badge";
-import { SERVICE_ORDER_STATUS_LABELS, SERVICE_ORDER_STATUS_COLORS } from "@/constants/serviceOrder.constant";
+import { SERVICE_ORDER_STATUS_LABELS, SERVICE_ORDER_STATUS_COLORS, SERVICE_ORDER_MARGIN_LABELS } from "@/constants/serviceOrder.constant";
 import { formatNumber, formatDate } from "@/utils/formatters.util";
 import { ServiceOrderStatus, ProductType } from "@prisma/client";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { useUserRole } from "@/hooks/useUserRole";
+
+interface ViewServiceOrderProduct {
+  id: string;
+  productName: string;
+  productType: ProductType;
+  unitPrice: number;
+  totalPrice: number;
+  unitCostCompany?: number;
+  totalCostCompany?: number;
+  companyMargin?: number;
+  isDry?: boolean;
+  hasImpact?: boolean;
+  isBrokenScreen?: boolean;
+  isTurnedOn?: boolean;
+  isCharging?: boolean;
+  color?: string;
+  description?: string;
+}
 
 interface ViewServiceOrderModalProps {
   open: boolean;
@@ -22,20 +41,7 @@ interface ViewServiceOrderModalProps {
     status: ServiceOrderStatus;
     receivedAt: string;
     images?: { id: string; url: string }[];
-    products?: {
-      id: string;
-      productName: string;
-      productType: ProductType;
-      unitPrice: number;
-      totalPrice: number;
-      isDry?: boolean;
-      hasImpact?: boolean;
-      isBrokenScreen?: boolean;
-      isTurnedOn?: boolean;
-      isCharging?: boolean;
-      color?: string;
-      description?: string;
-    }[];
+    products?: ViewServiceOrderProduct[];
     branch?: {
       id: string;
       name: string;
@@ -50,11 +56,15 @@ interface ViewServiceOrderModalProps {
       phone?: string;
       address?: string;
     };
+    totalClientPrice?: number;
+    totalCompanyCost?: number;
+    totalMargin?: number;
   };
 }
 
 export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewServiceOrderModalProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const { canViewMargins } = useUserRole();
   const total = order.products?.reduce((sum, p) => sum + p.totalPrice, 0) ?? 0;
 
   useEffect(() => {
@@ -186,15 +196,40 @@ export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewService
         <div className="border-t border-lavender/10 pt-4">
           <label className="text-lavender font-medium">Servicios</label>
           <div className="space-y-3 mt-2">
-            {order.products?.map((product, index) => (
+            {order.products?.map((product) => (
               <div key={product.id} className="bg-gray-900 p-3 rounded-lg border border-lavender/10">
                 <div className="flex justify-between items-start mb-2">
                   <span className="text-white font-medium">{product.productName}</span>
                   <span className="text-lime font-bold">${formatNumber(product.unitPrice)}</span>
                 </div>
 
+                {canViewMargins && (
+                  <div className="grid grid-cols-3 gap-2 mt-2 p-2 bg-black/40 rounded-md border border-lavender/5">
+                    <div className="text-center">
+                      <p className="text-lavender/50 text-xs">{SERVICE_ORDER_MARGIN_LABELS.UNIT_COST_COMPANY}</p>
+                      <p className="text-yellow-400 font-medium text-sm">
+                        ${formatNumber(product.unitCostCompany ?? 0)}
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-lavender/50 text-xs">Precio cliente</p>
+                      <p className="text-lime font-medium text-sm">${formatNumber(product.unitPrice)}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-lavender/50 text-xs">{SERVICE_ORDER_MARGIN_LABELS.COMPANY_MARGIN}</p>
+                      <p
+                        className={`font-bold text-sm ${
+                          (product.companyMargin ?? 0) >= 0 ? "text-lime" : "text-destructive"
+                        }`}
+                      >
+                        ${formatNumber(product.companyMargin ?? 0)}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {(product.color || getDeviceConditions(product).length > 0) && (
-                  <div className="space-y-1 text-sm">
+                  <div className="space-y-1 text-sm mt-2">
                     {product.color && (
                       <p className="text-lavender/70">
                         Color: <span className="text-white">{product.color}</span>
@@ -219,6 +254,30 @@ export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewService
             <span className="text-lavender font-medium">Total:</span>
             <span className="text-lime font-bold">${formatNumber(total)}</span>
           </div>
+
+          {canViewMargins && (
+            <div className="mt-3 p-3 bg-black/40 rounded-lg border border-lavender/10 space-y-2">
+              <div className="flex justify-between">
+                <span className="text-lavender/70 text-sm">{SERVICE_ORDER_MARGIN_LABELS.TOTAL_CLIENT_PRICE}:</span>
+                <span className="text-lime font-medium">${formatNumber(order.totalClientPrice ?? total)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-lavender/70 text-sm">{SERVICE_ORDER_MARGIN_LABELS.TOTAL_COMPANY_COST}:</span>
+                <span className="text-yellow-400 font-medium">${formatNumber(order.totalCompanyCost ?? 0)}</span>
+              </div>
+              <div className="flex justify-between border-t border-lavender/10 pt-2">
+                <span className="text-lavender font-medium text-sm">{SERVICE_ORDER_MARGIN_LABELS.TOTAL_MARGIN}:</span>
+                <span
+                  className={`font-bold ${
+                    (order.totalMargin ?? 0) >= 0 ? "text-lime" : "text-destructive"
+                  }`}
+                >
+                  ${formatNumber(order.totalMargin ?? 0)}
+                </span>
+              </div>
+            </div>
+          )}
+
           {order.advancePayment !== undefined && order.advancePayment > 0 && (
             <div className="flex justify-between">
               <span className="text-lavender/70">Anticipo:</span>

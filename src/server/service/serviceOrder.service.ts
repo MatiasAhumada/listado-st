@@ -1,93 +1,195 @@
+import { Role, Prisma } from "@prisma/client";
 import {
   serviceOrderRepository,
   CreateServiceOrderData,
   UpdateServiceOrderData,
 } from "@/server/repositories/serviceOrder.repository";
 import { ApiError } from "@/utils/handlers/apiError.handler";
+import { AuthContext, assertOwnership, getEffectiveCompanyId } from "@/server/guards/serviceOrder.guard";
+import {
+  IServiceOrderResponse,
+  IServiceOrderForTecnico,
+  IServiceOrderForOthers,
+  IServiceOrderProductWithMargin,
+  IServiceOrderProductBase,
+} from "@/interfaces/serviceOrder.interface";
+import { SERVICE_ORDER_ERRORS } from "@/constants/serviceOrder.constant";
 import httpStatus from "http-status";
 
-const ROLE_TECNICO = "TECNICO";
-const ROLE_EMPRESA = "EMPRESA";
-const ROLE_VENDEDOR = "VENDEDOR";
+type ServiceOrderFull = Prisma.ServiceOrderGetPayload<{
+  include: {
+    images: true;
+    products: true;
+    branch: { select: { id: true; name: true } };
+    client: { select: { id: true; fullName: true; dni: true; phone: true; address: true } };
+    company: { select: { id: true; username: true; role: true } };
+    seller: { select: { id: true; username: true } };
+  };
+}>;
+
+type PrismaProduct = ServiceOrderFull["products"][number];
+
+function toProductWithMargin(p: PrismaProduct): IServiceOrderProductWithMargin {
+  return {
+    id: p.id,
+    productName: p.productName,
+    productType: p.productType,
+    unitPrice: p.unitPrice,
+    totalPrice: p.totalPrice,
+    unitCostTech: p.unitCostTech,
+    totalCostTech: p.totalCostTech,
+    unitCostCompany: p.unitCostCompany,
+    totalCostCompany: p.totalCostCompany,
+    isDry: p.isDry,
+    hasImpact: p.hasImpact,
+    isBrokenScreen: p.isBrokenScreen,
+    isTurnedOn: p.isTurnedOn,
+    isCharging: p.isCharging,
+    color: p.color,
+    description: p.description,
+    createdAt: p.createdAt,
+    serviceOrderId: p.serviceOrderId,
+    companyMargin: p.totalPrice - p.totalCostCompany,
+  };
+}
+
+function toProductBase(p: PrismaProduct): IServiceOrderProductBase {
+  return {
+    id: p.id,
+    productName: p.productName,
+    productType: p.productType,
+    unitPrice: p.unitPrice,
+    totalPrice: p.totalPrice,
+    unitCostTech: p.unitCostTech,
+    totalCostTech: p.totalCostTech,
+    isDry: p.isDry,
+    hasImpact: p.hasImpact,
+    isBrokenScreen: p.isBrokenScreen,
+    isTurnedOn: p.isTurnedOn,
+    isCharging: p.isCharging,
+    color: p.color,
+    description: p.description,
+    createdAt: p.createdAt,
+    serviceOrderId: p.serviceOrderId,
+  };
+}
+
+function transformForRole(order: ServiceOrderFull, role: Role): IServiceOrderResponse {
+  const { products, ...orderBase } = order;
+
+  if (role === Role.TECNICO) {
+    const productsWithMargin = products.map(toProductWithMargin);
+    const totalClientPrice = productsWithMargin.reduce((sum, p) => sum + p.totalPrice, 0);
+    const totalCompanyCost = productsWithMargin.reduce((sum, p) => sum + p.totalCostCompany, 0);
+    return {
+      ...orderBase,
+      products: productsWithMargin,
+      totalClientPrice,
+      totalCompanyCost,
+      totalMargin: totalClientPrice - totalCompanyCost,
+    } as IServiceOrderForTecnico;
+  }
+
+  return {
+    ...orderBase,
+    products: products.map(toProductBase),
+  } as IServiceOrderForOthers;
+}
 
 export const serviceOrderService = {
-  async createServiceOrder(data: CreateServiceOrderData) {
+  async createServiceOrder(data: CreateServiceOrderData): Promise<ServiceOrderFull> {
     return serviceOrderRepository.create(data);
   },
 
-  async getServiceOrderById(id: string) {
+  async getServiceOrderById(id: string, auth: AuthContext): Promise<IServiceOrderResponse> {
     const order = await serviceOrderRepository.findById(id);
 
     if (!order) {
-      throw new ApiError({ status: httpStatus.NOT_FOUND, message: "Orden de servicio no encontrada" });
+      throw new ApiError({ status: httpStatus.NOT_FOUND, message: SERVICE_ORDER_ERRORS.NOT_FOUND });
     }
 
-    return order;
+    assertOwnership(order.companyId, auth);
+
+    return transformForRole(order, auth.role);
   },
 
-  async getServiceOrdersByCompany(companyId: string) {
-    return serviceOrderRepository.findByCompanyId(companyId);
+  async getServiceOrdersByUser(auth: AuthContext): Promise<IServiceOrderResponse[]> {
+    let orders: ServiceOrderFull[];
+
+    if (auth.role === Role.TECNICO) {
+      orders = await serviceOrderRepository.findAll();
+    } else if (auth.role === Role.EMPRESA) {
+      orders = await serviceOrderRepository.findByCompanyId(auth.id);
+    } else {
+      orders = await serviceOrderRepository.findByVendedor(auth.id);
+    }
+
+    return orders.map((order) => transformForRole(order, auth.role));
   },
 
-  async getServiceOrdersByUser(userId: string, userRole: string) {
-    if (userRole === ROLE_TECNICO) {
-      return serviceOrderRepository.findAll();
+  async updateServiceOrder(id: string, data: UpdateServiceOrderData, auth: AuthContext): Promise<IServiceOrderResponse> {
+    const existing = await serviceOrderRepository.findById(id);
+
+    if (!existing) {
+      throw new ApiError({ status: httpStatus.NOT_FOUND, message: SERVICE_ORDER_ERRORS.NOT_FOUND });
     }
 
-    if (userRole === ROLE_EMPRESA) {
-      return serviceOrderRepository.findByCompanyId(userId);
-    }
+    assertOwnership(existing.companyId, auth);
 
-    if (userRole === ROLE_VENDEDOR) {
-      return serviceOrderRepository.findByVendedor(userId);
-    }
-
-    return [];
+    const updated = await serviceOrderRepository.update(id, data);
+    return transformForRole(updated, auth.role);
   },
 
-  async updateServiceOrder(id: string, data: UpdateServiceOrderData) {
-    const exists = await serviceOrderRepository.findById(id);
+  async patchServiceOrder(id: string, data: UpdateServiceOrderData, auth: AuthContext): Promise<IServiceOrderResponse> {
+    const existing = await serviceOrderRepository.findById(id);
 
-    if (!exists) {
-      throw new ApiError({ status: httpStatus.NOT_FOUND, message: "Orden de servicio no encontrada" });
+    if (!existing) {
+      throw new ApiError({ status: httpStatus.NOT_FOUND, message: SERVICE_ORDER_ERRORS.NOT_FOUND });
     }
 
-    return serviceOrderRepository.update(id, data);
+    const effectiveCompanyId = getEffectiveCompanyId(auth);
+    if (effectiveCompanyId && existing.companyId !== effectiveCompanyId) {
+      throw new ApiError({ status: httpStatus.FORBIDDEN, message: SERVICE_ORDER_ERRORS.FORBIDDEN_OWNERSHIP });
+    }
+
+    const updated = await serviceOrderRepository.update(id, data);
+    return transformForRole(updated, auth.role);
   },
 
-  async deleteServiceOrder(id: string) {
+  async deleteServiceOrder(id: string, auth: AuthContext): Promise<void> {
     const order = await serviceOrderRepository.findById(id);
 
     if (!order) {
-      throw new ApiError({ status: httpStatus.NOT_FOUND, message: "Orden de servicio no encontrada" });
+      throw new ApiError({ status: httpStatus.NOT_FOUND, message: SERVICE_ORDER_ERRORS.NOT_FOUND });
     }
 
-    const deletedOrder = await serviceOrderRepository.delete(id);
+    assertOwnership(order.companyId, auth);
 
-    if (deletedOrder && order.images.length > 0) {
+    await serviceOrderRepository.delete(id);
+
+    if (order.images.length > 0) {
       const { r2StorageService } = await import("./r2Storage.service");
       const folderName = r2StorageService.generateFolderName(order.clientName, order.createdAt);
       try {
         await r2StorageService.deleteServiceOrderFolder(folderName);
-      } catch (error) {
-        console.error("Error al eliminar carpeta de R2:", error);
+      } catch {
       }
     }
-
-    return deletedOrder;
   },
 
-  async addImageToOrder(serviceOrderId: string, url: string) {
-    const exists = await serviceOrderRepository.findById(serviceOrderId);
+  async addImageToOrder(serviceOrderId: string, url: string, auth: AuthContext): Promise<{ id: string; url: string; uploadedAt: Date; serviceOrderId: string }> {
+    const order = await serviceOrderRepository.findById(serviceOrderId);
 
-    if (!exists) {
-      throw new ApiError({ status: httpStatus.NOT_FOUND, message: "Orden de servicio no encontrada" });
+    if (!order) {
+      throw new ApiError({ status: httpStatus.NOT_FOUND, message: SERVICE_ORDER_ERRORS.NOT_FOUND });
     }
+
+    assertOwnership(order.companyId, auth);
 
     return serviceOrderRepository.addImage(serviceOrderId, url);
   },
 
-  async deleteImageFromOrder(imageId: string) {
+  async deleteImageFromOrder(imageId: string): Promise<{ id: string; url: string; uploadedAt: Date; serviceOrderId: string }> {
     return serviceOrderRepository.deleteImage(imageId);
   },
 };

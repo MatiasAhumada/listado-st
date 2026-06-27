@@ -3,9 +3,18 @@ import { r2StorageService } from "@/server/service/r2Storage.service";
 import { prisma } from "@/lib/prisma";
 import apiErrorHandler, { ApiError } from "@/utils/handlers/apiError.handler";
 import { IMAGE_UPLOAD_CONFIG, IMAGE_UPLOAD_MESSAGES } from "@/constants/imageUpload.constant";
+import { cookies } from "next/headers";
+import { extractAuthContext, assertWritePermission, assertOwnership } from "@/server/guards/serviceOrder.guard";
+import { SERVICE_ORDER_ERRORS } from "@/constants/serviceOrder.constant";
+import httpStatus from "http-status";
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const cookieStore = await cookies();
+    const auth = extractAuthContext(cookieStore, request.headers);
+
+    assertWritePermission(auth);
+
     const { id: serviceOrderId } = await params;
 
     const serviceOrder = await prisma.serviceOrder.findUnique({
@@ -14,8 +23,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     });
 
     if (!serviceOrder) {
-      return NextResponse.json({ message: "Orden de servicio no encontrada" }, { status: 404 });
+      return NextResponse.json({ message: SERVICE_ORDER_ERRORS.NOT_FOUND }, { status: 404 });
     }
+
+    assertOwnership(serviceOrder.companyId, auth);
 
     const formData = await request.formData();
     const files = formData.getAll("images") as File[];
@@ -40,10 +51,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       const { url } = await r2StorageService.uploadImage(buffer, key);
 
       const image = await prisma.serviceOrderImage.create({
-        data: {
-          url,
-          serviceOrderId,
-        },
+        data: { url, serviceOrderId },
       });
 
       uploadedImages.push(image);
@@ -53,7 +61,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       message: IMAGE_UPLOAD_MESSAGES.UPLOAD_SUCCESS,
       images: uploadedImages,
     });
-  } catch (error: any) {
+  } catch (error) {
     return apiErrorHandler({
       error: error instanceof ApiError ? error : new ApiError({ message: "Error al subir imágenes" }),
       request,
@@ -63,28 +71,34 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const cookieStore = await cookies();
+    const auth = extractAuthContext(cookieStore, request.headers);
+
+    assertWritePermission(auth);
+
     const { id: serviceOrderId } = await params;
     const { imageId } = await request.json();
 
     const image = await prisma.serviceOrderImage.findUnique({
       where: { id: imageId },
+      include: { serviceOrder: { select: { companyId: true } } },
     });
 
     if (!image || image.serviceOrderId !== serviceOrderId) {
-      return NextResponse.json({ message: "Imagen no encontrada" }, { status: 404 });
+      return NextResponse.json({ message: "Imagen no encontrada" }, { status: httpStatus.NOT_FOUND });
     }
+
+    assertOwnership(image.serviceOrder.companyId, auth);
 
     const key = r2StorageService.extractKeyFromUrl(image.url);
     if (key) {
       await r2StorageService.deleteImage(key);
     }
 
-    await prisma.serviceOrderImage.delete({
-      where: { id: imageId },
-    });
+    await prisma.serviceOrderImage.delete({ where: { id: imageId } });
 
     return NextResponse.json({ message: "Imagen eliminada exitosamente" });
-  } catch (error: any) {
+  } catch (error) {
     return apiErrorHandler({
       error: error instanceof ApiError ? error : new ApiError({ message: "Error al eliminar imagen" }),
       request,
