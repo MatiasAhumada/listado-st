@@ -166,8 +166,9 @@ export const serviceOrderRepository = {
     const timestamps: Partial<Record<ServiceOrderStatus, object>> = {
       [ServiceOrderStatus.RETIRADO_POR_TECNICO]: { pickedUpAt: new Date() },
       [ServiceOrderStatus.DEVUELTO_POR_TECNICO]: { returnedAt: new Date() },
-      [ServiceOrderStatus.ENTREGADO_A_CLIENTE]: { deliveredAt: new Date() },
-      [ServiceOrderStatus.COBRADO]: { paidAt: new Date() },
+      [ServiceOrderStatus.ENTREGADO_CLIENTE]: { deliveredAt: new Date() },
+      [ServiceOrderStatus.COBRADO_CLIENTE]: { paidAt: new Date() },
+      [ServiceOrderStatus.COBRADO_TECNICO]: { techPaidAt: new Date() },
     };
 
     const timestampUpdate = status ? timestamps[status] : undefined;

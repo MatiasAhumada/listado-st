@@ -129,7 +129,7 @@ export default function ServiceOrdersPage() {
   };
 
   const handlePrint = (order: ServiceOrder) => {
-    if (order.status === ServiceOrderStatus.ENTREGADO_A_CLIENTE || order.status === ServiceOrderStatus.COBRADO) {
+    if (order.status === ServiceOrderStatus.ENTREGADO_CLIENTE || order.status === ServiceOrderStatus.COBRADO_CLIENTE || order.status === ServiceOrderStatus.COBRADO_TECNICO) {
       setWarrantyOrder(order);
     } else {
       setPrintOrder(order);
