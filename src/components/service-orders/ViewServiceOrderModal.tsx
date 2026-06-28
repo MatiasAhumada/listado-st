@@ -3,11 +3,17 @@
 import { useState, useEffect } from "react";
 import { GenericModal } from "@/components/common/GenericModal";
 import { Badge } from "@/components/ui/badge";
-import { SERVICE_ORDER_STATUS_LABELS, SERVICE_ORDER_STATUS_COLORS, SERVICE_ORDER_MARGIN_LABELS } from "@/constants/serviceOrder.constant";
+import {
+  SERVICE_ORDER_STATUS_LABELS,
+  SERVICE_ORDER_STATUS_COLORS,
+  SERVICE_ORDER_MARGIN_LABELS,
+  PAYMENT_METHOD_LABELS,
+  PAYMENT_METHOD_BADGE_COLORS,
+} from "@/constants/serviceOrder.constant";
 import { formatNumber, formatDate } from "@/utils/formatters.util";
-import { ServiceOrderStatus, ServiceType } from "@prisma/client";
+import { ServiceOrderStatus, ServiceType, PaymentMethod } from "@prisma/client";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, X } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 
 interface ViewServiceOrderItem {
@@ -20,6 +26,8 @@ interface ViewServiceOrderItem {
   creditPrice: number;
   unitCostCompany?: number;
   totalCostCompany?: number;
+  unitTechMargin?: number;
+  totalTechMargin?: number;
   companyMargin?: number;
   isDry?: boolean;
   hasImpact?: boolean;
@@ -58,16 +66,19 @@ interface ViewServiceOrderModalProps {
       phone?: string;
       address?: string;
     };
+    paymentMethod?: PaymentMethod | null;
     totalClientPrice?: number;
     totalCompanyCost?: number;
-    totalMargin?: number;
+    realTechCost?: number;
+    totalTechMargin?: number;
+    statusHistory?: { id: string; status: ServiceOrderStatus; occurredAt: string }[];
   };
 }
 
 export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewServiceOrderModalProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const { canViewMargins } = useUserRole();
-  const total = order.items?.reduce((sum, p) => sum + p.totalPrice, 0) ?? 0;
+  const total = order.totalClientPrice ?? order.items?.reduce((sum, p) => sum + p.totalPrice, 0) ?? 0;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -176,10 +187,15 @@ export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewService
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-lavender/70 text-sm">Estado</label>
-            <div className="mt-1">
+            <div className="mt-1 flex flex-wrap gap-2">
               <Badge className={SERVICE_ORDER_STATUS_COLORS[order.status]}>
                 {SERVICE_ORDER_STATUS_LABELS[order.status]}
               </Badge>
+              {order.paymentMethod && (
+                <Badge className={PAYMENT_METHOD_BADGE_COLORS[order.paymentMethod]}>
+                  {PAYMENT_METHOD_LABELS[order.paymentMethod]}
+                </Badge>
+              )}
             </div>
           </div>
           <div>
@@ -192,6 +208,26 @@ export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewService
           <div>
             <label className="text-lavender/70 text-sm">Fecha de Entrega</label>
             <p className="text-white font-medium">{formatDate(order.deliveryDate)}</p>
+          </div>
+        )}
+
+        {order.statusHistory && order.statusHistory.length > 0 && (
+          <div className="border-t border-lavender/10 pt-4">
+            <label className="text-lavender font-medium flex items-center gap-2">
+              <Clock size={16} />
+              Historial de estados
+            </label>
+            <div className="space-y-2 mt-3">
+              {order.statusHistory.map((entry) => (
+                <div key={entry.id} className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-lavender/40 flex-shrink-0" />
+                  <Badge className={SERVICE_ORDER_STATUS_COLORS[entry.status]}>
+                    {SERVICE_ORDER_STATUS_LABELS[entry.status]}
+                  </Badge>
+                  <span className="text-lavender/60 text-xs">{formatDate(entry.occurredAt)}</span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -215,7 +251,7 @@ export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewService
                 </div>
 
                 {canViewMargins && (
-                  <div className="grid grid-cols-3 gap-2 mt-2 p-2 bg-black/40 rounded-md border border-lavender/5">
+                  <div className="grid grid-cols-4 gap-2 mt-2 p-2 bg-black/40 rounded-md border border-lavender/5">
                     <div className="text-center">
                       <p className="text-lavender/50 text-xs">{SERVICE_ORDER_MARGIN_LABELS.UNIT_COST_COMPANY}</p>
                       <p className="text-yellow-400 font-medium text-sm">
@@ -225,6 +261,16 @@ export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewService
                     <div className="text-center">
                       <p className="text-lavender/50 text-xs">Precio cliente</p>
                       <p className="text-lime font-medium text-sm">${formatNumber(item.unitPrice)}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-lavender/50 text-xs">Gan. técnico</p>
+                      <p
+                        className={`font-bold text-sm ${
+                          (item.unitTechMargin ?? 0) >= 0 ? "text-blue-400" : "text-destructive"
+                        }`}
+                      >
+                        ${formatNumber(item.unitTechMargin ?? 0)}
+                      </p>
                     </div>
                     <div className="text-center">
                       <p className="text-lavender/50 text-xs">{SERVICE_ORDER_MARGIN_LABELS.COMPANY_MARGIN}</p>
@@ -276,14 +322,18 @@ export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewService
                 <span className="text-lavender/70 text-sm">{SERVICE_ORDER_MARGIN_LABELS.TOTAL_COMPANY_COST}:</span>
                 <span className="text-yellow-400 font-medium">${formatNumber(order.totalCompanyCost ?? 0)}</span>
               </div>
+              <div className="flex justify-between">
+                <span className="text-lavender/70 text-sm">{SERVICE_ORDER_MARGIN_LABELS.REAL_TECH_COST}:</span>
+                <span className="text-orange-400 font-medium">${formatNumber(order.realTechCost ?? 0)}</span>
+              </div>
               <div className="flex justify-between border-t border-lavender/10 pt-2">
                 <span className="text-lavender font-medium text-sm">{SERVICE_ORDER_MARGIN_LABELS.TOTAL_MARGIN}:</span>
                 <span
                   className={`font-bold ${
-                    (order.totalMargin ?? 0) >= 0 ? "text-lime" : "text-destructive"
+                    (order.totalTechMargin ?? 0) >= 0 ? "text-lime" : "text-destructive"
                   }`}
                 >
-                  ${formatNumber(order.totalMargin ?? 0)}
+                  ${formatNumber(order.totalTechMargin ?? 0)}
                 </span>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import { Role, Prisma } from "@prisma/client";
+import { Role, Prisma, ServiceOrderStatus } from "@prisma/client";
 import {
   serviceOrderRepository,
   CreateServiceOrderData,
@@ -20,6 +20,7 @@ type ServiceOrderFull = Prisma.ServiceOrderGetPayload<{
   include: {
     images: true;
     items: true;
+    statusHistory: { orderBy: { occurredAt: "asc" } };
     branch: { select: { id: true; name: true } };
     client: { select: { id: true; fullName: true; dni: true; phone: true; address: true } };
     company: { select: { id: true; username: true; role: true } };
@@ -42,6 +43,8 @@ function toItemWithMargin(p: PrismaItem): IServiceOrderProductWithMargin {
     totalCostTech: p.totalCostTech,
     unitCostCompany: p.unitCostCompany,
     totalCostCompany: p.totalCostCompany,
+    unitTechMargin: p.unitTechMargin,
+    totalTechMargin: p.totalTechMargin,
     isDry: p.isDry,
     hasImpact: p.hasImpact,
     isBrokenScreen: p.isBrokenScreen,
@@ -83,14 +86,13 @@ function transformForRole(order: ServiceOrderFull, role: Role): IServiceOrderRes
 
   if (role === Role.TECNICO) {
     const itemsWithMargin = items.map(toItemWithMargin);
-    const totalClientPrice = itemsWithMargin.reduce((sum, p) => sum + p.totalPrice, 0);
-    const totalCompanyCost = itemsWithMargin.reduce((sum, p) => sum + p.totalCostCompany, 0);
     return {
       ...orderBase,
       items: itemsWithMargin,
-      totalClientPrice,
-      totalCompanyCost,
-      totalMargin: totalClientPrice - totalCompanyCost,
+      totalCompanyCost: order.totalCompanyCost,
+      realTechCost: order.realTechCost,
+      totalTechMargin: order.totalTechMargin,
+      companyMargin: order.totalClientPrice - order.totalCompanyCost,
     } as IServiceOrderForTecnico;
   }
 
@@ -100,9 +102,21 @@ function transformForRole(order: ServiceOrderFull, role: Role): IServiceOrderRes
   } as IServiceOrderForOthers;
 }
 
+async function triggerCobradoTecnicoIntegration(order: ServiceOrderFull): Promise<void> {
+  const { gastosIntegrationService } = await import("@/server/service/gastosIntegration.service");
+  gastosIntegrationService.registerTechIncome(order).catch((error: unknown) => {
+    console.error("[COBRADO_TECNICO] Integration failed", {
+      serviceOrderId: order.id,
+      totalTechMargin: order.totalTechMargin,
+      error,
+    });
+  });
+}
+
 export const serviceOrderService = {
-  async createServiceOrder(data: CreateServiceOrderData): Promise<ServiceOrderFull> {
-    return serviceOrderRepository.create(data);
+  async createServiceOrder(data: CreateServiceOrderData, auth: AuthContext): Promise<IServiceOrderResponse> {
+    const order = await serviceOrderRepository.create(data);
+    return transformForRole(order, auth.role);
   },
 
   async getServiceOrderById(id: string, auth: AuthContext): Promise<IServiceOrderResponse> {
@@ -141,6 +155,14 @@ export const serviceOrderService = {
     assertOwnership(existing.companyId, auth);
 
     const updated = await serviceOrderRepository.update(id, data);
+
+    if (
+      data.status === ServiceOrderStatus.COBRADO_TECNICO &&
+      existing.status !== ServiceOrderStatus.COBRADO_TECNICO
+    ) {
+      await triggerCobradoTecnicoIntegration(updated);
+    }
+
     return transformForRole(updated, auth.role);
   },
 
@@ -157,6 +179,14 @@ export const serviceOrderService = {
     }
 
     const updated = await serviceOrderRepository.update(id, data);
+
+    if (
+      data.status === ServiceOrderStatus.COBRADO_TECNICO &&
+      existing.status !== ServiceOrderStatus.COBRADO_TECNICO
+    ) {
+      await triggerCobradoTecnicoIntegration(updated);
+    }
+
     return transformForRole(updated, auth.role);
   },
 
@@ -181,7 +211,11 @@ export const serviceOrderService = {
     }
   },
 
-  async addImageToOrder(serviceOrderId: string, url: string, auth: AuthContext): Promise<{ id: string; url: string; uploadedAt: Date; serviceOrderId: string }> {
+  async addImageToOrder(
+    serviceOrderId: string,
+    url: string,
+    auth: AuthContext,
+  ): Promise<{ id: string; url: string; uploadedAt: Date; serviceOrderId: string }> {
     const order = await serviceOrderRepository.findById(serviceOrderId);
 
     if (!order) {
@@ -193,7 +227,9 @@ export const serviceOrderService = {
     return serviceOrderRepository.addImage(serviceOrderId, url);
   },
 
-  async deleteImageFromOrder(imageId: string): Promise<{ id: string; url: string; uploadedAt: Date; serviceOrderId: string }> {
+  async deleteImageFromOrder(
+    imageId: string,
+  ): Promise<{ id: string; url: string; uploadedAt: Date; serviceOrderId: string }> {
     return serviceOrderRepository.deleteImage(imageId);
   },
 };

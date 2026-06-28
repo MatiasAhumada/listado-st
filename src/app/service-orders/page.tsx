@@ -13,14 +13,20 @@ import {
   UpdateServiceOrderDTO,
 } from "@/services/serviceOrder.service";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
-import { SERVICE_ORDER_STATUS_LABELS, SERVICE_ORDER_STATUS_COLORS } from "@/constants/serviceOrder.constant";
+import {
+  SERVICE_ORDER_STATUS_LABELS,
+  SERVICE_ORDER_STATUS_COLORS,
+  PAYMENT_METHOD_LABELS,
+  PAYMENT_METHOD_BADGE_COLORS,
+} from "@/constants/serviceOrder.constant";
 import { formatNumber } from "@/utils/formatters.util";
 import { Plus, Edit, Trash2, Eye, Printer } from "lucide-react";
-import { ServiceOrderStatus, ServiceType } from "@prisma/client";
+import { ServiceOrderStatus, ServiceType, PaymentMethod } from "@prisma/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ViewServiceOrderModal } from "@/components/service-orders/ViewServiceOrderModal";
 import { ServiceOrderReceipt } from "@/components/service-orders/ServiceOrderReceipt";
 import { WarrantyReceipt } from "@/components/service-orders/WarrantyReceipt";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface ServiceOrder {
   id: string;
@@ -66,9 +72,14 @@ interface ServiceOrder {
     phone?: string;
     address?: string;
   };
+  paymentMethod?: PaymentMethod;
+  totalClientPrice?: number;
+  realTechCost?: number;
+  statusHistory?: { id: string; status: ServiceOrderStatus; occurredAt: string }[];
 }
 
 export default function ServiceOrdersPage() {
+  const { canViewMargins } = useUserRole();
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -129,7 +140,7 @@ export default function ServiceOrdersPage() {
   };
 
   const handlePrint = (order: ServiceOrder) => {
-    if (order.status === ServiceOrderStatus.ENTREGADO_A_CLIENTE || order.status === ServiceOrderStatus.COBRADO) {
+    if (order.status === ServiceOrderStatus.ENTREGADO_CLIENTE || order.status === ServiceOrderStatus.COBRADO_CLIENTE || order.status === ServiceOrderStatus.COBRADO_TECNICO) {
       setWarrantyOrder(order);
     } else {
       setPrintOrder(order);
@@ -185,6 +196,9 @@ export default function ServiceOrdersPage() {
                         Vendedor
                       </th>
                       <th className="text-left p-2 sm:p-3 md:p-4 text-skybase-300 font-semibold whitespace-nowrap">
+                        Total
+                      </th>
+                      <th className="text-left p-2 sm:p-3 md:p-4 text-skybase-300 font-semibold whitespace-nowrap">
                         Estado
                       </th>
                       <th className="text-left p-2 sm:p-3 md:p-4 text-skybase-300 font-semibold whitespace-nowrap">
@@ -195,13 +209,13 @@ export default function ServiceOrdersPage() {
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan={6} className="text-center p-8 text-skybase-400">
+                        <td colSpan={7} className="text-center p-8 text-skybase-400">
                           Cargando...
                         </td>
                       </tr>
                     ) : orders.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="text-center p-8 text-skybase-400">
+                        <td colSpan={7} className="text-center p-8 text-skybase-400">
                           No hay órdenes de servicio
                         </td>
                       </tr>
@@ -219,6 +233,16 @@ export default function ServiceOrdersPage() {
                             {order.seller?.username || "-"}
                           </td>
                           <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap">
+                            <div className="flex flex-col gap-1">
+                              <span className="text-white font-bold">${formatNumber(order.totalClientPrice ?? 0)}</span>
+                              {order.paymentMethod && (
+                                <Badge className={PAYMENT_METHOD_BADGE_COLORS[order.paymentMethod]}>
+                                  {PAYMENT_METHOD_LABELS[order.paymentMethod]}
+                                </Badge>
+                              )}
+                            </div>
+                          </td>
+                          <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap">
                             <Select
                               value={order.status}
                               onValueChange={(value) => handleStatusChange(order.id, value as ServiceOrderStatus)}
@@ -231,13 +255,15 @@ export default function ServiceOrdersPage() {
                                 </Badge>
                               </SelectTrigger>
                               <SelectContent>
-                                {Object.entries(SERVICE_ORDER_STATUS_LABELS).map(([value, label]) => (
-                                  <SelectItem key={value} value={value}>
-                                    <Badge className={SERVICE_ORDER_STATUS_COLORS[value as ServiceOrderStatus]}>
-                                      {label}
-                                    </Badge>
-                                  </SelectItem>
-                                ))}
+                                {Object.entries(SERVICE_ORDER_STATUS_LABELS)
+                                  .filter(([value]) => canViewMargins || value !== ServiceOrderStatus.COBRADO_TECNICO)
+                                  .map(([value, label]) => (
+                                    <SelectItem key={value} value={value}>
+                                      <Badge className={SERVICE_ORDER_STATUS_COLORS[value as ServiceOrderStatus]}>
+                                        {label}
+                                      </Badge>
+                                    </SelectItem>
+                                  ))}
                               </SelectContent>
                             </Select>
                           </td>

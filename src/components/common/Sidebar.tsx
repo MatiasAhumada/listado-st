@@ -125,7 +125,7 @@ export function Sidebar() {
           </nav>
 
           <div className="p-3 border-t border-lavender/10 flex-shrink-0">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-lime to-green flex items-center justify-center shadow-lg flex-shrink-0">
                 <User size={16} className="text-dark" />
               </div>
@@ -135,15 +135,15 @@ export function Sidebar() {
                   {user?.role}
                 </Badge>
               </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleLogout}
+                className="text-lavender/60 hover:text-destructive hover:bg-destructive/10 transition-all h-8 w-8 flex-shrink-0"
+              >
+                <LogOut size={16} />
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              onClick={handleLogout}
-              className="w-full text-lavender/60 hover:text-lavender hover:bg-lavender/10 transition-all text-xs h-8 justify-start gap-2"
-            >
-              <LogOut size={16} />
-              <span>Cerrar Sesión</span>
-            </Button>
           </div>
         </div>
       </div>

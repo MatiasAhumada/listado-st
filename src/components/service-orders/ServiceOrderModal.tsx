@@ -17,8 +17,9 @@ import {
   UpdateServiceOrderDTO,
 } from "@/services/serviceOrder.service";
 import { uploadServiceOrderImages, deleteServiceOrderImage } from "@/services/serviceOrderImage.service";
-import { ServiceOrderStatus, ServiceType } from "@prisma/client";
-import { SERVICE_ORDER_STATUS_LABELS } from "@/constants/serviceOrder.constant";
+import { ServiceOrderStatus, ServiceType, PaymentMethod } from "@prisma/client";
+import { SERVICE_ORDER_STATUS_LABELS, PAYMENT_METHOD_LABELS, SERVICE_ORDER_MARGIN_LABELS } from "@/constants/serviceOrder.constant";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Upload, X, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import Image from "next/image";
 import { formatNumber } from "@/utils/formatters.util";
@@ -38,6 +39,8 @@ interface ServiceOrderModalProps {
     balance?: number;
     deliveryDate?: string;
     status: ServiceOrderStatus;
+    paymentMethod?: PaymentMethod | null;
+    realTechCost?: number;
     images?: { id: string; url: string }[];
     items?: {
       id: string;
@@ -45,6 +48,8 @@ interface ServiceOrderModalProps {
       serviceType: ServiceType;
       unitPrice: number;
       totalPrice: number;
+      cashPrice: number;
+      creditPrice: number;
       unitCostTech?: number;
       totalCostTech?: number;
       unitCostCompany?: number;
@@ -60,6 +65,7 @@ interface ServiceOrderModalProps {
 }
 
 export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: ServiceOrderModalProps) {
+  const { isTecnico } = useUserRole();
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -74,7 +80,6 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
       unitPrice: number;
       unitCostTech: number;
       unitCostCompany: number;
-      priceType: "cash" | "credit";
       cashPrice: number;
       creditPrice: number;
       isDry: boolean;
@@ -95,6 +100,8 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
     balance: 0,
     deliveryDate: "",
     status: ServiceOrderStatus.RECEPCIONADO as ServiceOrderStatus,
+    paymentMethod: null as PaymentMethod | null,
+    realTechCost: 0,
   });
 
   useEffect(() => {
@@ -106,6 +113,8 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         balance: order.balance || 0,
         deliveryDate: order.deliveryDate ? order.deliveryDate.split("T")[0] : "",
         status: order.status,
+        paymentMethod: order.paymentMethod ?? null,
+        realTechCost: order.realTechCost ?? 0,
       });
       setExistingImages(order.images || []);
       setSelectedItems(
@@ -116,9 +125,8 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           unitPrice: p.unitPrice,
           unitCostTech: p.unitCostTech ?? 0,
           unitCostCompany: p.unitCostCompany ?? 0,
-          priceType: "cash" as "cash" | "credit",
-          cashPrice: p.unitPrice,
-          creditPrice: p.unitPrice,
+          cashPrice: p.cashPrice ?? p.unitPrice,
+          creditPrice: p.creditPrice ?? p.unitPrice,
           isDry: p.isDry || false,
           hasImpact: p.hasImpact || false,
           isBrokenScreen: p.isBrokenScreen || false,
@@ -137,6 +145,8 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         balance: 0,
         deliveryDate: "",
         status: ServiceOrderStatus.RECEPCIONADO,
+        paymentMethod: null,
+        realTechCost: 0,
       });
       setExistingImages([]);
       setSelectedItems([]);
@@ -147,14 +157,17 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
 
   useEffect(() => {
     if (selectedItems.length > 0) {
-      const total = calculateTotal();
+      const total = selectedItems.reduce(
+        (sum, p) => sum + (formData.paymentMethod === PaymentMethod.CREDIT ? p.creditPrice : p.cashPrice),
+        0,
+      );
       const advance = formData.advancePayment;
       setFormData((prev) => ({
         ...prev,
         balance: total - advance,
       }));
     }
-  }, [selectedItems, formData.advancePayment]);
+  }, [selectedItems, formData.advancePayment, formData.paymentMethod]);
 
   const handleAddItem = () => {
     setSelectedItems([
@@ -166,7 +179,6 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         unitPrice: 0,
         unitCostTech: 0,
         unitCostCompany: 0,
-        priceType: "cash",
         cashPrice: 0,
         creditPrice: 0,
         isDry: false,
@@ -195,22 +207,17 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
       unitPrice: product.cash || 0,
       unitCostTech: product.costTech || 0,
       unitCostCompany: product.cost || 0,
-      priceType: "cash",
       cashPrice: product.cash || 0,
       creditPrice: product.credit || 0,
     };
     setSelectedItems(updated);
   };
 
-  const handlePriceTypeChange = (index: number, priceType: "cash" | "credit") => {
-    const updated = [...selectedItems];
-    updated[index].priceType = priceType;
-    updated[index].unitPrice = priceType === "cash" ? updated[index].cashPrice : updated[index].creditPrice;
-    setSelectedItems(updated);
-  };
-
   const calculateTotal = () => {
-    return selectedItems.reduce((sum, p) => sum + p.unitPrice, 0);
+    return selectedItems.reduce(
+      (sum, p) => sum + (formData.paymentMethod === PaymentMethod.CREDIT ? p.creditPrice : p.cashPrice),
+      0,
+    );
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -250,6 +257,8 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           balance: formData.balance || undefined,
           deliveryDate: formData.deliveryDate ? new Date(formData.deliveryDate) : undefined,
           status: formData.status,
+          paymentMethod: formData.paymentMethod ?? undefined,
+          realTechCost: isTecnico ? formData.realTechCost : undefined,
           items:
             selectedItems.length > 0
               ? selectedItems.map((p) => ({
@@ -292,6 +301,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           deliveryDate: formData.deliveryDate ? new Date(formData.deliveryDate) : undefined,
           advancePayment: formData.advancePayment || undefined,
           balance: formData.balance || undefined,
+          paymentMethod: formData.paymentMethod ?? undefined,
           items:
             selectedItems.length > 0
               ? selectedItems.map((p) => ({
@@ -438,6 +448,45 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
               </div>
             )}
 
+            {order && isTecnico && (
+              <div className="space-y-1">
+                <Label className="text-white">{SERVICE_ORDER_MARGIN_LABELS.REAL_TECH_COST}</Label>
+                <Input
+                  type="number"
+                  value={formData.realTechCost === 0 ? "" : formData.realTechCost}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFormData({ ...formData, realTechCost: value === "" ? 0 : parseFloat(value) });
+                  }}
+                  placeholder="0"
+                  className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+                />
+                <p className="text-xs text-gray-500">{SERVICE_ORDER_MARGIN_LABELS.REAL_TECH_COST_HELPER}</p>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label className="text-white">Método de pago</Label>
+              <Select
+                value={formData.paymentMethod ?? ""}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, paymentMethod: value ? (value as PaymentMethod) : null })
+                }
+              >
+                <SelectTrigger className="w-full bg-gray-800 border-gray-700 text-white hover:bg-gray-700">
+                  <SelectValue placeholder="Sin especificar" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="text-white">Servicios</Label>
@@ -457,22 +506,16 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
                         placeholder="Buscar servicio..."
                       />
                     </div>
-                    <div className="lg:col-span-3">
-                      <Select
-                        value={item.priceType}
-                        onValueChange={(value) => handlePriceTypeChange(index, value as "cash" | "credit")}
-                      >
-                        <SelectTrigger className="w-full bg-gray-800 border-gray-700 text-white hover:bg-gray-700">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="cash">Efectivo</SelectItem>
-                          <SelectItem value="credit">Crédito</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="lg:col-span-2 flex items-center justify-start lg:justify-end">
-                      <span className="text-lime font-bold text-lg">${formatNumber(item.unitPrice)}</span>
+                    <div className="lg:col-span-5 flex items-center justify-start lg:justify-end gap-3">
+                      <span className="text-lavender/60 text-xs">
+                        Ef: <span className="text-lime font-semibold">${formatNumber(item.cashPrice)}</span>
+                      </span>
+                      <span className="text-lavender/60 text-xs">
+                        Cr: <span className="text-blue-400 font-semibold">${formatNumber(item.creditPrice)}</span>
+                      </span>
+                      <span className="text-lime font-bold text-lg">
+                        ${formatNumber(formData.paymentMethod === PaymentMethod.CREDIT ? item.creditPrice : item.cashPrice)}
+                      </span>
                     </div>
                     <div className="lg:col-span-2 flex items-center justify-end gap-2">
                       <Button

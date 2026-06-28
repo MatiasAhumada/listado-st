@@ -34,8 +34,14 @@ enum ServiceOrderStatus {
   RECEPCIONADO
   RETIRADO_POR_TECNICO
   DEVUELTO_POR_TECNICO
-  ENTREGADO_A_CLIENTE
-  COBRADO
+  COBRADO_CLIENTE
+  ENTREGADO_CLIENTE
+  COBRADO_TECNICO
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT
 }
 
 model User {
@@ -130,11 +136,17 @@ model ServiceOrder {
   balance           Int                @default(0)
   deliveryDate      DateTime?
   status            ServiceOrderStatus @default(RECEPCIONADO)
+  paymentMethod     PaymentMethod?
+  totalClientPrice  Float              @default(0)
+  totalCompanyCost  Float              @default(0)
+  realTechCost      Float              @default(0)
+  totalTechMargin   Float              @default(0)
   receivedAt        DateTime           @default(now())
   pickedUpAt        DateTime?
   returnedAt        DateTime?
   deliveredAt       DateTime?
   paidAt            DateTime?
+  techPaidAt        DateTime?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
 
@@ -150,8 +162,9 @@ model ServiceOrder {
   clientId String?
   client   Client? @relation(fields: [clientId], references: [id])
 
-  images ServiceOrderImage[]
-  items  ServiceOrderItem[]
+  images        ServiceOrderImage[]
+  items         ServiceOrderItem[]
+  statusHistory ServiceOrderStatusHistory[]
 
   @@map("service_orders")
 }
@@ -164,6 +177,8 @@ model ServiceOrderItem {
   totalCostTech    Float       @default(0)
   unitCostCompany  Float       @default(0)
   totalCostCompany Float       @default(0)
+  unitTechMargin   Float       @default(0)
+  totalTechMargin  Float       @default(0)
   cashPrice        Float       @default(0)
   creditPrice      Float       @default(0)
   isDry            Boolean     @default(false)
@@ -182,6 +197,19 @@ model ServiceOrderItem {
   serviceType ServiceType
 
   @@map("service_order_items")
+}
+
+model ServiceOrderStatusHistory {
+  id             String             @id @default(cuid())
+  serviceOrderId String
+  status         ServiceOrderStatus
+  occurredAt     DateTime           @default(now())
+  createdAt      DateTime           @default(now())
+
+  serviceOrder ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+
+  @@index([serviceOrderId])
+  @@map("service_order_status_history")
 }
 
 model ServiceOrderImage {

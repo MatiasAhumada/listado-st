@@ -50,16 +50,19 @@ export async function POST(request: NextRequest) {
       companyId = auth.id;
     }
 
-    const order = await serviceOrderService.createServiceOrder({
-      ...body,
-      companyId,
-      sellerId: auth.id,
-      branchId,
-      clientId: body.clientId ?? undefined,
-      deliveryDate: body.deliveryDate ? new Date(body.deliveryDate) : undefined,
-      advancePayment: body.advancePayment ?? undefined,
-      balance: body.balance ?? undefined,
-    });
+    const order = await serviceOrderService.createServiceOrder(
+      {
+        ...body,
+        companyId,
+        sellerId: auth.id,
+        branchId,
+        clientId: body.clientId ?? undefined,
+        deliveryDate: body.deliveryDate ? new Date(body.deliveryDate) : undefined,
+        advancePayment: body.advancePayment ?? undefined,
+        balance: body.balance ?? undefined,
+      },
+      auth,
+    );
 
     try {
       const totalCostTech = order.items?.reduce((sum, p) => sum + p.totalCostTech, 0) ?? 0;

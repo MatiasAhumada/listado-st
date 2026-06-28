@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { ServiceOrderStatus, ServiceType } from "@prisma/client";
+import { ServiceOrderStatus, ServiceType, PaymentMethod } from "@prisma/client";
 
 export interface ServiceOrderItemData {
   serviceName: string;
@@ -29,6 +29,7 @@ export interface CreateServiceOrderData {
   deliveryDate?: Date;
   advancePayment?: number;
   balance?: number;
+  paymentMethod?: PaymentMethod;
   items?: ServiceOrderItemData[];
 }
 
@@ -40,83 +41,110 @@ export interface UpdateServiceOrderData {
   advancePayment?: number;
   balance?: number;
   branchId?: string;
+  paymentMethod?: PaymentMethod;
+  realTechCost?: number;
   items?: ServiceOrderItemData[];
 }
 
 const includeAll = {
   images: true,
   items: true,
+  statusHistory: {
+    orderBy: { occurredAt: "asc" as const },
+  },
   branch: {
-    select: {
-      id: true,
-      name: true,
-    },
+    select: { id: true, name: true },
   },
   client: {
-    select: {
-      id: true,
-      fullName: true,
-      dni: true,
-      phone: true,
-      address: true,
-    },
+    select: { id: true, fullName: true, dni: true, phone: true, address: true },
   },
   company: {
-    select: {
-      id: true,
-      username: true,
-      role: true,
-    },
+    select: { id: true, username: true, role: true },
   },
   seller: {
-    select: {
-      id: true,
-      username: true,
-    },
+    select: { id: true, username: true },
   },
 } as const;
 
+function buildItemSnapshot(p: ServiceOrderItemData) {
+  const unitCostCompany = p.unitCostCompany ?? 0;
+  const unitCostTech = p.unitCostTech ?? 0;
+  const unitTechMargin = unitCostCompany - unitCostTech;
+  return {
+    serviceName: p.serviceName,
+    serviceType: p.serviceType,
+    unitPrice: p.unitPrice,
+    totalPrice: p.unitPrice,
+    unitCostTech,
+    totalCostTech: unitCostTech,
+    unitCostCompany,
+    totalCostCompany: unitCostCompany,
+    unitTechMargin,
+    totalTechMargin: unitTechMargin,
+    cashPrice: p.cashPrice ?? p.unitPrice,
+    creditPrice: p.creditPrice ?? p.unitPrice,
+    isDry: p.isDry ?? false,
+    hasImpact: p.hasImpact ?? false,
+    isBrokenScreen: p.isBrokenScreen ?? false,
+    isTurnedOn: p.isTurnedOn ?? false,
+    isCharging: p.isCharging ?? false,
+    color: p.color,
+    description: p.description,
+  };
+}
+
+type ItemSnapshot = ReturnType<typeof buildItemSnapshot>;
+
+function computeOrderTotals(
+  snapshots: ItemSnapshot[],
+  paymentMethod: PaymentMethod | null | undefined,
+  realTechCost: number,
+) {
+  const totalClientPrice = snapshots.reduce(
+    (sum, item) => sum + (paymentMethod === PaymentMethod.CREDIT ? item.creditPrice : item.cashPrice),
+    0,
+  );
+  const totalCompanyCost = snapshots.reduce((sum, item) => sum + item.totalCostCompany, 0);
+  const totalTechMargin = totalCompanyCost - realTechCost;
+  return { totalClientPrice, totalCompanyCost, totalTechMargin };
+}
+
+const statusTimestamps: Partial<Record<ServiceOrderStatus, object>> = {
+  [ServiceOrderStatus.RETIRADO_POR_TECNICO]: { pickedUpAt: new Date() },
+  [ServiceOrderStatus.DEVUELTO_POR_TECNICO]: { returnedAt: new Date() },
+  [ServiceOrderStatus.ENTREGADO_CLIENTE]: { deliveredAt: new Date() },
+  [ServiceOrderStatus.COBRADO_CLIENTE]: { paidAt: new Date() },
+  [ServiceOrderStatus.COBRADO_TECNICO]: { techPaidAt: new Date() },
+};
+
 export const serviceOrderRepository = {
   async create(data: CreateServiceOrderData) {
-    const { items, ...orderData } = data;
+    const { items, paymentMethod, ...orderData } = data;
+    const snapshots = items ? items.map(buildItemSnapshot) : [];
+    const totals = computeOrderTotals(snapshots, paymentMethod, 0);
 
-    return prisma.serviceOrder.create({
-      data: {
-        ...orderData,
-        items: items
-          ? {
-              create: items.map((p) => ({
-                serviceName: p.serviceName,
-                serviceType: p.serviceType,
-                unitPrice: p.unitPrice,
-                totalPrice: p.unitPrice,
-                unitCostTech: p.unitCostTech ?? 0,
-                totalCostTech: p.unitCostTech ?? 0,
-                unitCostCompany: p.unitCostCompany ?? 0,
-                totalCostCompany: p.unitCostCompany ?? 0,
-                cashPrice: p.cashPrice ?? p.unitPrice,
-                creditPrice: p.creditPrice ?? p.unitPrice,
-                isDry: p.isDry ?? false,
-                hasImpact: p.hasImpact ?? false,
-                isBrokenScreen: p.isBrokenScreen ?? false,
-                isTurnedOn: p.isTurnedOn ?? false,
-                isCharging: p.isCharging ?? false,
-                color: p.color,
-                description: p.description,
-              })),
-            }
-          : undefined,
-      },
-      include: includeAll,
+    return prisma.$transaction(async (tx) => {
+      const order = await tx.serviceOrder.create({
+        data: {
+          ...orderData,
+          paymentMethod,
+          ...totals,
+          items: snapshots.length ? { create: snapshots } : undefined,
+          statusHistory: {
+            create: { status: ServiceOrderStatus.RECEPCIONADO, occurredAt: new Date() },
+          },
+        },
+        include: includeAll,
+      });
+
+      return order;
     });
   },
 
   async findAll() {
     return prisma.serviceOrder.findMany({
       include: includeAll,
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
     });
   },
 
@@ -131,9 +159,7 @@ export const serviceOrderRepository = {
     return prisma.serviceOrder.findMany({
       where: { companyId },
       include: includeAll,
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
     });
   },
 
@@ -148,67 +174,74 @@ export const serviceOrderRepository = {
     }
 
     return prisma.serviceOrder.findMany({
-      where: {
-        companyId: vendedor.companyId,
-        branchId: vendedor.branchId,
-      },
+      where: { companyId: vendedor.companyId, branchId: vendedor.branchId },
       include: includeAll,
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
     });
   },
 
   async update(id: string, data: UpdateServiceOrderData) {
-    const { items, status, ...updateData } = data;
-    const finalUpdateData = { ...updateData, status };
+    const { items, status, paymentMethod, realTechCost, ...updateData } = data;
+    const timestampUpdate = status ? statusTimestamps[status] : undefined;
 
-    const timestamps: Partial<Record<ServiceOrderStatus, object>> = {
-      [ServiceOrderStatus.RETIRADO_POR_TECNICO]: { pickedUpAt: new Date() },
-      [ServiceOrderStatus.DEVUELTO_POR_TECNICO]: { returnedAt: new Date() },
-      [ServiceOrderStatus.ENTREGADO_A_CLIENTE]: { deliveredAt: new Date() },
-      [ServiceOrderStatus.COBRADO]: { paidAt: new Date() },
-    };
-
-    const timestampUpdate = status ? timestamps[status] : undefined;
-    if (timestampUpdate) {
-      Object.assign(finalUpdateData, timestampUpdate);
-    }
-
-    if (items) {
-      await prisma.serviceOrderItem.deleteMany({
-        where: { serviceOrderId: id },
+    return prisma.$transaction(async (tx) => {
+      const existingOrder = await tx.serviceOrder.findUnique({
+        where: { id },
+        select: { status: true, paymentMethod: true, realTechCost: true, totalCompanyCost: true },
       });
 
-      Object.assign(finalUpdateData, {
-        items: {
-          create: items.map((p) => ({
-            serviceName: p.serviceName,
-            serviceType: p.serviceType,
-            unitPrice: p.unitPrice,
-            totalPrice: p.unitPrice,
-            unitCostTech: p.unitCostTech ?? 0,
-            totalCostTech: p.unitCostTech ?? 0,
-            unitCostCompany: p.unitCostCompany ?? 0,
-            totalCostCompany: p.unitCostCompany ?? 0,
-            cashPrice: p.cashPrice ?? p.unitPrice,
-            creditPrice: p.creditPrice ?? p.unitPrice,
-            isDry: p.isDry ?? false,
-            hasImpact: p.hasImpact ?? false,
-            isBrokenScreen: p.isBrokenScreen ?? false,
-            isTurnedOn: p.isTurnedOn ?? false,
-            isCharging: p.isCharging ?? false,
-            color: p.color,
-            description: p.description,
-          })),
+      type TotalsUpdate = { totalClientPrice?: number; totalCompanyCost?: number; totalTechMargin?: number };
+      let totalsUpdate: TotalsUpdate = {};
+
+      if (items) {
+        const effectivePaymentMethod = paymentMethod ?? existingOrder?.paymentMethod;
+        const effectiveRealTechCost = realTechCost ?? existingOrder?.realTechCost ?? 0;
+        const snapshots = items.map(buildItemSnapshot);
+
+        await tx.serviceOrderItem.deleteMany({ where: { serviceOrderId: id } });
+        await tx.serviceOrderItem.createMany({ data: snapshots.map((s) => ({ ...s, serviceOrderId: id })) });
+
+        totalsUpdate = computeOrderTotals(snapshots, effectivePaymentMethod, effectiveRealTechCost);
+      } else {
+        const needsRecalc = paymentMethod !== undefined || realTechCost !== undefined;
+
+        if (needsRecalc) {
+          const effectiveRealTechCost = realTechCost ?? existingOrder?.realTechCost ?? 0;
+          const effectiveTotalCompanyCost = existingOrder?.totalCompanyCost ?? 0;
+
+          totalsUpdate.totalTechMargin = effectiveTotalCompanyCost - effectiveRealTechCost;
+
+          if (paymentMethod) {
+            const effectivePaymentMethod = paymentMethod ?? existingOrder?.paymentMethod;
+            const existingItems = await tx.serviceOrderItem.findMany({ where: { serviceOrderId: id } });
+            totalsUpdate.totalClientPrice = existingItems.reduce(
+              (sum, item) => sum + (effectivePaymentMethod === PaymentMethod.CREDIT ? item.creditPrice : item.cashPrice),
+              0,
+            );
+          }
+        }
+      }
+
+      const updated = await tx.serviceOrder.update({
+        where: { id },
+        data: {
+          ...updateData,
+          status,
+          paymentMethod,
+          realTechCost,
+          ...timestampUpdate,
+          ...totalsUpdate,
         },
+        include: includeAll,
       });
-    }
 
-    return prisma.serviceOrder.update({
-      where: { id },
-      data: finalUpdateData,
-      include: includeAll,
+      if (status && status !== existingOrder?.status) {
+        await tx.serviceOrderStatusHistory.create({
+          data: { serviceOrderId: id, status, occurredAt: new Date() },
+        });
+      }
+
+      return updated;
     });
   },
 
@@ -222,23 +255,14 @@ export const serviceOrderRepository = {
       return null;
     }
 
-    return prisma.serviceOrder.delete({
-      where: { id },
-    });
+    return prisma.serviceOrder.delete({ where: { id } });
   },
 
   async addImage(serviceOrderId: string, url: string) {
-    return prisma.serviceOrderImage.create({
-      data: {
-        serviceOrderId,
-        url,
-      },
-    });
+    return prisma.serviceOrderImage.create({ data: { serviceOrderId, url } });
   },
 
   async deleteImage(imageId: string) {
-    return prisma.serviceOrderImage.delete({
-      where: { id: imageId },
-    });
+    return prisma.serviceOrderImage.delete({ where: { id: imageId } });
   },
 };

@@ -1,5 +1,5 @@
 import clientAxios from "@/utils/clientAxios.util";
-import { ServiceOrderStatus, ServiceType } from "@prisma/client";
+import { ServiceOrderStatus, ServiceType, PaymentMethod } from "@prisma/client";
 
 export interface ServiceOrderItemDTO {
   serviceName: string;
@@ -26,6 +26,7 @@ export interface CreateServiceOrderDTO {
   deliveryDate?: Date;
   advancePayment?: number;
   balance?: number;
+  paymentMethod?: PaymentMethod;
   items?: ServiceOrderItemDTO[];
 }
 
@@ -37,6 +38,8 @@ export interface UpdateServiceOrderDTO {
   advancePayment?: number;
   balance?: number;
   branchId?: string;
+  paymentMethod?: PaymentMethod;
+  realTechCost?: number;
   items?: ServiceOrderItemDTO[];
 }
 

@@ -16,7 +16,7 @@ import { Plus, Edit, Trash, Upload } from "lucide-react";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { formatNumber } from "@/utils/formatters.util";
 import { motion } from "framer-motion";
-import { SERVICE_TYPE_LABELS, SERVICE_TYPES } from "@/constants/serviceType.constant";
+import { SERVICE_TYPE_LABELS, SERVICE_TYPES, SERVICIO_COLUMN_LABELS } from "@/constants/serviceType.constant";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -103,12 +103,12 @@ export default function DashboardPage() {
     if (isTecnico) {
       baseCols.push({
         key: "costTech",
-        label: "Costo Repuesto",
+        label: SERVICIO_COLUMN_LABELS.COSTO_REPUESTO,
         render: (item: any) => <span className="font-bold text-lavender">${formatNumber(item.costTech || 0)}</span>,
       });
       baseCols.push({
         key: "cost",
-        label: "Costo Cliente",
+        label: SERVICIO_COLUMN_LABELS.COSTO_EMPRESA,
         render: (item: any) => <span className="font-bold text-lime">${formatNumber(item.cost || 0)}</span>,
       });
     }
@@ -116,17 +116,17 @@ export default function DashboardPage() {
     if (isEmpresa) {
       baseCols.push({
         key: "cost",
-        label: "Costo",
+        label: SERVICIO_COLUMN_LABELS.COSTO,
         render: (item: any) => <span className="font-bold text-destructive">${formatNumber(item.cost)}</span>,
       });
       baseCols.push({
         key: "cash",
-        label: "Efectivo",
+        label: SERVICIO_COLUMN_LABELS.EFECTIVO,
         render: (item: any) => <span className="font-bold text-lime">${formatNumber(item.cash)}</span>,
       });
       baseCols.push({
         key: "credit",
-        label: "Tarjeta",
+        label: SERVICIO_COLUMN_LABELS.TARJETA,
         render: (item: any) => <span className="font-bold text-green">${formatNumber(item.credit)}</span>,
       });
     }
@@ -134,12 +134,12 @@ export default function DashboardPage() {
     if (!isTecnico && !isEmpresa) {
       baseCols.push({
         key: "cash",
-        label: "Efectivo",
+        label: SERVICIO_COLUMN_LABELS.EFECTIVO,
         render: (item: any) => <span className="font-bold text-lime">${formatNumber(item.cash || 0)}</span>,
       });
       baseCols.push({
         key: "credit",
-        label: "Tarjeta",
+        label: SERVICIO_COLUMN_LABELS.TARJETA,
         render: (item: any) => <span className="font-bold text-green">${formatNumber(item.credit || 0)}</span>,
       });
     }

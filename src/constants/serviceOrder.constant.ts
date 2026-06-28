@@ -1,4 +1,4 @@
-import { ServiceOrderStatus } from "@prisma/client";
+import { ServiceOrderStatus, PaymentMethod } from "@prisma/client";
 
 export const SERVICE_ORDER_ERRORS = {
   NOT_FOUND: "Orden de servicio no encontrada",
@@ -26,24 +26,38 @@ export const EMAIL_FOOTER_SISTEMA = "Sistema de Gestión de Servicios Técnicos"
 
 export const SERVICE_ORDER_MARGIN_LABELS = {
   TOTAL_CLIENT_PRICE: "Precio cliente",
-  TOTAL_COMPANY_COST: "Costo empresa",
-  TOTAL_MARGIN: "Margen",
+  TOTAL_COMPANY_COST: "Precio empresa",
+  REAL_TECH_COST: "Costo real de la OS",
+  REAL_TECH_COST_HELPER: "Lo que realmente te costó esta orden (repuestos, tiempo, traslados)",
+  TOTAL_MARGIN: "Ganancia",
   UNIT_COST_COMPANY: "Costo empresa",
-  COMPANY_MARGIN: "Ganancia",
+  COMPANY_MARGIN: "Ganancia empresa",
 } as const;
+
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  [PaymentMethod.CASH]: "Efectivo",
+  [PaymentMethod.CREDIT]: "Crédito",
+};
+
+export const PAYMENT_METHOD_BADGE_COLORS: Record<PaymentMethod, string> = {
+  [PaymentMethod.CASH]: "bg-emerald-100 text-emerald-800",
+  [PaymentMethod.CREDIT]: "bg-blue-100 text-blue-800",
+};
 
 export const SERVICE_ORDER_STATUS_LABELS: Record<ServiceOrderStatus, string> = {
   [ServiceOrderStatus.RECEPCIONADO]: "Recepcionado",
   [ServiceOrderStatus.RETIRADO_POR_TECNICO]: "Retirado por Técnico",
   [ServiceOrderStatus.DEVUELTO_POR_TECNICO]: "Devuelto por Técnico",
-  [ServiceOrderStatus.ENTREGADO_A_CLIENTE]: "Entregado a Cliente",
-  [ServiceOrderStatus.COBRADO]: "Cobrado",
+  [ServiceOrderStatus.COBRADO_CLIENTE]: "Cobrado al Cliente",
+  [ServiceOrderStatus.ENTREGADO_CLIENTE]: "Entregado al Cliente",
+  [ServiceOrderStatus.COBRADO_TECNICO]: "Cobrado Técnico",
 };
 
 export const SERVICE_ORDER_STATUS_COLORS: Record<ServiceOrderStatus, string> = {
   [ServiceOrderStatus.RECEPCIONADO]: "bg-blue-100 text-blue-800",
   [ServiceOrderStatus.RETIRADO_POR_TECNICO]: "bg-yellow-100 text-yellow-800",
   [ServiceOrderStatus.DEVUELTO_POR_TECNICO]: "bg-purple-100 text-purple-800",
-  [ServiceOrderStatus.ENTREGADO_A_CLIENTE]: "bg-green-100 text-green-800",
-  [ServiceOrderStatus.COBRADO]: "bg-gray-100 text-gray-800",
+  [ServiceOrderStatus.COBRADO_CLIENTE]: "bg-green-100 text-green-800",
+  [ServiceOrderStatus.ENTREGADO_CLIENTE]: "bg-teal-100 text-teal-800",
+  [ServiceOrderStatus.COBRADO_TECNICO]: "bg-gray-100 text-gray-800",
 };

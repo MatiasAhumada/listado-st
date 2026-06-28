@@ -1,4 +1,12 @@
-import { ServiceType, ServiceOrderStatus } from "@prisma/client";
+import { ServiceType, ServiceOrderStatus, PaymentMethod } from "@prisma/client";
+
+export interface IServiceOrderStatusHistoryItem {
+  id: string;
+  serviceOrderId: string;
+  status: ServiceOrderStatus;
+  occurredAt: Date;
+  createdAt: Date;
+}
 
 export interface IServiceOrderProductBase {
   id: string;
@@ -24,6 +32,8 @@ export interface IServiceOrderProductBase {
 export interface IServiceOrderProductWithMargin extends IServiceOrderProductBase {
   unitCostCompany: number;
   totalCostCompany: number;
+  unitTechMargin: number;
+  totalTechMargin: number;
   companyMargin: number;
 }
 
@@ -33,6 +43,7 @@ interface IServiceOrderRelations {
   client: { id: string; fullName: string; dni: string; phone: string | null; address: string | null } | null;
   company: { id: string; username: string; role: string } | null;
   seller: { id: string; username: string } | null;
+  statusHistory: IServiceOrderStatusHistoryItem[];
 }
 
 interface IServiceOrderCore {
@@ -43,11 +54,14 @@ interface IServiceOrderCore {
   balance: number;
   deliveryDate: Date | null;
   status: ServiceOrderStatus;
+  paymentMethod: PaymentMethod | null;
+  totalClientPrice: number;
   receivedAt: Date;
   pickedUpAt: Date | null;
   returnedAt: Date | null;
   deliveredAt: Date | null;
   paidAt: Date | null;
+  techPaidAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
   companyId: string;
@@ -62,9 +76,10 @@ export interface IServiceOrderForOthers extends IServiceOrderCore, IServiceOrder
 
 export interface IServiceOrderForTecnico extends IServiceOrderCore, IServiceOrderRelations {
   items: IServiceOrderProductWithMargin[];
-  totalClientPrice: number;
   totalCompanyCost: number;
-  totalMargin: number;
+  realTechCost: number;
+  totalTechMargin: number;
+  companyMargin: number;
 }
 
 export type IServiceOrderResponse = IServiceOrderForOthers | IServiceOrderForTecnico;
