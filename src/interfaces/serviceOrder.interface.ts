@@ -77,6 +77,7 @@ export interface IServiceOrderForOthers extends IServiceOrderCore, IServiceOrder
 export interface IServiceOrderForTecnico extends IServiceOrderCore, IServiceOrderRelations {
   items: IServiceOrderProductWithMargin[];
   totalCompanyCost: number;
+  realTechCost: number;
   totalTechMargin: number;
   companyMargin: number;
 }

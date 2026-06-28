@@ -18,7 +18,8 @@ import {
 } from "@/services/serviceOrder.service";
 import { uploadServiceOrderImages, deleteServiceOrderImage } from "@/services/serviceOrderImage.service";
 import { ServiceOrderStatus, ServiceType, PaymentMethod } from "@prisma/client";
-import { SERVICE_ORDER_STATUS_LABELS, PAYMENT_METHOD_LABELS } from "@/constants/serviceOrder.constant";
+import { SERVICE_ORDER_STATUS_LABELS, PAYMENT_METHOD_LABELS, SERVICE_ORDER_MARGIN_LABELS } from "@/constants/serviceOrder.constant";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Upload, X, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import Image from "next/image";
 import { formatNumber } from "@/utils/formatters.util";
@@ -39,6 +40,7 @@ interface ServiceOrderModalProps {
     deliveryDate?: string;
     status: ServiceOrderStatus;
     paymentMethod?: PaymentMethod | null;
+    realTechCost?: number;
     images?: { id: string; url: string }[];
     items?: {
       id: string;
@@ -63,6 +65,7 @@ interface ServiceOrderModalProps {
 }
 
 export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: ServiceOrderModalProps) {
+  const { isTecnico } = useUserRole();
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -98,6 +101,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
     deliveryDate: "",
     status: ServiceOrderStatus.RECEPCIONADO as ServiceOrderStatus,
     paymentMethod: null as PaymentMethod | null,
+    realTechCost: 0,
   });
 
   useEffect(() => {
@@ -110,6 +114,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         deliveryDate: order.deliveryDate ? order.deliveryDate.split("T")[0] : "",
         status: order.status,
         paymentMethod: order.paymentMethod ?? null,
+        realTechCost: order.realTechCost ?? 0,
       });
       setExistingImages(order.images || []);
       setSelectedItems(
@@ -141,6 +146,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         deliveryDate: "",
         status: ServiceOrderStatus.RECEPCIONADO,
         paymentMethod: null,
+        realTechCost: 0,
       });
       setExistingImages([]);
       setSelectedItems([]);
@@ -252,6 +258,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           deliveryDate: formData.deliveryDate ? new Date(formData.deliveryDate) : undefined,
           status: formData.status,
           paymentMethod: formData.paymentMethod ?? undefined,
+          realTechCost: isTecnico ? formData.realTechCost : undefined,
           items:
             selectedItems.length > 0
               ? selectedItems.map((p) => ({
@@ -438,6 +445,24 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
                     </option>
                   ))}
                 </select>
+              </div>
+            )}
+
+            {order && isTecnico && (
+              <div className="space-y-1">
+                <Label className="text-white">{SERVICE_ORDER_MARGIN_LABELS.REAL_TECH_COST}</Label>
+                <Input
+                  type="number"
+                  value={formData.realTechCost === 0 ? "" : formData.realTechCost}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFormData({ ...formData, realTechCost: value === "" ? 0 : parseFloat(value) });
+                  }}
+                  placeholder="0"
+                  className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+                />
+                <p className="text-xs text-gray-500">{SERVICE_ORDER_MARGIN_LABELS.REAL_TECH_COST_HELPER}</p>
               </div>
             )}
 

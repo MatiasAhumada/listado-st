@@ -39,6 +39,7 @@ export interface UpdateServiceOrderDTO {
   balance?: number;
   branchId?: string;
   paymentMethod?: PaymentMethod;
+  realTechCost?: number;
   items?: ServiceOrderItemDTO[];
 }
 

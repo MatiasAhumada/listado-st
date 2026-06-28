@@ -139,6 +139,7 @@ model ServiceOrder {
   paymentMethod     PaymentMethod?
   totalClientPrice  Float              @default(0)
   totalCompanyCost  Float              @default(0)
+  realTechCost      Float              @default(0)
   totalTechMargin   Float              @default(0)
   receivedAt        DateTime           @default(now())
   pickedUpAt        DateTime?

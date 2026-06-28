@@ -26,10 +26,12 @@ export const EMAIL_FOOTER_SISTEMA = "Sistema de Gestión de Servicios Técnicos"
 
 export const SERVICE_ORDER_MARGIN_LABELS = {
   TOTAL_CLIENT_PRICE: "Precio cliente",
-  TOTAL_COMPANY_COST: "Costo empresa",
-  TOTAL_MARGIN: "Margen",
+  TOTAL_COMPANY_COST: "Precio empresa",
+  REAL_TECH_COST: "Costo real de la OS",
+  REAL_TECH_COST_HELPER: "Lo que realmente te costó esta orden (repuestos, tiempo, traslados)",
+  TOTAL_MARGIN: "Ganancia",
   UNIT_COST_COMPANY: "Costo empresa",
-  COMPANY_MARGIN: "Ganancia",
+  COMPANY_MARGIN: "Ganancia empresa",
 } as const;
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {

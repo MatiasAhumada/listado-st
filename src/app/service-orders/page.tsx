@@ -73,6 +73,7 @@ interface ServiceOrder {
   };
   paymentMethod?: PaymentMethod;
   totalClientPrice?: number;
+  realTechCost?: number;
   statusHistory?: { id: string; status: ServiceOrderStatus; occurredAt: string }[];
 }
 

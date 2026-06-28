@@ -42,6 +42,7 @@ export interface UpdateServiceOrderData {
   balance?: number;
   branchId?: string;
   paymentMethod?: PaymentMethod;
+  realTechCost?: number;
   items?: ServiceOrderItemData[];
 }
 
@@ -94,13 +95,17 @@ function buildItemSnapshot(p: ServiceOrderItemData) {
 
 type ItemSnapshot = ReturnType<typeof buildItemSnapshot>;
 
-function computeOrderTotals(snapshots: ItemSnapshot[], paymentMethod: PaymentMethod | null | undefined) {
+function computeOrderTotals(
+  snapshots: ItemSnapshot[],
+  paymentMethod: PaymentMethod | null | undefined,
+  realTechCost: number,
+) {
   const totalClientPrice = snapshots.reduce(
     (sum, item) => sum + (paymentMethod === PaymentMethod.CREDIT ? item.creditPrice : item.cashPrice),
     0,
   );
   const totalCompanyCost = snapshots.reduce((sum, item) => sum + item.totalCostCompany, 0);
-  const totalTechMargin = snapshots.reduce((sum, item) => sum + item.totalTechMargin, 0);
+  const totalTechMargin = totalCompanyCost - realTechCost;
   return { totalClientPrice, totalCompanyCost, totalTechMargin };
 }
 
@@ -116,7 +121,7 @@ export const serviceOrderRepository = {
   async create(data: CreateServiceOrderData) {
     const { items, paymentMethod, ...orderData } = data;
     const snapshots = items ? items.map(buildItemSnapshot) : [];
-    const totals = computeOrderTotals(snapshots, paymentMethod);
+    const totals = computeOrderTotals(snapshots, paymentMethod, 0);
 
     return prisma.$transaction(async (tx) => {
       const order = await tx.serviceOrder.create({
@@ -176,35 +181,48 @@ export const serviceOrderRepository = {
   },
 
   async update(id: string, data: UpdateServiceOrderData) {
-    const { items, status, paymentMethod, ...updateData } = data;
+    const { items, status, paymentMethod, realTechCost, ...updateData } = data;
     const timestampUpdate = status ? statusTimestamps[status] : undefined;
 
     return prisma.$transaction(async (tx) => {
-      let orderTotals: ReturnType<typeof computeOrderTotals> | undefined;
+      type TotalsUpdate = { totalClientPrice?: number; totalCompanyCost?: number; totalTechMargin?: number };
+      let totalsUpdate: TotalsUpdate = {};
 
       if (items) {
-        await tx.serviceOrderItem.deleteMany({ where: { serviceOrderId: id } });
+        const existing = await tx.serviceOrder.findUnique({
+          where: { id },
+          select: { paymentMethod: true, realTechCost: true },
+        });
+        const effectivePaymentMethod = paymentMethod ?? existing?.paymentMethod;
+        const effectiveRealTechCost = realTechCost ?? existing?.realTechCost ?? 0;
         const snapshots = items.map(buildItemSnapshot);
 
-        const effectivePaymentMethod =
-          paymentMethod ??
-          (await tx.serviceOrder.findUnique({ where: { id }, select: { paymentMethod: true } }))?.paymentMethod;
-
-        orderTotals = computeOrderTotals(snapshots, effectivePaymentMethod);
-
+        await tx.serviceOrderItem.deleteMany({ where: { serviceOrderId: id } });
         await tx.serviceOrderItem.createMany({ data: snapshots.map((s) => ({ ...s, serviceOrderId: id })) });
-      } else if (paymentMethod) {
-        const existingItems = await tx.serviceOrderItem.findMany({ where: { serviceOrderId: id } });
-        const totalClientPrice = existingItems.reduce(
-          (sum, item) =>
-            sum + (paymentMethod === PaymentMethod.CREDIT ? item.creditPrice : item.cashPrice),
-          0,
-        );
-        orderTotals = {
-          totalClientPrice,
-          totalCompanyCost: existingItems.reduce((sum, item) => sum + item.totalCostCompany, 0),
-          totalTechMargin: existingItems.reduce((sum, item) => sum + item.totalTechMargin, 0),
-        };
+
+        totalsUpdate = computeOrderTotals(snapshots, effectivePaymentMethod, effectiveRealTechCost);
+      } else {
+        const needsRecalc = paymentMethod !== undefined || realTechCost !== undefined;
+
+        if (needsRecalc) {
+          const existing = await tx.serviceOrder.findUnique({
+            where: { id },
+            select: { paymentMethod: true, realTechCost: true, totalCompanyCost: true },
+          });
+          const effectiveRealTechCost = realTechCost ?? existing?.realTechCost ?? 0;
+          const effectiveTotalCompanyCost = existing?.totalCompanyCost ?? 0;
+
+          totalsUpdate.totalTechMargin = effectiveTotalCompanyCost - effectiveRealTechCost;
+
+          if (paymentMethod) {
+            const effectivePaymentMethod = paymentMethod ?? existing?.paymentMethod;
+            const existingItems = await tx.serviceOrderItem.findMany({ where: { serviceOrderId: id } });
+            totalsUpdate.totalClientPrice = existingItems.reduce(
+              (sum, item) => sum + (effectivePaymentMethod === PaymentMethod.CREDIT ? item.creditPrice : item.cashPrice),
+              0,
+            );
+          }
+        }
       }
 
       const updated = await tx.serviceOrder.update({
@@ -213,8 +231,9 @@ export const serviceOrderRepository = {
           ...updateData,
           status,
           paymentMethod,
+          realTechCost,
           ...timestampUpdate,
-          ...orderTotals,
+          ...totalsUpdate,
         },
         include: includeAll,
       });

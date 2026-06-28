@@ -90,6 +90,7 @@ function transformForRole(order: ServiceOrderFull, role: Role): IServiceOrderRes
       ...orderBase,
       items: itemsWithMargin,
       totalCompanyCost: order.totalCompanyCost,
+      realTechCost: order.realTechCost,
       totalTechMargin: order.totalTechMargin,
       companyMargin: order.totalClientPrice - order.totalCompanyCost,
     } as IServiceOrderForTecnico;

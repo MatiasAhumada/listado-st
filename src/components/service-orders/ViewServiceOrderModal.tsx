@@ -69,6 +69,7 @@ interface ViewServiceOrderModalProps {
     paymentMethod?: PaymentMethod | null;
     totalClientPrice?: number;
     totalCompanyCost?: number;
+    realTechCost?: number;
     totalTechMargin?: number;
     statusHistory?: { id: string; status: ServiceOrderStatus; occurredAt: string }[];
   };
@@ -320,6 +321,10 @@ export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewService
               <div className="flex justify-between">
                 <span className="text-lavender/70 text-sm">{SERVICE_ORDER_MARGIN_LABELS.TOTAL_COMPANY_COST}:</span>
                 <span className="text-yellow-400 font-medium">${formatNumber(order.totalCompanyCost ?? 0)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-lavender/70 text-sm">{SERVICE_ORDER_MARGIN_LABELS.REAL_TECH_COST}:</span>
+                <span className="text-orange-400 font-medium">${formatNumber(order.realTechCost ?? 0)}</span>
               </div>
               <div className="flex justify-between border-t border-lavender/10 pt-2">
                 <span className="text-lavender font-medium text-sm">{SERVICE_ORDER_MARGIN_LABELS.TOTAL_MARGIN}:</span>
