@@ -2,7 +2,7 @@ import { PrismaClient, ServiceOrderStatus } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const SKIP_STATUSES = [
+const SKIP_STATUSES: ServiceOrderStatus[] = [
   ServiceOrderStatus.DEVUELTO_POR_TECNICO,
   ServiceOrderStatus.RETIRADO_POR_TECNICO,
 ];
