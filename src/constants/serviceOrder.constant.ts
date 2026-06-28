@@ -1,5 +1,16 @@
 import { ServiceOrderStatus } from "@prisma/client";
 
+export const SERVICE_ORDER_ERRORS = {
+  NOT_FOUND: "Orden de servicio no encontrada",
+  FORBIDDEN: "Sin permisos para esta operación",
+  FORBIDDEN_OWNERSHIP: "Sin permisos sobre esta orden",
+  VENDEDOR_STATUS_ONLY: "El vendedor solo puede modificar el estado de la orden",
+  UNAUTHENTICATED: "No autenticado",
+  TECNICO_REQUIRES_COMPANY: "El técnico debe indicar una empresa para crear la orden",
+} as const;
+
+export const SERVICE_ORDER_PATCH_ALLOWED_FIELDS = ["status"] as const;
+
 export const EMAIL_HEADER_TITLE = "🔧 Nueva Orden de Servicio";
 export const EMAIL_SECTION_DETALLES = "Detalles de la Orden";
 export const EMAIL_LABEL_CLIENTE = "Cliente:";
@@ -12,6 +23,14 @@ export const EMAIL_LABEL_PRESUPUESTO_CLIENTE = "Presupuesto al cliente:";
 export const EMAIL_LABEL_GANANCIA = "Ganancia:";
 export const EMAIL_FOOTER_AUTOMATICO = "Este es un correo automático. Por favor no responder.";
 export const EMAIL_FOOTER_SISTEMA = "Sistema de Gestión de Servicios Técnicos";
+
+export const SERVICE_ORDER_MARGIN_LABELS = {
+  TOTAL_CLIENT_PRICE: "Precio cliente",
+  TOTAL_COMPANY_COST: "Costo empresa",
+  TOTAL_MARGIN: "Margen",
+  UNIT_COST_COMPANY: "Costo empresa",
+  COMPANY_MARGIN: "Ganancia",
+} as const;
 
 export const SERVICE_ORDER_STATUS_LABELS: Record<ServiceOrderStatus, string> = {
   [ServiceOrderStatus.RECEPCIONADO]: "Recepcionado",

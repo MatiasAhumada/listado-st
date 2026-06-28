@@ -1,6 +1,21 @@
 import clientAxios from "@/utils/clientAxios.util";
 import { ServiceOrderStatus, ProductType } from "@prisma/client";
 
+export interface ServiceOrderProductDTO {
+  productName: string;
+  productType: ProductType;
+  unitPrice: number;
+  unitCostTech?: number;
+  unitCostCompany?: number;
+  isDry?: boolean;
+  hasImpact?: boolean;
+  isBrokenScreen?: boolean;
+  isTurnedOn?: boolean;
+  isCharging?: boolean;
+  color?: string;
+  description?: string;
+}
+
 export interface CreateServiceOrderDTO {
   clientName: string;
   clientPhone: string;
@@ -9,19 +24,7 @@ export interface CreateServiceOrderDTO {
   deliveryDate?: Date;
   advancePayment?: number;
   balance?: number;
-  products?: {
-    productName: string;
-    productType: ProductType;
-    unitPrice: number;
-    unitCostTech?: number;
-    isDry?: boolean;
-    hasImpact?: boolean;
-    isBrokenScreen?: boolean;
-    isTurnedOn?: boolean;
-    isCharging?: boolean;
-    color?: string;
-    description?: string;
-  }[];
+  products?: ServiceOrderProductDTO[];
 }
 
 export interface UpdateServiceOrderDTO {
@@ -31,19 +34,12 @@ export interface UpdateServiceOrderDTO {
   deliveryDate?: Date;
   advancePayment?: number;
   balance?: number;
-  products?: {
-    productName: string;
-    productType: ProductType;
-    unitPrice: number;
-    unitCostTech?: number;
-    isDry?: boolean;
-    hasImpact?: boolean;
-    isBrokenScreen?: boolean;
-    isTurnedOn?: boolean;
-    isCharging?: boolean;
-    color?: string;
-    description?: string;
-  }[];
+  branchId?: string;
+  products?: ServiceOrderProductDTO[];
+}
+
+export interface PatchServiceOrderDTO {
+  status: ServiceOrderStatus;
 }
 
 export async function createServiceOrder(data: CreateServiceOrderDTO) {
@@ -66,6 +62,11 @@ export async function updateServiceOrder(id: string, data: UpdateServiceOrderDTO
   return response.data;
 }
 
+export async function patchServiceOrder(id: string, data: PatchServiceOrderDTO) {
+  const response = await clientAxios.patch(`/service-orders/${id}`, data);
+  return response.data;
+}
+
 export async function deleteServiceOrder(id: string) {
   const response = await clientAxios.delete(`/service-orders/${id}`);
   return response.data;
@@ -77,9 +78,7 @@ export async function uploadServiceOrderImage(serviceOrderId: string, file: File
   formData.append("serviceOrderId", serviceOrderId);
 
   const response = await clientAxios.post("/api/service-orders/upload", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
+    headers: { "Content-Type": "multipart/form-data" },
   });
   return response.data;
 }

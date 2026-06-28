@@ -8,11 +8,15 @@ import { ServiceOrderModal } from "@/components/service-orders/ServiceOrderModal
 import {
   getServiceOrders,
   deleteServiceOrder,
-  updateServiceOrder,
-  UpdateServiceOrderDTO,
+  patchServiceOrder,
+  PatchServiceOrderDTO,
 } from "@/services/serviceOrder.service";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
-import { SERVICE_ORDER_STATUS_LABELS, SERVICE_ORDER_STATUS_COLORS } from "@/constants/serviceOrder.constant";
+import {
+  SERVICE_ORDER_STATUS_LABELS,
+  SERVICE_ORDER_STATUS_COLORS,
+  SERVICE_ORDER_MARGIN_LABELS,
+} from "@/constants/serviceOrder.constant";
 import { formatNumber } from "@/utils/formatters.util";
 import { Plus, Edit, Trash2, Eye, Printer } from "lucide-react";
 import { ServiceOrderStatus, ProductType } from "@prisma/client";
@@ -23,6 +27,24 @@ import { ServiceOrderReceipt } from "@/components/service-orders/ServiceOrderRec
 import { WarrantyReceipt } from "@/components/service-orders/WarrantyReceipt";
 import { ConfirmModal } from "@/components/common/GenericModal";
 import { useUserRole } from "@/hooks/useUserRole";
+
+interface ServiceOrderProduct {
+  id: string;
+  productName: string;
+  productType: ProductType;
+  unitPrice: number;
+  totalPrice: number;
+  unitCostCompany?: number;
+  totalCostCompany?: number;
+  companyMargin?: number;
+  isDry?: boolean;
+  hasImpact?: boolean;
+  isBrokenScreen?: boolean;
+  isTurnedOn?: boolean;
+  isCharging?: boolean;
+  color?: string;
+  description?: string;
+}
 
 interface ServiceOrder {
   id: string;
@@ -38,20 +60,7 @@ interface ServiceOrder {
     name: string;
   };
   images?: { id: string; url: string }[];
-  products?: {
-    id: string;
-    productName: string;
-    productType: ProductType;
-    unitPrice: number;
-    totalPrice: number;
-    isDry?: boolean;
-    hasImpact?: boolean;
-    isBrokenScreen?: boolean;
-    isTurnedOn?: boolean;
-    isCharging?: boolean;
-    color?: string;
-    description?: string;
-  }[];
+  products?: ServiceOrderProduct[];
   company?: {
     id: string;
     username: string;
@@ -66,6 +75,9 @@ interface ServiceOrder {
     phone?: string;
     address?: string;
   };
+  totalClientPrice?: number;
+  totalCompanyCost?: number;
+  totalMargin?: number;
 }
 
 export default function ServiceOrdersPage() {
@@ -79,7 +91,14 @@ export default function ServiceOrdersPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<ServiceOrder | undefined>();
   const [deleting, setDeleting] = useState(false);
-  const { canViewCompanyColumns, canViewTechnicianColumns, canCreateOrders, isTecnico } = useUserRole();
+  const {
+    canViewCompanyColumns,
+    canViewTechnicianColumns,
+    canCreateOrders,
+    canEditOrders,
+    canDeleteOrders,
+    canViewMargins,
+  } = useUserRole();
 
   const loadOrders = async () => {
     try {
@@ -115,10 +134,8 @@ export default function ServiceOrdersPage() {
 
   const handleStatusChange = async (orderId: string, newStatus: ServiceOrderStatus) => {
     try {
-      const updateData: UpdateServiceOrderDTO = {
-        status: newStatus,
-      };
-      await updateServiceOrder(orderId, updateData);
+      const patchData: PatchServiceOrderDTO = { status: newStatus };
+      await patchServiceOrder(orderId, patchData);
       clientSuccessHandler("Estado actualizado correctamente");
       loadOrders();
     } catch (error) {
@@ -206,15 +223,42 @@ export default function ServiceOrdersPage() {
       );
     }
 
-    baseColumns.push(
-      {
-        key: "total",
-        label: "Total",
-        render: (item: ServiceOrder) => {
-          const total = item.products?.reduce((sum, p) => sum + p.totalPrice, 0) || 0;
-          return <span className="text-lime font-bold text-lg">${formatNumber(total)}</span>;
-        },
+    baseColumns.push({
+      key: "total",
+      label: "Total",
+      render: (item: ServiceOrder) => {
+        const total = item.products?.reduce((sum, p) => sum + p.totalPrice, 0) ?? 0;
+        return <span className="text-lime font-bold text-lg">${formatNumber(total)}</span>;
       },
+    });
+
+    if (canViewMargins) {
+      baseColumns.push(
+        {
+          key: "totalCompanyCost",
+          label: SERVICE_ORDER_MARGIN_LABELS.TOTAL_COMPANY_COST,
+          render: (item: ServiceOrder) => (
+            <span className="text-yellow-400 font-medium">
+              ${formatNumber(item.totalCompanyCost ?? 0)}
+            </span>
+          ),
+        },
+        {
+          key: "totalMargin",
+          label: SERVICE_ORDER_MARGIN_LABELS.TOTAL_MARGIN,
+          render: (item: ServiceOrder) => {
+            const margin = item.totalMargin ?? 0;
+            return (
+              <span className={`font-bold text-lg ${margin >= 0 ? "text-lime" : "text-destructive"}`}>
+                ${formatNumber(margin)}
+              </span>
+            );
+          },
+        }
+      );
+    }
+
+    baseColumns.push(
       {
         key: "status",
         label: "Estado",
@@ -253,7 +297,7 @@ export default function ServiceOrdersPage() {
             >
               <Eye size={18} />
             </Button>
-            {!isTecnico && (
+            {canEditOrders && (
               <Button
                 size="sm"
                 variant="ghost"
@@ -271,7 +315,7 @@ export default function ServiceOrdersPage() {
             >
               <Printer size={18} />
             </Button>
-            {!isTecnico && (
+            {canDeleteOrders && (
               <Button
                 size="sm"
                 variant="ghost"
@@ -293,11 +337,9 @@ export default function ServiceOrdersPage() {
   }, [
     canViewCompanyColumns,
     canViewTechnicianColumns,
-    isTecnico,
-    handleStatusChange,
-    handleView,
-    handleEdit,
-    handlePrint,
+    canEditOrders,
+    canDeleteOrders,
+    canViewMargins,
   ]);
 
   return (

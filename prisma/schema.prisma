@@ -157,12 +157,14 @@ model ServiceOrder {
 }
 
 model ServiceOrderProduct {
-  id             String      @id @default(uuid())
-  unitPrice      Float
-  totalPrice     Float
-  unitCostTech   Float       @default(0)
-  totalCostTech  Float       @default(0)
-  isDry          Boolean     @default(false)
+  id               String      @id @default(uuid())
+  unitPrice        Float
+  totalPrice       Float
+  unitCostTech     Float       @default(0)
+  totalCostTech    Float       @default(0)
+  unitCostCompany  Float       @default(0)
+  totalCostCompany Float       @default(0)
+  isDry            Boolean     @default(false)
   hasImpact      Boolean     @default(false)
   isBrokenScreen Boolean     @default(false)
   isTurnedOn     Boolean     @default(false)

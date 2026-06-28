@@ -1,6 +1,21 @@
 import prisma from "@/lib/prisma";
 import { ServiceOrderStatus, ProductType } from "@prisma/client";
 
+export interface ServiceOrderProductData {
+  productName: string;
+  productType: ProductType;
+  unitPrice: number;
+  unitCostTech?: number;
+  unitCostCompany?: number;
+  isDry?: boolean;
+  hasImpact?: boolean;
+  isBrokenScreen?: boolean;
+  isTurnedOn?: boolean;
+  isCharging?: boolean;
+  color?: string;
+  description?: string;
+}
+
 export interface CreateServiceOrderData {
   clientName: string;
   clientPhone: string;
@@ -12,19 +27,7 @@ export interface CreateServiceOrderData {
   deliveryDate?: Date;
   advancePayment?: number;
   balance?: number;
-  products?: {
-    productName: string;
-    productType: ProductType;
-    unitPrice: number;
-    unitCostTech?: number;
-    isDry?: boolean;
-    hasImpact?: boolean;
-    isBrokenScreen?: boolean;
-    isTurnedOn?: boolean;
-    isCharging?: boolean;
-    color?: string;
-    description?: string;
-  }[];
+  products?: ServiceOrderProductData[];
 }
 
 export interface UpdateServiceOrderData {
@@ -34,19 +37,8 @@ export interface UpdateServiceOrderData {
   deliveryDate?: Date;
   advancePayment?: number;
   balance?: number;
-  products?: {
-    productName: string;
-    productType: ProductType;
-    unitPrice: number;
-    unitCostTech?: number;
-    isDry?: boolean;
-    hasImpact?: boolean;
-    isBrokenScreen?: boolean;
-    isTurnedOn?: boolean;
-    isCharging?: boolean;
-    color?: string;
-    description?: string;
-  }[];
+  branchId?: string;
+  products?: ServiceOrderProductData[];
 }
 
 export const serviceOrderRepository = {
@@ -65,6 +57,8 @@ export const serviceOrderRepository = {
                 totalPrice: p.unitPrice,
                 unitCostTech: p.unitCostTech ?? 0,
                 totalCostTech: p.unitCostTech ?? 0,
+                unitCostCompany: p.unitCostCompany ?? 0,
+                totalCostCompany: p.unitCostCompany ?? 0,
                 isDry: p.isDry ?? false,
                 hasImpact: p.hasImpact ?? false,
                 isBrokenScreen: p.isBrokenScreen ?? false,
@@ -210,6 +204,13 @@ export const serviceOrderRepository = {
             address: true,
           },
         },
+        company: {
+          select: {
+            id: true,
+            username: true,
+            role: true,
+          },
+        },
         seller: {
           select: {
             id: true,
@@ -256,6 +257,13 @@ export const serviceOrderRepository = {
             address: true,
           },
         },
+        company: {
+          select: {
+            id: true,
+            username: true,
+            role: true,
+          },
+        },
         seller: {
           select: {
             id: true,
@@ -299,6 +307,8 @@ export const serviceOrderRepository = {
             totalPrice: p.unitPrice,
             unitCostTech: p.unitCostTech ?? 0,
             totalCostTech: p.unitCostTech ?? 0,
+            unitCostCompany: p.unitCostCompany ?? 0,
+            totalCostCompany: p.unitCostCompany ?? 0,
             isDry: p.isDry ?? false,
             hasImpact: p.hasImpact ?? false,
             isBrokenScreen: p.isBrokenScreen ?? false,
@@ -329,6 +339,7 @@ export const serviceOrderRepository = {
             fullName: true,
             dni: true,
             phone: true,
+            address: true,
           },
         },
         company: {
