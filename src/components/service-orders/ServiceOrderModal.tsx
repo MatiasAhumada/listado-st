@@ -453,7 +453,6 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
                   <SelectValue placeholder="Sin especificar" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Sin especificar</SelectItem>
                   {Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => (
                     <SelectItem key={value} value={value}>
                       {label}
