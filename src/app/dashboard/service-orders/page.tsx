@@ -290,11 +290,13 @@ export default function ServiceOrdersPage() {
               </Badge>
             </SelectTrigger>
             <SelectContent>
-              {Object.entries(SERVICE_ORDER_STATUS_LABELS).map(([value, label]) => (
-                <SelectItem key={value} value={value}>
-                  <Badge className={SERVICE_ORDER_STATUS_COLORS[value as ServiceOrderStatus]}>{label}</Badge>
-                </SelectItem>
-              ))}
+              {Object.entries(SERVICE_ORDER_STATUS_LABELS)
+                .filter(([value]) => canViewMargins || value !== ServiceOrderStatus.COBRADO_TECNICO)
+                .map(([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    <Badge className={SERVICE_ORDER_STATUS_COLORS[value as ServiceOrderStatus]}>{label}</Badge>
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
         ),

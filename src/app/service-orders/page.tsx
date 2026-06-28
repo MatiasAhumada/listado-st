@@ -26,6 +26,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ViewServiceOrderModal } from "@/components/service-orders/ViewServiceOrderModal";
 import { ServiceOrderReceipt } from "@/components/service-orders/ServiceOrderReceipt";
 import { WarrantyReceipt } from "@/components/service-orders/WarrantyReceipt";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface ServiceOrder {
   id: string;
@@ -78,6 +79,7 @@ interface ServiceOrder {
 }
 
 export default function ServiceOrdersPage() {
+  const { canViewMargins } = useUserRole();
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -253,13 +255,15 @@ export default function ServiceOrdersPage() {
                                 </Badge>
                               </SelectTrigger>
                               <SelectContent>
-                                {Object.entries(SERVICE_ORDER_STATUS_LABELS).map(([value, label]) => (
-                                  <SelectItem key={value} value={value}>
-                                    <Badge className={SERVICE_ORDER_STATUS_COLORS[value as ServiceOrderStatus]}>
-                                      {label}
-                                    </Badge>
-                                  </SelectItem>
-                                ))}
+                                {Object.entries(SERVICE_ORDER_STATUS_LABELS)
+                                  .filter(([value]) => canViewMargins || value !== ServiceOrderStatus.COBRADO_TECNICO)
+                                  .map(([value, label]) => (
+                                    <SelectItem key={value} value={value}>
+                                      <Badge className={SERVICE_ORDER_STATUS_COLORS[value as ServiceOrderStatus]}>
+                                        {label}
+                                      </Badge>
+                                    </SelectItem>
+                                  ))}
                               </SelectContent>
                             </Select>
                           </td>

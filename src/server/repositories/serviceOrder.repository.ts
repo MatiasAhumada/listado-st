@@ -185,16 +185,17 @@ export const serviceOrderRepository = {
     const timestampUpdate = status ? statusTimestamps[status] : undefined;
 
     return prisma.$transaction(async (tx) => {
+      const existingOrder = await tx.serviceOrder.findUnique({
+        where: { id },
+        select: { status: true, paymentMethod: true, realTechCost: true, totalCompanyCost: true },
+      });
+
       type TotalsUpdate = { totalClientPrice?: number; totalCompanyCost?: number; totalTechMargin?: number };
       let totalsUpdate: TotalsUpdate = {};
 
       if (items) {
-        const existing = await tx.serviceOrder.findUnique({
-          where: { id },
-          select: { paymentMethod: true, realTechCost: true },
-        });
-        const effectivePaymentMethod = paymentMethod ?? existing?.paymentMethod;
-        const effectiveRealTechCost = realTechCost ?? existing?.realTechCost ?? 0;
+        const effectivePaymentMethod = paymentMethod ?? existingOrder?.paymentMethod;
+        const effectiveRealTechCost = realTechCost ?? existingOrder?.realTechCost ?? 0;
         const snapshots = items.map(buildItemSnapshot);
 
         await tx.serviceOrderItem.deleteMany({ where: { serviceOrderId: id } });
@@ -205,17 +206,13 @@ export const serviceOrderRepository = {
         const needsRecalc = paymentMethod !== undefined || realTechCost !== undefined;
 
         if (needsRecalc) {
-          const existing = await tx.serviceOrder.findUnique({
-            where: { id },
-            select: { paymentMethod: true, realTechCost: true, totalCompanyCost: true },
-          });
-          const effectiveRealTechCost = realTechCost ?? existing?.realTechCost ?? 0;
-          const effectiveTotalCompanyCost = existing?.totalCompanyCost ?? 0;
+          const effectiveRealTechCost = realTechCost ?? existingOrder?.realTechCost ?? 0;
+          const effectiveTotalCompanyCost = existingOrder?.totalCompanyCost ?? 0;
 
           totalsUpdate.totalTechMargin = effectiveTotalCompanyCost - effectiveRealTechCost;
 
           if (paymentMethod) {
-            const effectivePaymentMethod = paymentMethod ?? existing?.paymentMethod;
+            const effectivePaymentMethod = paymentMethod ?? existingOrder?.paymentMethod;
             const existingItems = await tx.serviceOrderItem.findMany({ where: { serviceOrderId: id } });
             totalsUpdate.totalClientPrice = existingItems.reduce(
               (sum, item) => sum + (effectivePaymentMethod === PaymentMethod.CREDIT ? item.creditPrice : item.cashPrice),
@@ -238,7 +235,7 @@ export const serviceOrderRepository = {
         include: includeAll,
       });
 
-      if (status) {
+      if (status && status !== existingOrder?.status) {
         await tx.serviceOrderStatusHistory.create({
           data: { serviceOrderId: id, status, occurredAt: new Date() },
         });

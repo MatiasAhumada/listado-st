@@ -156,7 +156,10 @@ export const serviceOrderService = {
 
     const updated = await serviceOrderRepository.update(id, data);
 
-    if (data.status === ServiceOrderStatus.COBRADO_TECNICO) {
+    if (
+      data.status === ServiceOrderStatus.COBRADO_TECNICO &&
+      existing.status !== ServiceOrderStatus.COBRADO_TECNICO
+    ) {
       await triggerCobradoTecnicoIntegration(updated);
     }
 
@@ -177,7 +180,10 @@ export const serviceOrderService = {
 
     const updated = await serviceOrderRepository.update(id, data);
 
-    if (data.status === ServiceOrderStatus.COBRADO_TECNICO) {
+    if (
+      data.status === ServiceOrderStatus.COBRADO_TECNICO &&
+      existing.status !== ServiceOrderStatus.COBRADO_TECNICO
+    ) {
       await triggerCobradoTecnicoIntegration(updated);
     }
 
