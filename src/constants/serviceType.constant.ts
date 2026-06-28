@@ -15,3 +15,11 @@ export const SERVICE_TYPE_LABELS: Record<ServiceType, string> = {
 };
 
 export const SERVICE_TYPES = Object.values(ServiceType);
+
+export const SERVICIO_COLUMN_LABELS = {
+  COSTO_REPUESTO: "Costo Repuesto",
+  COSTO_EMPRESA: "Costo Empresa",
+  COSTO: "Costo",
+  EFECTIVO: "Efectivo",
+  TARJETA: "Tarjeta",
+} as const;

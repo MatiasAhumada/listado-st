@@ -45,6 +45,8 @@ interface ServiceOrderModalProps {
       serviceType: ServiceType;
       unitPrice: number;
       totalPrice: number;
+      cashPrice: number;
+      creditPrice: number;
       unitCostTech?: number;
       totalCostTech?: number;
       unitCostCompany?: number;
@@ -117,8 +119,8 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           unitCostTech: p.unitCostTech ?? 0,
           unitCostCompany: p.unitCostCompany ?? 0,
           priceType: "cash" as "cash" | "credit",
-          cashPrice: p.unitPrice,
-          creditPrice: p.unitPrice,
+          cashPrice: p.cashPrice ?? p.unitPrice,
+          creditPrice: p.creditPrice ?? p.unitPrice,
           isDry: p.isDry || false,
           hasImpact: p.hasImpact || false,
           isBrokenScreen: p.isBrokenScreen || false,
