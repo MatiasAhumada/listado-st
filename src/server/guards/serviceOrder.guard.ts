@@ -29,7 +29,11 @@ export function extractAuthContext(cookieStore: CookieStore, headers?: Headers):
   if (!token) {
     throw new ApiError({ status: httpStatus.UNAUTHORIZED, message: SERVICE_ORDER_ERRORS.UNAUTHENTICATED });
   }
-  return jwt.verify(token, JWT_SECRET) as AuthContext;
+  try {
+    return jwt.verify(token, JWT_SECRET) as AuthContext;
+  } catch {
+    throw new ApiError({ status: httpStatus.UNAUTHORIZED, message: SERVICE_ORDER_ERRORS.UNAUTHENTICATED });
+  }
 }
 
 export function getEffectiveCompanyId(auth: AuthContext): string | null {

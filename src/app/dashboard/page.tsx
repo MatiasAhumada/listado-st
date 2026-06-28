@@ -50,9 +50,13 @@ export default function DashboardPage() {
       });
       setData(servicios);
     } catch (error) {
-      console.error(error);
-      logout();
-      router.push("/");
+      const axiosError = error as import("axios").AxiosError;
+      if (axiosError?.response?.status === 401) {
+        logout();
+        router.push("/");
+      } else {
+        clientErrorHandler(error);
+      }
     } finally {
       setLoading(false);
     }
