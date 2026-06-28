@@ -129,6 +129,10 @@ value && doSomething()
 
 Descriptive, semantic names. No `i`, `x`, `temp`, `data`.
 
+### Git commits
+
+**Never** include `Co-Authored-By: Claude` or any AI authorship line in commit messages. Commits must only reflect the human author.
+
 ### Pre-delivery checklist
 
 Before every response verify:

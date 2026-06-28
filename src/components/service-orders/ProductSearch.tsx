@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
-import { searchProductos } from "@/services/productoSearch.service";
+import { searchServicios } from "@/services/servicioSearch.service";
 import { Search } from "lucide-react";
 
 interface ProductSearchProps {
@@ -39,7 +39,7 @@ export function ProductSearch({ value, onSelect, placeholder }: ProductSearchPro
     if (searchValue.length >= 2) {
       setLoading(true);
       try {
-        const data = await searchProductos(searchValue);
+        const data = await searchServicios(searchValue);
         setResults(data);
         setShowDropdown(true);
       } catch (error) {

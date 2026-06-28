@@ -17,7 +17,7 @@ import {
   UpdateServiceOrderDTO,
 } from "@/services/serviceOrder.service";
 import { uploadServiceOrderImages, deleteServiceOrderImage } from "@/services/serviceOrderImage.service";
-import { ServiceOrderStatus, ProductType } from "@prisma/client";
+import { ServiceOrderStatus, ServiceType } from "@prisma/client";
 import { SERVICE_ORDER_STATUS_LABELS } from "@/constants/serviceOrder.constant";
 import { Upload, X, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import Image from "next/image";
@@ -39,10 +39,10 @@ interface ServiceOrderModalProps {
     deliveryDate?: string;
     status: ServiceOrderStatus;
     images?: { id: string; url: string }[];
-    products?: {
+    items?: {
       id: string;
-      productName: string;
-      productType: ProductType;
+      serviceName: string;
+      serviceType: ServiceType;
       unitPrice: number;
       totalPrice: number;
       unitCostTech?: number;
@@ -66,11 +66,11 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
   const [existingImages, setExistingImages] = useState<{ id: string; url: string }[]>([]);
   const [showReceipt, setShowReceipt] = useState(false);
   const [createdOrder, setCreatedOrder] = useState<any>(null);
-  const [selectedProducts, setSelectedProducts] = useState<
+  const [selectedItems, setSelectedItems] = useState<
     {
-      productId: string;
-      productName: string;
-      productType: ProductType;
+      itemId: string;
+      serviceName: string;
+      serviceType: ServiceType;
       unitPrice: number;
       unitCostTech: number;
       unitCostCompany: number;
@@ -108,11 +108,11 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         status: order.status,
       });
       setExistingImages(order.images || []);
-      setSelectedProducts(
-        order.products?.map((p) => ({
-          productId: p.id,
-          productName: p.productName,
-          productType: p.productType,
+      setSelectedItems(
+        order.items?.map((p) => ({
+          itemId: p.id,
+          serviceName: p.serviceName,
+          serviceType: p.serviceType,
           unitPrice: p.unitPrice,
           unitCostTech: p.unitCostTech ?? 0,
           unitCostCompany: p.unitCostCompany ?? 0,
@@ -139,14 +139,14 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         status: ServiceOrderStatus.RECEPCIONADO,
       });
       setExistingImages([]);
-      setSelectedProducts([]);
+      setSelectedItems([]);
       setSelectedClient(null);
     }
     setSelectedFiles([]);
   }, [order, open]);
 
   useEffect(() => {
-    if (selectedProducts.length > 0) {
+    if (selectedItems.length > 0) {
       const total = calculateTotal();
       const advance = formData.advancePayment;
       setFormData((prev) => ({
@@ -154,15 +154,15 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
         balance: total - advance,
       }));
     }
-  }, [selectedProducts, formData.advancePayment]);
+  }, [selectedItems, formData.advancePayment]);
 
-  const handleAddProduct = () => {
-    setSelectedProducts([
-      ...selectedProducts,
+  const handleAddItem = () => {
+    setSelectedItems([
+      ...selectedItems,
       {
-        productId: "",
-        productName: "",
-        productType: ProductType.MODULO,
+        itemId: "",
+        serviceName: "",
+        serviceType: ServiceType.MODULO,
         unitPrice: 0,
         unitCostTech: 0,
         unitCostCompany: 0,
@@ -181,17 +181,17 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
     ]);
   };
 
-  const handleRemoveProduct = (index: number) => {
-    setSelectedProducts(selectedProducts.filter((_, i) => i !== index));
+  const handleRemoveItem = (index: number) => {
+    setSelectedItems(selectedItems.filter((_, i) => i !== index));
   };
 
-  const handleProductSelect = (index: number, product: { id: string; name: string; type: ProductType; cash: number; credit: number; costTech: number; cost: number }) => {
-    const updated = [...selectedProducts];
+  const handleItemSelect = (index: number, product: { id: string; name: string; type: ServiceType; cash: number; credit: number; costTech: number; cost: number }) => {
+    const updated = [...selectedItems];
     updated[index] = {
       ...updated[index],
-      productId: product.id,
-      productName: product.name,
-      productType: product.type,
+      itemId: product.id,
+      serviceName: product.name,
+      serviceType: product.type,
       unitPrice: product.cash || 0,
       unitCostTech: product.costTech || 0,
       unitCostCompany: product.cost || 0,
@@ -199,18 +199,18 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
       cashPrice: product.cash || 0,
       creditPrice: product.credit || 0,
     };
-    setSelectedProducts(updated);
+    setSelectedItems(updated);
   };
 
   const handlePriceTypeChange = (index: number, priceType: "cash" | "credit") => {
-    const updated = [...selectedProducts];
+    const updated = [...selectedItems];
     updated[index].priceType = priceType;
     updated[index].unitPrice = priceType === "cash" ? updated[index].cashPrice : updated[index].creditPrice;
-    setSelectedProducts(updated);
+    setSelectedItems(updated);
   };
 
   const calculateTotal = () => {
-    return selectedProducts.reduce((sum, p) => sum + p.unitPrice, 0);
+    return selectedItems.reduce((sum, p) => sum + p.unitPrice, 0);
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -250,12 +250,14 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           balance: formData.balance || undefined,
           deliveryDate: formData.deliveryDate ? new Date(formData.deliveryDate) : undefined,
           status: formData.status,
-          products:
-            selectedProducts.length > 0
-              ? selectedProducts.map((p) => ({
-                  productName: p.productName,
-                  productType: p.productType,
+          items:
+            selectedItems.length > 0
+              ? selectedItems.map((p) => ({
+                  serviceName: p.serviceName,
+                  serviceType: p.serviceType,
                   unitPrice: p.unitPrice,
+                  cashPrice: p.cashPrice,
+                  creditPrice: p.creditPrice,
                   unitCostTech: p.unitCostTech,
                   unitCostCompany: p.unitCostCompany,
                   isDry: p.isDry,
@@ -290,12 +292,14 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           deliveryDate: formData.deliveryDate ? new Date(formData.deliveryDate) : undefined,
           advancePayment: formData.advancePayment || undefined,
           balance: formData.balance || undefined,
-          products:
-            selectedProducts.length > 0
-              ? selectedProducts.map((p) => ({
-                  productName: p.productName,
-                  productType: p.productType,
+          items:
+            selectedItems.length > 0
+              ? selectedItems.map((p) => ({
+                  serviceName: p.serviceName,
+                  serviceType: p.serviceType,
                   unitPrice: p.unitPrice,
+                  cashPrice: p.cashPrice,
+                  creditPrice: p.creditPrice,
                   unitCostTech: p.unitCostTech,
                   unitCostCompany: p.unitCostCompany,
                   isDry: p.isDry,
@@ -437,25 +441,25 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="text-white">Servicios</Label>
-                <Button type="button" size="sm" onClick={handleAddProduct} className="bg-lime hover:bg-green text-dark">
+                <Button type="button" size="sm" onClick={handleAddItem} className="bg-lime hover:bg-green text-dark">
                   <Plus size={16} className="mr-1" />
                   Agregar
                 </Button>
               </div>
 
-              {selectedProducts.map((product, index) => (
+              {selectedItems.map((item, index) => (
                 <div key={index} className="space-y-2">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 bg-gray-900 rounded-lg border border-gray-700">
                     <div className="lg:col-span-5">
                       <ProductSearch
-                        value={product.productName}
-                        onSelect={(p) => handleProductSelect(index, p)}
+                        value={item.serviceName}
+                        onSelect={(p) => handleItemSelect(index, p)}
                         placeholder="Buscar servicio..."
                       />
                     </div>
                     <div className="lg:col-span-3">
                       <Select
-                        value={product.priceType}
+                        value={item.priceType}
                         onValueChange={(value) => handlePriceTypeChange(index, value as "cash" | "credit")}
                       >
                         <SelectTrigger className="w-full bg-gray-800 border-gray-700 text-white hover:bg-gray-700">
@@ -468,7 +472,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
                       </Select>
                     </div>
                     <div className="lg:col-span-2 flex items-center justify-start lg:justify-end">
-                      <span className="text-lime font-bold text-lg">${formatNumber(product.unitPrice)}</span>
+                      <span className="text-lime font-bold text-lg">${formatNumber(item.unitPrice)}</span>
                     </div>
                     <div className="lg:col-span-2 flex items-center justify-end gap-2">
                       <Button
@@ -476,19 +480,19 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
                         size="icon"
                         variant="ghost"
                         onClick={() => {
-                          const updated = [...selectedProducts];
+                          const updated = [...selectedItems];
                           updated[index].showDetails = !updated[index].showDetails;
-                          setSelectedProducts(updated);
+                          setSelectedItems(updated);
                         }}
                         className="h-9 w-9 text-lavender hover:bg-lavender/20"
                       >
-                        {product.showDetails ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                        {item.showDetails ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                       </Button>
                       <Button
                         type="button"
                         size="icon"
                         variant="ghost"
-                        onClick={() => handleRemoveProduct(index)}
+                        onClick={() => handleRemoveItem(index)}
                         className="h-9 w-9 text-red-500 hover:bg-red-500/20"
                       >
                         <Trash2 size={18} />
@@ -496,27 +500,27 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
                     </div>
                   </div>
 
-                  {product.showDetails && (
+                  {item.showDetails && (
                     <ServiceDetails
                       index={index}
-                      isDry={product.isDry}
-                      hasImpact={product.hasImpact}
-                      isBrokenScreen={product.isBrokenScreen}
-                      isTurnedOn={product.isTurnedOn}
-                      isCharging={product.isCharging}
-                      color={product.color}
-                      description={product.description}
+                      isDry={item.isDry}
+                      hasImpact={item.hasImpact}
+                      isBrokenScreen={item.isBrokenScreen}
+                      isTurnedOn={item.isTurnedOn}
+                      isCharging={item.isCharging}
+                      color={item.color}
+                      description={item.description}
                       onChange={(field, value) => {
-                        const updated = [...selectedProducts];
+                        const updated = [...selectedItems];
                         updated[index] = { ...updated[index], [field]: value };
-                        setSelectedProducts(updated);
+                        setSelectedItems(updated);
                       }}
                     />
                   )}
                 </div>
               ))}
 
-              {selectedProducts.length > 0 && (
+              {selectedItems.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex justify-end p-3 bg-lime/10 rounded-lg border border-lime/30">
                     <span className="text-lg font-bold text-lime">Total: ${formatNumber(calculateTotal())}</span>

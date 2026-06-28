@@ -1,8 +1,10 @@
-export interface ServiceOrderProduct {
-  productName: string;
-  productType: string;
+export interface ServiceOrderItem {
+  serviceName: string;
+  serviceType: string;
   unitPrice: number;
   totalPrice?: number;
+  cashPrice?: number;
+  creditPrice?: number;
   unitCostTech?: number;
   totalCostTech?: number;
   isDry?: boolean;
@@ -35,7 +37,7 @@ export interface ServiceOrderReceipt {
   deliveryDate?: string;
   receivedAt: string;
   seller?: ServiceOrderSeller;
-  products?: ServiceOrderProduct[];
+  items?: ServiceOrderItem[];
   client?: ServiceOrderClient;
 }
 

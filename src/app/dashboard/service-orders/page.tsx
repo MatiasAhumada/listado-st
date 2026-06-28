@@ -19,7 +19,7 @@ import {
 } from "@/constants/serviceOrder.constant";
 import { formatNumber } from "@/utils/formatters.util";
 import { Plus, Edit, Trash2, Eye, Printer } from "lucide-react";
-import { ServiceOrderStatus, ProductType } from "@prisma/client";
+import { ServiceOrderStatus, ServiceType } from "@prisma/client";
 import { motion } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ViewServiceOrderModal } from "@/components/service-orders/ViewServiceOrderModal";
@@ -28,12 +28,14 @@ import { WarrantyReceipt } from "@/components/service-orders/WarrantyReceipt";
 import { ConfirmModal } from "@/components/common/GenericModal";
 import { useUserRole } from "@/hooks/useUserRole";
 
-interface ServiceOrderProduct {
+interface ServiceOrderItem {
   id: string;
-  productName: string;
-  productType: ProductType;
+  serviceName: string;
+  serviceType: ServiceType;
   unitPrice: number;
   totalPrice: number;
+  cashPrice: number;
+  creditPrice: number;
   unitCostCompany?: number;
   totalCostCompany?: number;
   companyMargin?: number;
@@ -60,7 +62,7 @@ interface ServiceOrder {
     name: string;
   };
   images?: { id: string; url: string }[];
-  products?: ServiceOrderProduct[];
+  items?: ServiceOrderItem[];
   company?: {
     id: string;
     username: string;
@@ -227,7 +229,7 @@ export default function ServiceOrdersPage() {
       key: "total",
       label: "Total",
       render: (item: ServiceOrder) => {
-        const total = item.products?.reduce((sum, p) => sum + p.totalPrice, 0) ?? 0;
+        const total = item.items?.reduce((sum, p) => sum + p.totalPrice, 0) ?? 0;
         return <span className="text-lime font-bold text-lg">${formatNumber(total)}</span>;
       },
     });

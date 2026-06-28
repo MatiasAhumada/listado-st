@@ -19,7 +19,7 @@ import httpStatus from "http-status";
 type ServiceOrderFull = Prisma.ServiceOrderGetPayload<{
   include: {
     images: true;
-    products: true;
+    items: true;
     branch: { select: { id: true; name: true } };
     client: { select: { id: true; fullName: true; dni: true; phone: true; address: true } };
     company: { select: { id: true; username: true; role: true } };
@@ -27,15 +27,17 @@ type ServiceOrderFull = Prisma.ServiceOrderGetPayload<{
   };
 }>;
 
-type PrismaProduct = ServiceOrderFull["products"][number];
+type PrismaItem = ServiceOrderFull["items"][number];
 
-function toProductWithMargin(p: PrismaProduct): IServiceOrderProductWithMargin {
+function toItemWithMargin(p: PrismaItem): IServiceOrderProductWithMargin {
   return {
     id: p.id,
-    productName: p.productName,
-    productType: p.productType,
+    serviceName: p.serviceName,
+    serviceType: p.serviceType,
     unitPrice: p.unitPrice,
     totalPrice: p.totalPrice,
+    cashPrice: p.cashPrice,
+    creditPrice: p.creditPrice,
     unitCostTech: p.unitCostTech,
     totalCostTech: p.totalCostTech,
     unitCostCompany: p.unitCostCompany,
@@ -53,13 +55,15 @@ function toProductWithMargin(p: PrismaProduct): IServiceOrderProductWithMargin {
   };
 }
 
-function toProductBase(p: PrismaProduct): IServiceOrderProductBase {
+function toItemBase(p: PrismaItem): IServiceOrderProductBase {
   return {
     id: p.id,
-    productName: p.productName,
-    productType: p.productType,
+    serviceName: p.serviceName,
+    serviceType: p.serviceType,
     unitPrice: p.unitPrice,
     totalPrice: p.totalPrice,
+    cashPrice: p.cashPrice,
+    creditPrice: p.creditPrice,
     unitCostTech: p.unitCostTech,
     totalCostTech: p.totalCostTech,
     isDry: p.isDry,
@@ -75,15 +79,15 @@ function toProductBase(p: PrismaProduct): IServiceOrderProductBase {
 }
 
 function transformForRole(order: ServiceOrderFull, role: Role): IServiceOrderResponse {
-  const { products, ...orderBase } = order;
+  const { items, ...orderBase } = order;
 
   if (role === Role.TECNICO) {
-    const productsWithMargin = products.map(toProductWithMargin);
-    const totalClientPrice = productsWithMargin.reduce((sum, p) => sum + p.totalPrice, 0);
-    const totalCompanyCost = productsWithMargin.reduce((sum, p) => sum + p.totalCostCompany, 0);
+    const itemsWithMargin = items.map(toItemWithMargin);
+    const totalClientPrice = itemsWithMargin.reduce((sum, p) => sum + p.totalPrice, 0);
+    const totalCompanyCost = itemsWithMargin.reduce((sum, p) => sum + p.totalCostCompany, 0);
     return {
       ...orderBase,
-      products: productsWithMargin,
+      items: itemsWithMargin,
       totalClientPrice,
       totalCompanyCost,
       totalMargin: totalClientPrice - totalCompanyCost,
@@ -92,7 +96,7 @@ function transformForRole(order: ServiceOrderFull, role: Role): IServiceOrderRes
 
   return {
     ...orderBase,
-    products: products.map(toProductBase),
+    items: items.map(toItemBase),
   } as IServiceOrderForOthers;
 }
 

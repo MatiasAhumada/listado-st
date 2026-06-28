@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Image from "next/image";
 import { formatNumber, formatDate } from "@/utils/formatters.util";
-import { ServiceOrderReceipt as ServiceOrderReceiptType } from "@/types/serviceOrder.types";
+import { type ServiceOrderReceipt as ServiceOrderReceiptType } from "@/types/serviceOrder.types";
 
 interface ServiceOrderReceiptProps {
   order: ServiceOrderReceiptType;
@@ -28,15 +28,15 @@ export function ServiceOrderReceipt({ order, onClose }: ServiceOrderReceiptProps
     };
   }, [onClose]);
 
-  const total = order.products?.reduce((sum, p) => sum + p.unitPrice, 0) ?? 0;
+  const total = order.items?.reduce((sum, p) => sum + (p.unitPrice ?? 0), 0) ?? 0;
   const advancePayment = order.advancePayment ?? 0;
   const balance = order.balance ?? total - advancePayment;
 
   const getDeviceConditions = () => {
-    if (!order.products || order.products.length === 0) return [];
+    if (!order.items || order.items.length === 0) return [];
 
     const conditions: string[] = [];
-    const product = order.products[0];
+    const product = order.items?.[0];
 
     if (!product.isDry) conditions.push("Mojado");
     if (product.hasImpact) conditions.push("Golpeado");
@@ -91,11 +91,11 @@ export function ServiceOrderReceipt({ order, onClose }: ServiceOrderReceiptProps
                   Modelo de Celular y Trabajo a Realizar:
                 </label>
                 <div className="border-2 border-gray-800 rounded p-3 mt-1 min-h-[80px]">
-                  {order.products && order.products.length > 0 ? (
+                  {order.items && order.items.length > 0 ? (
                     <ul className="space-y-1">
-                      {order.products.map((product, index) => (
+                      {order.items.map((product, index) => (
                         <li key={index} className="text-base text-black">
-                          • {product.productName} - ${formatNumber(product.unitPrice)}
+                          • {product.serviceName} - ${formatNumber(product.unitPrice)}
                         </li>
                       ))}
                     </ul>
@@ -127,7 +127,7 @@ export function ServiceOrderReceipt({ order, onClose }: ServiceOrderReceiptProps
               <div>
                 <label className="font-bold text-base uppercase text-blue-900">Observación:</label>
                 <div className="border-2 border-gray-800 rounded p-3 mt-1 min-h-[80px]">
-                  <span className="text-base text-black">{order.products?.[0]?.description || "-"}</span>
+                  <span className="text-base text-black">{order.items?.[0]?.description || "-"}</span>
                 </div>
               </div>
 
@@ -243,11 +243,11 @@ export function ServiceOrderReceipt({ order, onClose }: ServiceOrderReceiptProps
                 Modelo de Celular y Trabajo a Realizar:
               </label>
               <div className="border-2 border-gray-800 rounded p-2 mt-1 min-h-[65px]">
-                {order.products && order.products.length > 0 ? (
+                {order.items && order.items.length > 0 ? (
                   <ul className="space-y-0.5">
-                    {order.products.map((product, index) => (
+                    {order.items.map((product, index) => (
                       <li key={index} className="text-sm text-black">
-                        • {product.productName} - ${formatNumber(product.unitPrice)}
+                        • {product.serviceName} - ${formatNumber(product.unitPrice)}
                       </li>
                     ))}
                   </ul>
@@ -279,7 +279,7 @@ export function ServiceOrderReceipt({ order, onClose }: ServiceOrderReceiptProps
             <div>
               <label className="font-bold text-sm uppercase text-blue-900">Observación:</label>
               <div className="border-2 border-gray-800 rounded p-2 mt-1 min-h-[55px]">
-                <span className="text-sm text-black">{order.products?.[0]?.description || "-"}</span>
+                <span className="text-sm text-black">{order.items?.[0]?.description || "-"}</span>
               </div>
             </div>
 

@@ -16,7 +16,7 @@ enum Role {
   TECNICO
 }
 
-enum ProductType {
+enum ServiceType {
   MODULO
   BATERIA
   PIN
@@ -48,7 +48,7 @@ model User {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  productos            Producto[]
+  servicios            Servicio[]
   companyServiceOrders ServiceOrder[] @relation("CompanyServiceOrders")
   sellerServiceOrders  ServiceOrder[] @relation("SellerServiceOrders")
   company              User?          @relation("CompanyVendedores", fields: [companyId], references: [id])
@@ -77,30 +77,30 @@ model Branch {
   @@map("branches")
 }
 
-model Producto {
-  id               String          @id @default(uuid())
+model Servicio {
+  id               String      @id @default(uuid())
   name             String
-  type             ProductType
-  available        Boolean         @default(true)
-  costTech         Float           @default(0)
-  costTechMargin   Float           @default(0)
+  type             ServiceType
+  available        Boolean     @default(true)
+  costTech         Float       @default(0)
+  costTechMargin   Float       @default(0)
   cost             Float
-  costMargin       Float           @default(0)
+  costMargin       Float       @default(0)
   cash             Float
-  cashMargin       Float           @default(0)
+  cashMargin       Float       @default(0)
   credit           Float
-  creditMargin     Float           @default(0)
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+  creditMargin     Float       @default(0)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 
-  masterProductId  String?
-  masterProduct    Producto?  @relation("ProductoCopias", fields: [masterProductId], references: [id], onDelete: Cascade)
-  copias           Producto[] @relation("ProductoCopias")
+  masterServicioId String?
+  masterServicio   Servicio?  @relation("ServicioCopias", fields: [masterServicioId], references: [id], onDelete: Cascade)
+  copias           Servicio[] @relation("ServicioCopias")
 
   companyId String?
   company   User?   @relation(fields: [companyId], references: [id])
 
-  @@map("productos")
+  @@map("servicios")
 }
 
 model Client {
@@ -150,13 +150,13 @@ model ServiceOrder {
   clientId String?
   client   Client? @relation(fields: [clientId], references: [id])
 
-  images   ServiceOrderImage[]
-  products ServiceOrderProduct[]
+  images ServiceOrderImage[]
+  items  ServiceOrderItem[]
 
   @@map("service_orders")
 }
 
-model ServiceOrderProduct {
+model ServiceOrderItem {
   id               String      @id @default(uuid())
   unitPrice        Float
   totalPrice       Float
@@ -164,22 +164,24 @@ model ServiceOrderProduct {
   totalCostTech    Float       @default(0)
   unitCostCompany  Float       @default(0)
   totalCostCompany Float       @default(0)
+  cashPrice        Float       @default(0)
+  creditPrice      Float       @default(0)
   isDry            Boolean     @default(false)
-  hasImpact      Boolean     @default(false)
-  isBrokenScreen Boolean     @default(false)
-  isTurnedOn     Boolean     @default(false)
-  isCharging     Boolean     @default(false)
-  color          String?
-  description    String?     @db.Text
-  createdAt      DateTime    @default(now())
+  hasImpact        Boolean     @default(false)
+  isBrokenScreen   Boolean     @default(false)
+  isTurnedOn       Boolean     @default(false)
+  isCharging       Boolean     @default(false)
+  color            String?
+  description      String?     @db.Text
+  createdAt        DateTime    @default(now())
 
   serviceOrderId String
   serviceOrder   ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
 
-  productName String
-  productType ProductType
+  serviceName String
+  serviceType ServiceType
 
-  @@map("service_order_products")
+  @@map("service_order_items")
 }
 
 model ServiceOrderImage {

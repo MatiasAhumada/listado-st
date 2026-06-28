@@ -1,10 +1,12 @@
 import clientAxios from "@/utils/clientAxios.util";
-import { ServiceOrderStatus, ProductType } from "@prisma/client";
+import { ServiceOrderStatus, ServiceType } from "@prisma/client";
 
-export interface ServiceOrderProductDTO {
-  productName: string;
-  productType: ProductType;
+export interface ServiceOrderItemDTO {
+  serviceName: string;
+  serviceType: ServiceType;
   unitPrice: number;
+  cashPrice?: number;
+  creditPrice?: number;
   unitCostTech?: number;
   unitCostCompany?: number;
   isDry?: boolean;
@@ -24,7 +26,7 @@ export interface CreateServiceOrderDTO {
   deliveryDate?: Date;
   advancePayment?: number;
   balance?: number;
-  products?: ServiceOrderProductDTO[];
+  items?: ServiceOrderItemDTO[];
 }
 
 export interface UpdateServiceOrderDTO {
@@ -35,7 +37,7 @@ export interface UpdateServiceOrderDTO {
   advancePayment?: number;
   balance?: number;
   branchId?: string;
-  products?: ServiceOrderProductDTO[];
+  items?: ServiceOrderItemDTO[];
 }
 
 export interface PatchServiceOrderDTO {
@@ -69,16 +71,5 @@ export async function patchServiceOrder(id: string, data: PatchServiceOrderDTO) 
 
 export async function deleteServiceOrder(id: string) {
   const response = await clientAxios.delete(`/service-orders/${id}`);
-  return response.data;
-}
-
-export async function uploadServiceOrderImage(serviceOrderId: string, file: File) {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("serviceOrderId", serviceOrderId);
-
-  const response = await clientAxios.post("/api/service-orders/upload", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
   return response.data;
 }

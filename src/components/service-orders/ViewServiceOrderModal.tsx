@@ -5,17 +5,19 @@ import { GenericModal } from "@/components/common/GenericModal";
 import { Badge } from "@/components/ui/badge";
 import { SERVICE_ORDER_STATUS_LABELS, SERVICE_ORDER_STATUS_COLORS, SERVICE_ORDER_MARGIN_LABELS } from "@/constants/serviceOrder.constant";
 import { formatNumber, formatDate } from "@/utils/formatters.util";
-import { ServiceOrderStatus, ProductType } from "@prisma/client";
+import { ServiceOrderStatus, ServiceType } from "@prisma/client";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 
-interface ViewServiceOrderProduct {
+interface ViewServiceOrderItem {
   id: string;
-  productName: string;
-  productType: ProductType;
+  serviceName: string;
+  serviceType: ServiceType;
   unitPrice: number;
   totalPrice: number;
+  cashPrice: number;
+  creditPrice: number;
   unitCostCompany?: number;
   totalCostCompany?: number;
   companyMargin?: number;
@@ -41,7 +43,7 @@ interface ViewServiceOrderModalProps {
     status: ServiceOrderStatus;
     receivedAt: string;
     images?: { id: string; url: string }[];
-    products?: ViewServiceOrderProduct[];
+    items?: ViewServiceOrderItem[];
     branch?: {
       id: string;
       name: string;
@@ -65,7 +67,7 @@ interface ViewServiceOrderModalProps {
 export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewServiceOrderModalProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const { canViewMargins } = useUserRole();
-  const total = order.products?.reduce((sum, p) => sum + p.totalPrice, 0) ?? 0;
+  const total = order.items?.reduce((sum, p) => sum + p.totalPrice, 0) ?? 0;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -106,7 +108,7 @@ export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewService
     }
   };
 
-  const getDeviceConditions = (product: {
+  const getDeviceConditions = (item: {
     isDry?: boolean;
     hasImpact?: boolean;
     isBrokenScreen?: boolean;
@@ -114,11 +116,11 @@ export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewService
     isCharging?: boolean;
   }) => {
     const conditions: string[] = [];
-    if (!product.isDry) conditions.push("Mojado");
-    if (product.hasImpact) conditions.push("Golpeado");
-    if (product.isBrokenScreen) conditions.push("Pantalla Rota");
-    if (product.isTurnedOn) conditions.push("Prendido");
-    if (product.isCharging) conditions.push("Cargando");
+    if (!item.isDry) conditions.push("Mojado");
+    if (item.hasImpact) conditions.push("Golpeado");
+    if (item.isBrokenScreen) conditions.push("Pantalla Rota");
+    if (item.isTurnedOn) conditions.push("Prendido");
+    if (item.isCharging) conditions.push("Cargando");
     return conditions;
   };
 
@@ -196,11 +198,20 @@ export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewService
         <div className="border-t border-lavender/10 pt-4">
           <label className="text-lavender font-medium">Servicios</label>
           <div className="space-y-3 mt-2">
-            {order.products?.map((product) => (
-              <div key={product.id} className="bg-gray-900 p-3 rounded-lg border border-lavender/10">
+            {order.items?.map((item) => (
+              <div key={item.id} className="bg-gray-900 p-3 rounded-lg border border-lavender/10">
                 <div className="flex justify-between items-start mb-2">
-                  <span className="text-white font-medium">{product.productName}</span>
-                  <span className="text-lime font-bold">${formatNumber(product.unitPrice)}</span>
+                  <span className="text-white font-medium">{item.serviceName}</span>
+                  <span className="text-lime font-bold">${formatNumber(item.unitPrice)}</span>
+                </div>
+
+                <div className="flex gap-4 mt-1 mb-2">
+                  <span className="text-lavender/60 text-xs">
+                    Efectivo: <span className="text-lime font-semibold">${formatNumber(item.cashPrice)}</span>
+                  </span>
+                  <span className="text-lavender/60 text-xs">
+                    Crédito: <span className="text-green font-semibold">${formatNumber(item.creditPrice)}</span>
+                  </span>
                 </div>
 
                 {canViewMargins && (
@@ -208,42 +219,42 @@ export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewService
                     <div className="text-center">
                       <p className="text-lavender/50 text-xs">{SERVICE_ORDER_MARGIN_LABELS.UNIT_COST_COMPANY}</p>
                       <p className="text-yellow-400 font-medium text-sm">
-                        ${formatNumber(product.unitCostCompany ?? 0)}
+                        ${formatNumber(item.unitCostCompany ?? 0)}
                       </p>
                     </div>
                     <div className="text-center">
                       <p className="text-lavender/50 text-xs">Precio cliente</p>
-                      <p className="text-lime font-medium text-sm">${formatNumber(product.unitPrice)}</p>
+                      <p className="text-lime font-medium text-sm">${formatNumber(item.unitPrice)}</p>
                     </div>
                     <div className="text-center">
                       <p className="text-lavender/50 text-xs">{SERVICE_ORDER_MARGIN_LABELS.COMPANY_MARGIN}</p>
                       <p
                         className={`font-bold text-sm ${
-                          (product.companyMargin ?? 0) >= 0 ? "text-lime" : "text-destructive"
+                          (item.companyMargin ?? 0) >= 0 ? "text-lime" : "text-destructive"
                         }`}
                       >
-                        ${formatNumber(product.companyMargin ?? 0)}
+                        ${formatNumber(item.companyMargin ?? 0)}
                       </p>
                     </div>
                   </div>
                 )}
 
-                {(product.color || getDeviceConditions(product).length > 0) && (
+                {(item.color || getDeviceConditions(item).length > 0) && (
                   <div className="space-y-1 text-sm mt-2">
-                    {product.color && (
+                    {item.color && (
                       <p className="text-lavender/70">
-                        Color: <span className="text-white">{product.color}</span>
+                        Color: <span className="text-white">{item.color}</span>
                       </p>
                     )}
-                    {getDeviceConditions(product).length > 0 && (
+                    {getDeviceConditions(item).length > 0 && (
                       <p className="text-lavender/70">
-                        Estado: <span className="text-white">{getDeviceConditions(product).join(", ")}</span>
+                        Estado: <span className="text-white">{getDeviceConditions(item).join(", ")}</span>
                       </p>
                     )}
                   </div>
                 )}
 
-                {product.description && <p className="text-lavender/70 text-sm mt-2">{product.description}</p>}
+                {item.description && <p className="text-lavender/70 text-sm mt-2">{item.description}</p>}
               </div>
             ))}
           </div>

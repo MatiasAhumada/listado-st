@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { serviceOrderService } from "@/server/service/serviceOrder.service";
 import apiErrorHandler, { ApiError } from "@/utils/handlers/apiError.handler";
 import { cookies } from "next/headers";
-import { extractAuthContext, assertWritePermission, assertPatchPermission } from "@/server/guards/serviceOrder.guard";
+import { extractAuthContext, assertDeletePermission, assertPatchPermission } from "@/server/guards/serviceOrder.guard";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -24,8 +24,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const cookieStore = await cookies();
     const auth = extractAuthContext(cookieStore, request.headers);
-
-    assertWritePermission(auth);
 
     const { id } = await params;
     const body = await request.json();
@@ -65,7 +63,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const cookieStore = await cookies();
     const auth = extractAuthContext(cookieStore, request.headers);
 
-    assertWritePermission(auth);
+    assertDeletePermission(auth);
 
     const { id } = await params;
 

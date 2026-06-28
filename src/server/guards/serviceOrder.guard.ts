@@ -29,7 +29,11 @@ export function extractAuthContext(cookieStore: CookieStore, headers?: Headers):
   if (!token) {
     throw new ApiError({ status: httpStatus.UNAUTHORIZED, message: SERVICE_ORDER_ERRORS.UNAUTHENTICATED });
   }
-  return jwt.verify(token, JWT_SECRET) as AuthContext;
+  try {
+    return jwt.verify(token, JWT_SECRET) as AuthContext;
+  } catch {
+    throw new ApiError({ status: httpStatus.UNAUTHORIZED, message: SERVICE_ORDER_ERRORS.UNAUTHENTICATED });
+  }
 }
 
 export function getEffectiveCompanyId(auth: AuthContext): string | null {
@@ -38,7 +42,7 @@ export function getEffectiveCompanyId(auth: AuthContext): string | null {
   return auth.companyId;
 }
 
-export function assertWritePermission(auth: AuthContext): void {
+export function assertDeletePermission(auth: AuthContext): void {
   if (auth.role === Role.VENDEDOR) {
     throw new ApiError({ status: httpStatus.FORBIDDEN, message: SERVICE_ORDER_ERRORS.FORBIDDEN });
   }
