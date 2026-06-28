@@ -13,10 +13,15 @@ import {
   UpdateServiceOrderDTO,
 } from "@/services/serviceOrder.service";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
-import { SERVICE_ORDER_STATUS_LABELS, SERVICE_ORDER_STATUS_COLORS } from "@/constants/serviceOrder.constant";
+import {
+  SERVICE_ORDER_STATUS_LABELS,
+  SERVICE_ORDER_STATUS_COLORS,
+  PAYMENT_METHOD_LABELS,
+  PAYMENT_METHOD_BADGE_COLORS,
+} from "@/constants/serviceOrder.constant";
 import { formatNumber } from "@/utils/formatters.util";
 import { Plus, Edit, Trash2, Eye, Printer } from "lucide-react";
-import { ServiceOrderStatus, ServiceType } from "@prisma/client";
+import { ServiceOrderStatus, ServiceType, PaymentMethod } from "@prisma/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ViewServiceOrderModal } from "@/components/service-orders/ViewServiceOrderModal";
 import { ServiceOrderReceipt } from "@/components/service-orders/ServiceOrderReceipt";
@@ -66,6 +71,9 @@ interface ServiceOrder {
     phone?: string;
     address?: string;
   };
+  paymentMethod?: PaymentMethod;
+  totalClientPrice?: number;
+  statusHistory?: { id: string; status: ServiceOrderStatus; occurredAt: string }[];
 }
 
 export default function ServiceOrdersPage() {
@@ -185,6 +193,9 @@ export default function ServiceOrdersPage() {
                         Vendedor
                       </th>
                       <th className="text-left p-2 sm:p-3 md:p-4 text-skybase-300 font-semibold whitespace-nowrap">
+                        Total
+                      </th>
+                      <th className="text-left p-2 sm:p-3 md:p-4 text-skybase-300 font-semibold whitespace-nowrap">
                         Estado
                       </th>
                       <th className="text-left p-2 sm:p-3 md:p-4 text-skybase-300 font-semibold whitespace-nowrap">
@@ -195,13 +206,13 @@ export default function ServiceOrdersPage() {
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan={6} className="text-center p-8 text-skybase-400">
+                        <td colSpan={7} className="text-center p-8 text-skybase-400">
                           Cargando...
                         </td>
                       </tr>
                     ) : orders.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="text-center p-8 text-skybase-400">
+                        <td colSpan={7} className="text-center p-8 text-skybase-400">
                           No hay órdenes de servicio
                         </td>
                       </tr>
@@ -217,6 +228,16 @@ export default function ServiceOrdersPage() {
                           </td>
                           <td className="p-2 sm:p-3 md:p-4 text-skybase-300 whitespace-nowrap">
                             {order.seller?.username || "-"}
+                          </td>
+                          <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap">
+                            <div className="flex flex-col gap-1">
+                              <span className="text-white font-bold">${formatNumber(order.totalClientPrice ?? 0)}</span>
+                              {order.paymentMethod && (
+                                <Badge className={PAYMENT_METHOD_BADGE_COLORS[order.paymentMethod]}>
+                                  {PAYMENT_METHOD_LABELS[order.paymentMethod]}
+                                </Badge>
+                              )}
+                            </div>
                           </td>
                           <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap">
                             <Select

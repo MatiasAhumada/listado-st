@@ -1,4 +1,4 @@
-import { ServiceOrderStatus } from "@prisma/client";
+import { ServiceOrderStatus, PaymentMethod } from "@prisma/client";
 
 export const SERVICE_ORDER_ERRORS = {
   NOT_FOUND: "Orden de servicio no encontrada",
@@ -31,6 +31,16 @@ export const SERVICE_ORDER_MARGIN_LABELS = {
   UNIT_COST_COMPANY: "Costo empresa",
   COMPANY_MARGIN: "Ganancia",
 } as const;
+
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  [PaymentMethod.CASH]: "Efectivo",
+  [PaymentMethod.CREDIT]: "Crédito",
+};
+
+export const PAYMENT_METHOD_BADGE_COLORS: Record<PaymentMethod, string> = {
+  [PaymentMethod.CASH]: "bg-emerald-100 text-emerald-800",
+  [PaymentMethod.CREDIT]: "bg-blue-100 text-blue-800",
+};
 
 export const SERVICE_ORDER_STATUS_LABELS: Record<ServiceOrderStatus, string> = {
   [ServiceOrderStatus.RECEPCIONADO]: "Recepcionado",

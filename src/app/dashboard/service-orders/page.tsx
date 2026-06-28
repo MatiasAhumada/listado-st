@@ -16,10 +16,12 @@ import {
   SERVICE_ORDER_STATUS_LABELS,
   SERVICE_ORDER_STATUS_COLORS,
   SERVICE_ORDER_MARGIN_LABELS,
+  PAYMENT_METHOD_LABELS,
+  PAYMENT_METHOD_BADGE_COLORS,
 } from "@/constants/serviceOrder.constant";
 import { formatNumber } from "@/utils/formatters.util";
 import { Plus, Edit, Trash2, Eye, Printer } from "lucide-react";
-import { ServiceOrderStatus, ServiceType } from "@prisma/client";
+import { ServiceOrderStatus, ServiceType, PaymentMethod } from "@prisma/client";
 import { motion } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ViewServiceOrderModal } from "@/components/service-orders/ViewServiceOrderModal";
@@ -38,6 +40,8 @@ interface ServiceOrderItem {
   creditPrice: number;
   unitCostCompany?: number;
   totalCostCompany?: number;
+  unitTechMargin?: number;
+  totalTechMargin?: number;
   companyMargin?: number;
   isDry?: boolean;
   hasImpact?: boolean;
@@ -77,9 +81,11 @@ interface ServiceOrder {
     phone?: string;
     address?: string;
   };
+  paymentMethod?: PaymentMethod;
   totalClientPrice?: number;
   totalCompanyCost?: number;
-  totalMargin?: number;
+  totalTechMargin?: number;
+  statusHistory?: { id: string; status: ServiceOrderStatus; occurredAt: string }[];
 }
 
 export default function ServiceOrdersPage() {
@@ -228,10 +234,16 @@ export default function ServiceOrdersPage() {
     baseColumns.push({
       key: "total",
       label: "Total",
-      render: (item: ServiceOrder) => {
-        const total = item.items?.reduce((sum, p) => sum + p.totalPrice, 0) ?? 0;
-        return <span className="text-lime font-bold text-lg">${formatNumber(total)}</span>;
-      },
+      render: (item: ServiceOrder) => (
+        <div className="flex flex-col gap-1">
+          <span className="text-lime font-bold text-lg">${formatNumber(item.totalClientPrice ?? 0)}</span>
+          {item.paymentMethod && (
+            <Badge className={PAYMENT_METHOD_BADGE_COLORS[item.paymentMethod]}>
+              {PAYMENT_METHOD_LABELS[item.paymentMethod]}
+            </Badge>
+          )}
+        </div>
+      ),
     });
 
     if (canViewMargins) {
@@ -246,10 +258,10 @@ export default function ServiceOrdersPage() {
           ),
         },
         {
-          key: "totalMargin",
+          key: "totalTechMargin",
           label: SERVICE_ORDER_MARGIN_LABELS.TOTAL_MARGIN,
           render: (item: ServiceOrder) => {
-            const margin = item.totalMargin ?? 0;
+            const margin = item.totalTechMargin ?? 0;
             return (
               <span className={`font-bold text-lg ${margin >= 0 ? "text-lime" : "text-destructive"}`}>
                 ${formatNumber(margin)}
