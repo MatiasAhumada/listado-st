@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { MetricCard } from "@/components/common/MetricCard";
+import { TechnicianCatalogPanel } from "@/components/technician/TechnicianCatalogPanel";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -38,11 +39,13 @@ import {
   TECHNICIAN_TEXT,
 } from "@/constants/technician.constant";
 import { TechnicianWorkspaceSummary } from "@/interfaces/technician.interface";
+import { TechnicianCatalogResult } from "@/interfaces/catalog.interface";
 import { logoutTechnician } from "@/services/technician.service";
 import { clientErrorHandler } from "@/utils/handlers/clientError.handler";
 
 interface TechnicianWorkspaceDashboardProps {
   workspace: TechnicianWorkspaceSummary;
+  initialCatalog: TechnicianCatalogResult;
 }
 
 const roadmapItems = [
@@ -65,6 +68,7 @@ const roadmapItems = [
 
 export function TechnicianWorkspaceDashboard({
   workspace,
+  initialCatalog,
 }: TechnicianWorkspaceDashboardProps) {
   const router = useRouter();
 
@@ -145,6 +149,8 @@ export function TechnicianWorkspaceDashboard({
             icon={BellRing}
           />
         </section>
+
+        <TechnicianCatalogPanel initialCatalog={initialCatalog} />
 
         <section className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(340px,0.8fr)]">
           <Card className="border-foreground/15 bg-card/95 shadow-lg">

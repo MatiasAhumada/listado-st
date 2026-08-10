@@ -44,6 +44,10 @@ Platform administrators and technicians use separate opaque, revocable sessions 
 
 The server-resolved technician session is the only source of authority for `workshopId`.
 
+### Global catalog
+
+The platform administrator imports supplier XLSX files into a reviewable draft and explicitly publishes the version visible to technicians. Red, blue and incoming rows are excluded; only available items are persisted. Pricing suggestions are calculated from administrator-managed cost ranges, while the technician remains free to use another supplier, cost or final price in a future quote.
+
 ### State
 
 Component-level state for UI. Authentication state is resolved on the server from cookies.

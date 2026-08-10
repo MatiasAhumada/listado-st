@@ -22,6 +22,14 @@ La aplicación ya contiene la primera porción productiva del nuevo SaaS:
 - Revocación automática de sesiones técnicas al suspender un taller.
 - Respuesta `404` segura ante cualquier inconsistencia de tenant.
 - Pruebas de aislamiento utilizando dos talleres distintos.
+- Importación masiva del catálogo global desde archivos XLSX.
+- Clasificación automática por disponibilidad usando colores y avisos del proveedor.
+- Borrador revisable antes de publicar una nueva versión.
+- Exclusión de repuestos sin stock y de próximos ingresos.
+- Reglas administrables de precio sugerido por rangos de costo.
+- Publicación atómica de una única versión visible para todos los talleres.
+- Búsqueda técnica limitada exclusivamente a repuestos disponibles.
+- Costo de referencia y sugerencia visibles, sin impedir que el técnico elija otro proveedor o precio final.
 
 ## Flujo comprobable
 
@@ -34,6 +42,9 @@ La aplicación ya contiene la primera porción productiva del nuevo SaaS:
 7. Iniciar sesión como técnico en `/taller/login`.
 8. Confirmar que `/taller` muestra únicamente la identidad y el taller asociados a esa sesión.
 9. Suspender el taller y comprobar que la sesión técnica queda revocada.
+10. Abrir la pestaña `Catálogo global` e importar `MODULOS.xlsx`.
+11. Revisar el resumen, buscar repuestos disponibles y publicar el borrador.
+12. Volver a iniciar sesión como técnico y consultar la lista publicada.
 
 ## Prototipo conservado
 
@@ -41,4 +52,4 @@ La ruta principal `/` mantiene el prototipo descartable de cotización. Continú
 
 ## Próximo bloque
 
-El siguiente entregable será la importación, revisión y publicación del catálogo global de repuestos desde la consola administrativa. Luego se construirá el primer flujo productivo del técnico sobre clientes y presupuestos.
+El siguiente entregable será el primer flujo productivo del técnico: clientes, presupuestos con alternativas y aceptación manual, integrado con el catálogo global ya publicado.

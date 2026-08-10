@@ -1,5 +1,10 @@
 import { TECHNICIAN_ROUTES } from "@/constants/technician.constant";
 import {
+  CATALOG_DEFAULTS,
+  CATALOG_ROUTES,
+} from "@/constants/catalog.constant";
+import { TechnicianCatalogResult } from "@/interfaces/catalog.interface";
+import {
   TechnicianApiMessage,
   TechnicianLoginPayload,
   TechnicianWorkspaceSummary,
@@ -20,6 +25,16 @@ export async function logoutTechnician(): Promise<TechnicianApiMessage> {
 export async function getTechnicianWorkspace(): Promise<TechnicianWorkspaceSummary> {
   const response = await clientAxios.get<TechnicianWorkspaceSummary>(
     TECHNICIAN_ROUTES.workspaceApi
+  );
+  return response.data;
+}
+
+export async function getTechnicianCatalog(
+  query: string = CATALOG_DEFAULTS.emptySearch
+): Promise<TechnicianCatalogResult> {
+  const response = await clientAxios.get<TechnicianCatalogResult>(
+    CATALOG_ROUTES.technicianCatalogApi,
+    { params: { query } }
   );
   return response.data;
 }

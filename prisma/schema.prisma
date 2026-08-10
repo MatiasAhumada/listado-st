@@ -37,6 +37,15 @@ enum PlatformAuditAction {
   WORKSHOP_CREATED
   WORKSHOP_ACTIVATED
   WORKSHOP_SUSPENDED
+  CATALOG_IMPORTED
+  CATALOG_PUBLISHED
+  CATALOG_PRICING_UPDATED
+}
+
+enum CatalogImportStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
 
 model PlatformAdmin {
@@ -52,6 +61,7 @@ model PlatformAdmin {
   sessions         PlatformAdminSession[]
   auditEvents      PlatformAuditEvent[]
   createdWorkshops Workshop[]             @relation("WorkshopCreator")
+  catalogImports   CatalogImportBatch[]   @relation("CatalogImportCreator")
 
   @@map("platform_admins")
 }
@@ -135,6 +145,58 @@ model WorkshopSubscription {
 
   @@index([status])
   @@map("workshop_subscriptions")
+}
+
+model CatalogPricingRule {
+  id               String   @id @default(uuid())
+  position         Int      @unique
+  maximumCost      Decimal? @db.Decimal(12, 2)
+  markupPercentage Decimal  @db.Decimal(7, 2)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("catalog_pricing_rules")
+}
+
+model CatalogImportBatch {
+  id                  String              @id @default(uuid())
+  fileName            String
+  fileHash            String              @db.VarChar(64)
+  status              CatalogImportStatus @default(DRAFT)
+  totalRows           Int
+  availableItems      Int
+  excludedUnavailable Int
+  excludedIncoming    Int
+  skippedRows         Int
+  importedAt          DateTime            @default(now())
+  publishedAt         DateTime?
+
+  importedByAdminId String
+  importedByAdmin   PlatformAdmin @relation("CatalogImportCreator", fields: [importedByAdminId], references: [id])
+
+  items CatalogItem[]
+
+  @@index([status, importedAt])
+  @@index([fileHash])
+  @@map("catalog_import_batches")
+}
+
+model CatalogItem {
+  id             String   @id @default(uuid())
+  sourceRow      Int
+  name           String
+  normalizedName String
+  brand          String?
+  cost           Decimal  @db.Decimal(12, 2)
+  createdAt      DateTime @default(now())
+
+  batchId String
+  batch   CatalogImportBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, sourceRow])
+  @@index([batchId, normalizedName])
+  @@index([batchId, brand])
+  @@map("catalog_items")
 }
 
 model PlatformAuditEvent {

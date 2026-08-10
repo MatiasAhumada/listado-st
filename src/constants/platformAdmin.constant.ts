@@ -36,7 +36,8 @@ export const PLATFORM_ADMIN_TEXT = {
   loginAction: "Ingresar a la consola",
   loginPending: "Validando acceso...",
   dashboardTitle: "Clientes SaaS",
-  dashboardDescription: "Alta, activación y suspensión de talleres independientes.",
+  dashboardDescription:
+    "Alta de talleres, control de accesos y publicación de precios de referencia.",
   logoutAction: "Cerrar sesión",
   createTitle: "Vender una cuenta",
   createDescription: "Creá el taller y las credenciales de su técnico propietario en una sola operación.",
