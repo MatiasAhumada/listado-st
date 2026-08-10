@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@aws-sdk/client-s3':
-        specifier: ^3.1045.0
-        version: 3.1045.0
       '@prisma/client':
         specifier: ^6.13.0
         version: 6.13.0(prisma@6.13.0(typescript@5.9.3))(typescript@5.9.3)
@@ -26,18 +23,12 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      framer-motion:
-        specifier: ^12.34.3
-        version: 12.34.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      dotenv:
+        specifier: ^17.3.1
+        version: 17.3.1
       http-status:
         specifier: ^2.1.0
         version: 2.1.0
-      hugeicons-react:
-        specifier: ^0.4.0
-        version: 0.4.0(react@19.2.3)
-      jsonwebtoken:
-        specifier: ^9.0.3
-        version: 9.0.3
       lucide-react:
         specifier: ^0.575.0
         version: 0.575.0(react@19.2.3)
@@ -47,9 +38,6 @@ importers:
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      nodemailer:
-        specifier: ^8.0.7
-        version: 8.0.7
       radix-ui:
         specifier: ^1.4.3
         version: 1.4.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -71,9 +59,9 @@ importers:
       xlsx:
         specifier: ^0.18.5
         version: 0.18.5
-      zustand:
-        specifier: ^5.0.11
-        version: 5.0.11(@types/react@19.2.14)(react@19.2.3)(use-sync-external-store@1.6.0(react@19.2.3))
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4
@@ -81,15 +69,9 @@ importers:
       '@types/bcryptjs':
         specifier: ^3.0.0
         version: 3.0.0
-      '@types/jsonwebtoken':
-        specifier: ^9.0.10
-        version: 9.0.10
       '@types/node':
         specifier: ^20
         version: 20.19.35
-      '@types/nodemailer':
-        specifier: ^8.0.0
-        version: 8.0.0
       '@types/react':
         specifier: ^19
         version: 19.2.14

@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,215 +7,134 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  EMPRESA
-  VENDEDOR
-  TECNICO
+enum WorkshopStatus {
+  ACTIVE
+  SUSPENDED
 }
 
-enum ServiceType {
-  MODULO
-  BATERIA
-  PIN
-  CONSOLA
-  MANTENIMIENTO
-  VIDRIOS_CAMARA
-  BOTON_POWER
-  BANDEJA_SIM
-  FLEX
-  SOFTWARE
-  VARIOS
+enum TechnicianStatus {
+  ACTIVE
+  SUSPENDED
 }
 
-enum ServiceOrderStatus {
-  RECEPCIONADO
-  RETIRADO_POR_TECNICO
-  DEVUELTO_POR_TECNICO
-  COBRADO_CLIENTE
-  ENTREGADO_CLIENTE
-  COBRADO_TECNICO
+enum TechnicianRole {
+  OWNER
+  MEMBER
 }
 
-enum PaymentMethod {
-  CASH
-  CREDIT
+enum PlanCode {
+  SOLO_TECHNICIAN
 }
 
-model User {
-  id         String   @id @default(uuid())
-  username   String   @unique
-  password   String
-  role       Role     @default(VENDEDOR)
-  companyId  String?
-  branchId   String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  servicios            Servicio[]
-  companyServiceOrders ServiceOrder[] @relation("CompanyServiceOrders")
-  sellerServiceOrders  ServiceOrder[] @relation("SellerServiceOrders")
-  company              User?          @relation("CompanyVendedores", fields: [companyId], references: [id])
-  vendedores           User[]         @relation("CompanyVendedores")
-  branch               Branch?        @relation(fields: [branchId], references: [id])
-  branches             Branch[]       @relation("CompanyBranches")
-  clients              Client[]
-
-  @@map("users")
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  SUSPENDED
+  CANCELLED
 }
 
-model Branch {
-  id        String   @id @default(uuid())
+enum PlatformAuditAction {
+  WORKSHOP_CREATED
+  WORKSHOP_ACTIVATED
+  WORKSHOP_SUSPENDED
+}
+
+model PlatformAdmin {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  displayName  String
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  sessions         PlatformAdminSession[]
+  auditEvents      PlatformAuditEvent[]
+  createdWorkshops Workshop[]             @relation("WorkshopCreator")
+
+  @@map("platform_admins")
+}
+
+model PlatformAdminSession {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique @db.VarChar(64)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  adminId String
+  admin   PlatformAdmin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId, expiresAt])
+  @@map("platform_admin_sessions")
+}
+
+model Workshop {
+  id        String         @id @default(uuid())
   name      String
-  address   String?
-  phone     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  slug      String         @unique
+  status    WorkshopStatus @default(ACTIVE)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 
-  companyId String
-  company   User   @relation("CompanyBranches", fields: [companyId], references: [id], onDelete: Cascade)
+  createdByAdminId String
+  createdByAdmin   PlatformAdmin @relation("WorkshopCreator", fields: [createdByAdminId], references: [id])
 
-  vendedores    User[]
-  serviceOrders ServiceOrder[]
+  technicians  TechnicianUser[]
+  subscription WorkshopSubscription?
+  auditEvents  PlatformAuditEvent[]
 
-  @@map("branches")
+  @@index([status])
+  @@map("workshops")
 }
 
-model Servicio {
-  id               String      @id @default(uuid())
-  name             String
-  type             ServiceType
-  available        Boolean     @default(true)
-  costTech         Float       @default(0)
-  costTechMargin   Float       @default(0)
-  cost             Float
-  costMargin       Float       @default(0)
-  cash             Float
-  cashMargin       Float       @default(0)
-  credit           Float
-  creditMargin     Float       @default(0)
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+model TechnicianUser {
+  id           String           @id @default(uuid())
+  workshopId   String
+  email        String           @unique
+  passwordHash String
+  displayName  String
+  role         TechnicianRole   @default(OWNER)
+  status       TechnicianStatus @default(ACTIVE)
+  lastLoginAt  DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
 
-  masterServicioId String?
-  masterServicio   Servicio?  @relation("ServicioCopias", fields: [masterServicioId], references: [id], onDelete: Cascade)
-  copias           Servicio[] @relation("ServicioCopias")
+  workshop Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
 
-  companyId String?
-  company   User?   @relation(fields: [companyId], references: [id])
-
-  @@map("servicios")
+  @@index([workshopId, status])
+  @@map("technician_users")
 }
 
-model Client {
-  id        String   @id @default(uuid())
-  fullName  String
-  dni       String
-  phone     String?
-  email     String?
-  address   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model WorkshopSubscription {
+  id        String             @id @default(uuid())
+  planCode  PlanCode           @default(SOLO_TECHNICIAN)
+  status    SubscriptionStatus @default(TRIAL)
+  startedAt DateTime           @default(now())
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
 
-  companyId String
-  company   User   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  workshopId String   @unique
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
 
-  serviceOrders ServiceOrder[]
-
-  @@unique([companyId, dni])
-  @@map("clients")
+  @@index([status])
+  @@map("workshop_subscriptions")
 }
 
-model ServiceOrder {
-  id                String             @id @default(uuid())
-  clientName        String
-  clientPhone       String
-  advancePayment    Int                @default(0)
-  balance           Int                @default(0)
-  deliveryDate      DateTime?
-  status            ServiceOrderStatus @default(RECEPCIONADO)
-  paymentMethod     PaymentMethod?
-  totalClientPrice  Float              @default(0)
-  totalCompanyCost  Float              @default(0)
-  realTechCost      Float              @default(0)
-  totalTechMargin   Float              @default(0)
-  receivedAt        DateTime           @default(now())
-  pickedUpAt        DateTime?
-  returnedAt        DateTime?
-  deliveredAt       DateTime?
-  paidAt            DateTime?
-  techPaidAt        DateTime?
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+model PlatformAuditEvent {
+  id        String              @id @default(uuid())
+  action    PlatformAuditAction
+  metadata  Json?
+  createdAt DateTime            @default(now())
 
-  companyId String
-  company   User   @relation("CompanyServiceOrders", fields: [companyId], references: [id])
+  adminId String
+  admin   PlatformAdmin @relation(fields: [adminId], references: [id])
 
-  sellerId String?
-  seller   User?   @relation("SellerServiceOrders", fields: [sellerId], references: [id])
+  workshopId String?
+  workshop   Workshop? @relation(fields: [workshopId], references: [id], onDelete: SetNull)
 
-  branchId String?
-  branch   Branch? @relation(fields: [branchId], references: [id])
-
-  clientId String?
-  client   Client? @relation(fields: [clientId], references: [id])
-
-  images        ServiceOrderImage[]
-  items         ServiceOrderItem[]
-  statusHistory ServiceOrderStatusHistory[]
-
-  @@map("service_orders")
-}
-
-model ServiceOrderItem {
-  id               String      @id @default(uuid())
-  unitPrice        Float
-  totalPrice       Float
-  unitCostTech     Float       @default(0)
-  totalCostTech    Float       @default(0)
-  unitCostCompany  Float       @default(0)
-  totalCostCompany Float       @default(0)
-  unitTechMargin   Float       @default(0)
-  totalTechMargin  Float       @default(0)
-  cashPrice        Float       @default(0)
-  creditPrice      Float       @default(0)
-  isDry            Boolean     @default(false)
-  hasImpact        Boolean     @default(false)
-  isBrokenScreen   Boolean     @default(false)
-  isTurnedOn       Boolean     @default(false)
-  isCharging       Boolean     @default(false)
-  color            String?
-  description      String?     @db.Text
-  createdAt        DateTime    @default(now())
-
-  serviceOrderId String
-  serviceOrder   ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
-
-  serviceName String
-  serviceType ServiceType
-
-  @@map("service_order_items")
-}
-
-model ServiceOrderStatusHistory {
-  id             String             @id @default(cuid())
-  serviceOrderId String
-  status         ServiceOrderStatus
-  occurredAt     DateTime           @default(now())
-  createdAt      DateTime           @default(now())
-
-  serviceOrder ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
-
-  @@index([serviceOrderId])
-  @@map("service_order_status_history")
-}
-
-model ServiceOrderImage {
-  id             String   @id @default(uuid())
-  url            String
-  uploadedAt     DateTime @default(now())
-
-  serviceOrderId String
-  serviceOrder   ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
-
-  @@map("service_order_images")
+  @@index([adminId, createdAt])
+  @@index([workshopId, createdAt])
+  @@map("platform_audit_events")
 }
