@@ -91,6 +91,12 @@ export class PlatformWorkshopRepository {
         where: { workshopId: payload.workshopId },
         data: { status: payload.technicianStatus },
       });
+      if (payload.revokeTechnicianSessions) {
+        await transaction.technicianSession.updateMany({
+          where: { technician: { workshopId: payload.workshopId } },
+          data: { revokedAt: new Date() },
+        });
+      }
       await transaction.workshopSubscription.update({
         where: { workshopId: payload.workshopId },
         data: { status: payload.subscriptionStatus },

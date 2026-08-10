@@ -59,6 +59,7 @@ export interface WorkshopLifecycleUpdate {
   technicianStatus: TechnicianStatusCode;
   subscriptionStatus: SubscriptionStatusCode;
   auditAction: PlatformAuditActionCode;
+  revokeTechnicianSessions: boolean;
 }
 
 export interface CreatedWorkshopCredentials {

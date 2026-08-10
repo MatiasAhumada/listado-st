@@ -1,3 +1,5 @@
+import { AUTH_SECURITY } from "@/constants/auth.constant";
+
 export const PLATFORM_ADMIN_ROUTES = {
   dashboard: "/admin",
   login: "/admin/login",
@@ -6,19 +8,9 @@ export const PLATFORM_ADMIN_ROUTES = {
 } as const;
 
 export const PLATFORM_ADMIN_SECURITY = {
+  ...AUTH_SECURITY,
   cookieName: "platform-admin-session",
-  cookiePath: "/",
-  cookieSameSite: "lax" as const,
-  sessionDurationSeconds: 60 * 60 * 24 * 7,
-  sessionDurationMilliseconds: 1000 * 60 * 60 * 24 * 7,
-  sessionTokenBytes: 32,
-  sessionTokenEncoding: "hex" as const,
-  sessionHashAlgorithm: "sha256",
-  passwordSaltRounds: 12,
-  minimumPasswordLength: 10,
-  maximumPasswordLength: 72,
   maximumNameLength: 100,
-  maximumEmailLength: 160,
   slugRandomBytes: 3,
 } as const;
 
@@ -142,12 +134,14 @@ export const PLATFORM_ADMIN_LIFECYCLE = {
     technicianStatus: "ACTIVE",
     subscriptionStatus: "ACTIVE",
     auditAction: PLATFORM_ADMIN_AUDIT.workshopActivated,
+    revokeTechnicianSessions: false,
   },
   suspended: {
     workshopStatus: "SUSPENDED",
     technicianStatus: "SUSPENDED",
     subscriptionStatus: "SUSPENDED",
     auditAction: PLATFORM_ADMIN_AUDIT.workshopSuspended,
+    revokeTechnicianSessions: true,
   },
 } as const;
 
@@ -158,11 +152,6 @@ export const PLATFORM_ADMIN_DATE_FORMAT = {
     month: "short",
     year: "numeric",
   } as const,
-} as const;
-
-export const PLATFORM_ADMIN_METADATA = {
-  title: "Service Tech · Administración SaaS",
-  description: "Consola para vender y administrar talleres técnicos",
 } as const;
 
 export const WORKSHOP_STATUS_LABELS: Record<"ACTIVE" | "SUSPENDED", string> = {

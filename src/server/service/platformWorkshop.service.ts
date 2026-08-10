@@ -73,6 +73,7 @@ export class PlatformWorkshopService {
       technicianStatus: lifecycle.technicianStatus,
       subscriptionStatus: lifecycle.subscriptionStatus,
       auditAction: lifecycle.auditAction,
+      revokeTechnicianSessions: lifecycle.revokeTechnicianSessions,
     });
     return this.toSummary(workshop);
   }

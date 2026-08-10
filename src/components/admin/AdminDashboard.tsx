@@ -12,9 +12,9 @@ import {
   UsersRound,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { AdminMetricCard } from "@/components/admin/AdminMetricCard";
 import { CreateWorkshopForm } from "@/components/admin/CreateWorkshopForm";
 import { WorkshopTable } from "@/components/admin/WorkshopTable";
+import { MetricCard } from "@/components/common/MetricCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -160,10 +160,10 @@ export function AdminDashboard({ admin, initialWorkshops }: AdminDashboardProps)
         </header>
 
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <AdminMetricCard label={PLATFORM_ADMIN_TEXT.totalWorkshopsMetric} value={metrics.total} icon={Store} />
-          <AdminMetricCard label={PLATFORM_ADMIN_TEXT.activeWorkshopsMetric} value={metrics.active} icon={Activity} />
-          <AdminMetricCard label={PLATFORM_ADMIN_TEXT.trialWorkshopsMetric} value={metrics.trial} icon={TimerReset} />
-          <AdminMetricCard
+          <MetricCard label={PLATFORM_ADMIN_TEXT.totalWorkshopsMetric} value={metrics.total} icon={Store} />
+          <MetricCard label={PLATFORM_ADMIN_TEXT.activeWorkshopsMetric} value={metrics.active} icon={Activity} />
+          <MetricCard label={PLATFORM_ADMIN_TEXT.trialWorkshopsMetric} value={metrics.trial} icon={TimerReset} />
+          <MetricCard
             label={PLATFORM_ADMIN_TEXT.suspendedWorkshopsMetric}
             value={metrics.suspended}
             icon={UsersRound}

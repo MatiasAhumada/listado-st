@@ -7,7 +7,7 @@ import {
 import { PlatformAdminAuthService } from "@/server/service/platformAdminAuth.service";
 import { platformAdminLoginSchema } from "@/server/validation/platformAdmin.validation";
 import apiErrorHandler from "@/utils/handlers/apiError.handler";
-import { isProductionEnvironment } from "@/utils/platformSession.util";
+import { isProductionEnvironment } from "@/utils/session.util";
 import { parseRequestPayload } from "@/utils/requestValidation.util";
 
 export async function POST(request: NextRequest) {

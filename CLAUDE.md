@@ -9,6 +9,7 @@ pnpm dev          # Development server on port 3008
 pnpm build        # Production build
 pnpm start        # Production server on port 3008
 pnpm lint         # ESLint
+pnpm test         # Node test runner through tsx
 pnpm format       # Prettier --write
 
 pnpm migrate      # prisma migrate dev
@@ -17,11 +18,9 @@ pnpm studio       # Prisma Studio
 pnpm seed         # tsx prisma/seed.ts
 ```
 
-No test suite is configured.
-
 ## Architecture
 
-**Stack:** Next.js App Router + TypeScript + PostgreSQL (Prisma) + Tailwind CSS 4 + shadcn/ui + Zustand
+**Stack:** Next.js App Router + TypeScript + PostgreSQL (Prisma) + Tailwind CSS 4 + shadcn/ui
 
 **Port:** 3008 (not the default 3000)
 
@@ -33,7 +32,6 @@ src/server/service/   → Business logic layer
 src/server/repositories/ → Prisma data access layer
 src/components/       → React UI components
 src/services/         → Client-side API call wrappers (axios)
-src/hooks/            → Zustand stores (useAuthStore)
 src/constants/        → All hardcoded values live here
 src/utils/handlers/   → apiError.handler.ts (backend), clientError.handler.ts (frontend)
 ```
@@ -42,17 +40,13 @@ API routes call service layer → service layer calls repository layer → repos
 
 ### Auth
 
-JWT stored in httpOnly cookies. The Zustand `useAuthStore` persists to localStorage and syncs the axios Authorization header. Dashboard routes have a hydration-aware auth guard in `src/app/dashboard/layout.tsx`.
+Platform administrators and technicians use separate opaque, revocable sessions stored in secure `httpOnly` cookies. Only token hashes are persisted. No auth data is stored in `localStorage`.
 
-Roles: `EMPRESA`, `VENDEDOR`, `TECNICO`.
+The server-resolved technician session is the only source of authority for `workshopId`.
 
 ### State
 
-Zustand with persist middleware for auth. No other global state — component-level state for UI.
-
-### File uploads
-
-AWS S3 / Cloudflare R2. Config in `src/constants/imageUpload.constant.ts`. Next.js `remotePatterns` configured in `next.config.ts`.
+Component-level state for UI. Authentication state is resolved on the server from cookies.
 
 ### Paths
 

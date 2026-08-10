@@ -28,4 +28,5 @@ export interface UpdateWorkshopLifecyclePersistence {
   technicianStatus: TechnicianStatus;
   subscriptionStatus: SubscriptionStatus;
   auditAction: PlatformAuditAction;
+  revokeTechnicianSessions: boolean;
 }

@@ -101,10 +101,25 @@ model TechnicianUser {
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 
-  workshop Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  workshop Workshop            @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  sessions TechnicianSession[]
 
   @@index([workshopId, status])
   @@map("technician_users")
+}
+
+model TechnicianSession {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique @db.VarChar(64)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  technicianId String
+  technician   TechnicianUser @relation(fields: [technicianId], references: [id], onDelete: Cascade)
+
+  @@index([technicianId, expiresAt])
+  @@map("technician_sessions")
 }
 
 model WorkshopSubscription {

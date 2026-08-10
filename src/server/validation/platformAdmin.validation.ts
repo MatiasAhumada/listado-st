@@ -5,17 +5,16 @@ import {
   PLATFORM_ADMIN_TEXT,
   WORKSHOP_STATUS_OPTIONS,
 } from "@/constants/platformAdmin.constant";
+import {
+  createAuthEmailSchema,
+  createAuthPasswordSchema,
+} from "@/server/validation/auth.validation";
 
-const emailSchema = z
-  .string()
-  .email(PLATFORM_ADMIN_TEXT.emailInvalid)
-  .max(PLATFORM_ADMIN_SECURITY.maximumEmailLength, PLATFORM_ADMIN_TEXT.emailInvalid)
-  .transform((email) => email.trim().toLowerCase());
-
-const passwordSchema = z
-  .string()
-  .min(PLATFORM_ADMIN_SECURITY.minimumPasswordLength, PLATFORM_ADMIN_TEXT.passwordTooShort)
-  .max(PLATFORM_ADMIN_SECURITY.maximumPasswordLength, PLATFORM_ADMIN_TEXT.passwordTooLong);
+const emailSchema = createAuthEmailSchema(PLATFORM_ADMIN_TEXT.emailInvalid);
+const passwordSchema = createAuthPasswordSchema({
+  passwordTooShort: PLATFORM_ADMIN_TEXT.passwordTooShort,
+  passwordTooLong: PLATFORM_ADMIN_TEXT.passwordTooLong,
+});
 
 const requiredNameSchema = (message: string) =>
   z.string().trim().min(1, message).max(PLATFORM_ADMIN_SECURITY.maximumNameLength, message);

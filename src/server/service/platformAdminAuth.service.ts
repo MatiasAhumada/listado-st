@@ -9,10 +9,10 @@ import {
 import { PLATFORM_ADMIN_TEXT } from "@/constants/platformAdmin.constant";
 import { ApiError } from "@/utils/handlers/apiError.handler";
 import {
-  calculatePlatformSessionExpiration,
-  createPlatformSessionToken,
-  hashPlatformSessionToken,
-} from "@/utils/platformSession.util";
+  calculateSessionExpiration,
+  createSessionToken,
+  hashSessionToken,
+} from "@/utils/session.util";
 
 export class PlatformAdminAuthService {
   static async login(payload: PlatformAdminLoginPayload): Promise<PlatformAdminSessionResult> {
@@ -30,11 +30,11 @@ export class PlatformAdminAuthService {
       throw new ApiError({ status: httpStatus.FORBIDDEN, message: PLATFORM_ADMIN_TEXT.inactiveAdmin });
     }
 
-    const token = createPlatformSessionToken();
-    const expiresAt = calculatePlatformSessionExpiration();
+    const token = createSessionToken();
+    const expiresAt = calculateSessionExpiration();
     await PlatformAdminRepository.createSession({
       adminId: admin.id,
-      tokenHash: hashPlatformSessionToken(token),
+      tokenHash: hashSessionToken(token),
       expiresAt,
     });
 
@@ -53,7 +53,7 @@ export class PlatformAdminAuthService {
     if (!token) return undefined;
 
     const session = await PlatformAdminRepository.findValidSession(
-      hashPlatformSessionToken(token),
+      hashSessionToken(token),
       new Date()
     );
     if (!session) return undefined;
@@ -76,6 +76,6 @@ export class PlatformAdminAuthService {
 
   static async logout(token?: string): Promise<void> {
     if (!token) return;
-    await PlatformAdminRepository.revokeSession(hashPlatformSessionToken(token));
+    await PlatformAdminRepository.revokeSession(hashSessionToken(token));
   }
 }
