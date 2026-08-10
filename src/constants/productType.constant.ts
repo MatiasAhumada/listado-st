@@ -1,1 +1,0 @@
-export { SERVICE_TYPE_LABELS as PRODUCT_TYPE_LABELS, SERVICE_TYPES as PRODUCT_TYPES } from "./serviceType.constant";

@@ -2,43 +2,43 @@
 
 Actualizado: 2026-08-10
 
-## En curso: Fase −1
+## Entregado: administración e identidad técnica
 
-La implementación comenzó con el prototipo descartable exigido por la especificación aprobada.
+La aplicación ya contiene la primera porción productiva del nuevo SaaS:
 
-### Entregado en esta fase
+- Administrador de plataforma separado de los usuarios de talleres.
+- Sesiones opacas, revocables y almacenadas en cookies `httpOnly`.
+- Alta atómica de taller, técnico propietario y suscripción.
+- Plan inicial para técnicos independientes.
+- Inicio comercial como prueba o cliente activo.
+- Suspensión y reactivación coordinada de taller, técnico y suscripción.
+- Registro auditable de altas y cambios de acceso.
+- Migración base nueva sin conservar el dominio anterior.
+- Seed del primer administrador mediante variables de entorno.
+- Pruebas automáticas del ciclo de acceso.
+- Login del técnico con las credenciales creadas por el administrador.
+- Sesiones técnicas opacas, revocables y separadas de la sesión administrativa.
+- Área privada resuelta exclusivamente desde el `workshopId` de la sesión.
+- Revocación automática de sesiones técnicas al suspender un taller.
+- Respuesta `404` segura ante cualquier inconsistencia de tenant.
+- Pruebas de aislamiento utilizando dos talleres distintos.
 
-- Pantalla navegable de cotización en la ruta principal.
-- Fixture pequeño extraído de filas disponibles de `MODULOS.xlsx`.
-- Búsqueda por modelos compatibles, incluyendo A02s, A03, A03s y A04e.
-- Regla visible de sugerencia `costo + 100%`.
-- Varias alternativas por presupuesto.
-- Edición independiente de proveedor, costo real y precio final.
-- Cálculo inmediato de ganancia estimada.
-- Vista separada para el cliente sin costos ni proveedores.
-- Envío manual que inmoviliza la revisión.
-- Mensaje preparado para copiar a WhatsApp.
-- Aceptación manual de una alternativa.
-- Reinicio rápido para realizar otra sesión observada.
+## Flujo comprobable
 
-### Lo que todavía no persiste
+1. Iniciar sesión en `/admin/login`.
+2. Crear un taller y su técnico propietario.
+3. Copiar las credenciales temporales que muestra la consola.
+4. Verificar el taller en el listado.
+5. Suspenderlo y comprobar que todos sus accesos cambian de forma coordinada.
+6. Reactivarlo y comprobar que vuelve al estado activo.
+7. Iniciar sesión como técnico en `/taller/login`.
+8. Confirmar que `/taller` muestra únicamente la identidad y el taller asociados a esa sesión.
+9. Suspender el taller y comprobar que la sesión técnica queda revocada.
 
-Esta fase no usa autenticación ni base de datos productiva. Su propósito es medir el flujo antes de fijarlo en arquitectura y migraciones.
+## Prototipo conservado
 
-## Registro para cada sesión
+La ruta principal `/` mantiene el prototipo descartable de cotización. Continúa sin persistencia y se utilizará como referencia al construir el flujo productivo del técnico.
 
-1. Técnico observado.
-2. Trabajo real cotizado.
-3. Tiempo hasta encontrar el repuesto.
-4. Tiempo total hasta comunicar el precio.
-5. Costo sugerido y costo finalmente elegido.
-6. Precio sugerido y precio finalmente comunicado.
-7. Datos que faltaron o sobraron.
-8. Punto donde el técnico dudó o volvió atrás.
-9. Comparación contra su proceso actual de WhatsApp/lista.
-10. Aceptación o rechazo de un piloto.
-11. Señal concreta de disposición a pagar.
+## Próximo bloque
 
-## Próxima puerta
-
-Al completar cinco sesiones y cumplir la puerta de validación se inicia la fundación productiva: esquema nuevo, sesiones seguras, tenancy, pruebas automáticas y panel mínimo de administración.
+El siguiente entregable será la importación, revisión y publicación del catálogo global de repuestos desde la consola administrativa. Luego se construirá el primer flujo productivo del técnico sobre clientes y presupuestos.

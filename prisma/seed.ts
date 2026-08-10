@@ -1,45 +1,38 @@
-import { PrismaClient, Role } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import {
+  PLATFORM_ADMIN_SECURITY,
+  PLATFORM_ADMIN_SEED_TEXT,
+  PLATFORM_ADMIN_TEXT,
+} from "../src/constants/platformAdmin.constant";
 
 const prisma = new PrismaClient();
 
-async function main() {
-  console.log("Start seeding...");
+async function seedPlatformAdmin() {
+  const email = process.env.PLATFORM_ADMIN_EMAIL?.trim().toLowerCase();
+  const password = process.env.PLATFORM_ADMIN_PASSWORD;
+  const displayName = process.env.PLATFORM_ADMIN_NAME?.trim();
 
-  const hashPassword = async (password: string) => {
-    return await bcrypt.hash(password, 10);
-  };
+  if (!email || !password || !displayName) {
+    throw new Error(PLATFORM_ADMIN_SEED_TEXT.missingEnvironment);
+  }
+  if (password.length < PLATFORM_ADMIN_SECURITY.minimumPasswordLength) {
+    throw new Error(PLATFORM_ADMIN_TEXT.passwordTooShort);
+  }
 
-  // Create EMPRESA (Admin)
-  const empresaAdmin = await prisma.user.upsert({
-    where: { username: "admin" },
-    update: {},
-    create: {
-      username: "admin",
-      password: await hashPassword("admin123"),
-      role: Role.EMPRESA,
-    },
+  const passwordHash = await bcrypt.hash(password, PLATFORM_ADMIN_SECURITY.passwordSaltRounds);
+  const admin = await prisma.platformAdmin.upsert({
+    where: { email },
+    update: { displayName, passwordHash, isActive: true },
+    create: { email, displayName, passwordHash },
   });
-  console.log(`Created admin user: ${empresaAdmin.username}`);
-
-  const tecnico = await prisma.user.upsert({
-    where: { username: "tecnico" },
-    update: {},
-    create: {
-      username: "tecnico",
-      password: await hashPassword("tecnico123"),
-      role: Role.TECNICO,
-    },
-  });
-  console.log(`Created technician user: ${tecnico.username}`);
-
-  console.log("Seeding finished.");
+  console.log(`${PLATFORM_ADMIN_SEED_TEXT.createdPrefix} ${admin.email}`);
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
+seedPlatformAdmin()
+  .catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
   })
   .finally(async () => {
     await prisma.$disconnect();

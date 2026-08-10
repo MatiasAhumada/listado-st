@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "service_order_products" ADD COLUMN "unitCostTech" DOUBLE PRECISION NOT NULL DEFAULT 0,
-ADD COLUMN "totalCostTech" DOUBLE PRECISION NOT NULL DEFAULT 0;

@@ -111,6 +111,21 @@
       linear-gradient(90deg, color-mix(in srgb, var(--foreground) 5%, transparent) 1px, transparent 1px);
     background-size: 28px 28px;
   }
+  .admin-console-grid {
+    background-image:
+      radial-gradient(circle at 12% 18%, color-mix(in srgb, var(--secondary) 16%, transparent), transparent 22rem),
+      linear-gradient(color-mix(in srgb, var(--foreground) 5%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--foreground) 5%, transparent) 1px, transparent 1px);
+    background-size: auto, 32px 32px, 32px 32px;
+  }
+  .technician-workspace-grid {
+    background-image:
+      radial-gradient(circle at 86% 12%, color-mix(in srgb, var(--primary) 14%, transparent), transparent 24rem),
+      radial-gradient(circle at 8% 78%, color-mix(in srgb, var(--secondary) 13%, transparent), transparent 20rem),
+      linear-gradient(color-mix(in srgb, var(--foreground) 5%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--foreground) 5%, transparent) 1px, transparent 1px);
+    background-size: auto, auto, 32px 32px, 32px 32px;
+  }
   .safety-rule {
     background: repeating-linear-gradient(
       120deg,

@@ -1,0 +1,15 @@
+export const AUTH_SECURITY = {
+  cookiePath: "/",
+  cookieSameSite: "lax" as const,
+  sessionDurationSeconds: 60 * 60 * 24 * 7,
+  sessionDurationMilliseconds: 1000 * 60 * 60 * 24 * 7,
+  sessionTokenBytes: 32,
+  sessionTokenEncoding: "hex" as const,
+  sessionHashAlgorithm: "sha256",
+  sessionHashEncoding: "hex" as const,
+  productionEnvironmentPrefix: "prod",
+  passwordSaltRounds: 12,
+  minimumPasswordLength: 10,
+  maximumPasswordLength: 72,
+  maximumEmailLength: 160,
+} as const;

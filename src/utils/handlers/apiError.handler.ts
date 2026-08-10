@@ -7,7 +7,7 @@ interface ApiErrorOptions {
   isOperational?: boolean;
   stack?: string;
   internalCode?: string;
-  details?: object | null;
+  details?: Record<string, unknown> | null;
 }
 
 export class ApiError extends Error {
@@ -15,7 +15,7 @@ export class ApiError extends Error {
   public readonly status: number;
   public readonly isOperational: boolean;
   public readonly internalCode?: string;
-  public readonly details?: object | null;
+  public readonly details?: Record<string, unknown> | null;
 
   constructor({
     status = httpStatus.INTERNAL_SERVER_ERROR,
@@ -44,7 +44,7 @@ type ResponseError = {
   method: string;
   stack?: string;
   internalCode?: string;
-  details?: object | null;
+  details?: Record<string, unknown> | null;
 };
 
 export default function apiErrorHandler({
@@ -52,16 +52,20 @@ export default function apiErrorHandler({
   request,
   fallbackMessage,
 }: {
-  error: ApiError;
+  error: unknown;
   request: NextRequest;
   fallbackMessage?: string;
 }) {
-  let { status, message } = error;
-  if (!error.isOperational) {
+  const normalizedError =
+    error instanceof ApiError
+      ? error
+      : new ApiError({ message: fallbackMessage, isOperational: false });
+  let { status, message } = normalizedError;
+  if (!normalizedError.isOperational) {
     status = httpStatus.INTERNAL_SERVER_ERROR;
     message = fallbackMessage ?? String(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
   }
-  if (!message) message = fallbackMessage ?? String(httpStatus[status as keyof typeof httpStatus]);
+  if (!message) message = fallbackMessage ?? String(httpStatus.INTERNAL_SERVER_ERROR);
 
   const errorResponse: ResponseError = {
     message,
@@ -70,10 +74,10 @@ export default function apiErrorHandler({
     method: request?.method,
   };
 
-  if (error?.internalCode) errorResponse.internalCode = error.internalCode;
-  if (error?.details) errorResponse.details = error.details;
-  if (error?.stack && process.env.NODE_ENV === "development") {
-    errorResponse.stack = error?.stack;
+  if (normalizedError.internalCode) errorResponse.internalCode = normalizedError.internalCode;
+  if (normalizedError.details) errorResponse.details = normalizedError.details;
+  if (normalizedError.stack && process.env.NODE_ENV === "development") {
+    errorResponse.stack = normalizedError.stack;
   }
 
   console.error({ ...errorResponse });

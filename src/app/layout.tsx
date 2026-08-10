@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Barlow_Condensed, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { PRODUCT_METADATA } from "@/constants/product.constant";
 import "./globals.css";
 
 const workbenchBody = IBM_Plex_Sans({
@@ -22,8 +23,8 @@ const workbenchMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Service Tech · Banco de prueba",
-  description: "Prototipo de validación para cotizaciones de técnicos de celulares",
+  title: PRODUCT_METADATA.title,
+  description: PRODUCT_METADATA.description,
 };
 
 export default function RootLayout({
