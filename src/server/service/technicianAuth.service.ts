@@ -103,7 +103,6 @@ export class TechnicianAuthService {
       workshopId: technician.workshopId,
       email: technician.email,
       displayName: technician.displayName,
-      role: technician.role,
       workshopName: technician.workshop.name,
       workshopSlug: technician.workshop.slug,
       planCode: subscription.planCode,

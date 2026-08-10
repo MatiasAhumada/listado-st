@@ -2,7 +2,7 @@ export const CATALOG_ROUTES = {
   adminDashboardApi: "/platform/catalog",
   adminImportsApi: "/platform/catalog/imports",
   adminPricingRulesApi: "/platform/catalog/pricing-rules",
-  technicianCatalogApi: "/technician/catalog",
+  technicianCatalogApi: "/client/catalog",
 } as const;
 
 export const CATALOG_LIMITS = {
@@ -116,10 +116,10 @@ export const CATALOG_TEXT = {
   noDraftDescription: "Elegí un Excel para preparar la próxima versión del catálogo.",
   noPublishedTitle: "Todavía no hay catálogo publicado",
   noPublishedDescription:
-    "Los técnicos verán las sugerencias cuando publiques el primer borrador.",
+    "Los clientes verán las sugerencias cuando publiques el primer borrador.",
   publishAction: "Publicar catálogo",
   publishingAction: "Publicando...",
-  publishedSuccess: "Catálogo publicado para todos los técnicos",
+  publishedSuccess: "Catálogo publicado para todos los clientes",
   publishedBadge: "Publicado",
   draftBadge: "Borrador",
   fileMetric: "Filas del Excel",
@@ -129,7 +129,7 @@ export const CATALOG_TEXT = {
   skippedMetric: "Filas informativas",
   reviewTitle: "Revisión de disponibles",
   reviewDescription:
-    "Esta es exactamente la información que recibirán los técnicos al publicar.",
+    "Esta es exactamente la información que recibirán los clientes al publicar.",
   reviewSearchLabel: "Buscar en el borrador",
   searchPlaceholder: "Modelo, calidad o marca",
   sourceRowColumn: "Fila",

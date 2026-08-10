@@ -17,11 +17,6 @@ enum TechnicianStatus {
   SUSPENDED
 }
 
-enum TechnicianRole {
-  OWNER
-  MEMBER
-}
-
 enum PlanCode {
   SOLO_TECHNICIAN
 }
@@ -105,7 +100,6 @@ model TechnicianUser {
   email        String           @unique
   passwordHash String
   displayName  String
-  role         TechnicianRole   @default(OWNER)
   status       TechnicianStatus @default(ACTIVE)
   lastLoginAt  DateTime?
   createdAt    DateTime         @default(now())

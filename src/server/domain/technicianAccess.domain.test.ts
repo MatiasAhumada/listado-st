@@ -3,7 +3,6 @@ import test from "node:test";
 import {
   PlanCode,
   SubscriptionStatus,
-  TechnicianRole,
   TechnicianStatus,
   WorkshopStatus,
 } from "@prisma/client";
@@ -23,7 +22,6 @@ const technicianIdentity: TechnicianIdentity = {
   workshopId: "workshop-a",
   email: "matias@example.com",
   displayName: "Matías",
-  role: "OWNER",
   workshopName: "Taller A",
   workshopSlug: "taller-a",
   planCode: "SOLO_TECHNICIAN",
@@ -48,7 +46,6 @@ function buildWorkspace(
         id: technicianId,
         displayName: technicianId,
         email: `${technicianId}@example.com`,
-        role: TechnicianRole.OWNER,
         status: TechnicianStatus.ACTIVE,
       },
     ],

@@ -4,14 +4,12 @@ import {
   TechnicianStatusCode,
   WorkshopStatusCode,
 } from "@/types/platformAdmin.types";
-import { TechnicianRoleCode } from "@/types/technician.types";
 
 export interface TechnicianIdentity {
   id: string;
   workshopId: string;
   email: string;
   displayName: string;
-  role: TechnicianRoleCode;
   workshopName: string;
   workshopSlug: string;
   planCode: PlanCode;
@@ -40,7 +38,6 @@ export interface TechnicianWorkspaceSummary {
     id: string;
     displayName: string;
     email: string;
-    role: TechnicianRoleCode;
     status: TechnicianStatusCode;
   };
 }

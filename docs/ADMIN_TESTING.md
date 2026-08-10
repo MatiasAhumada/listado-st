@@ -7,7 +7,7 @@
 3. Ejecutar `pnpm reset` para crear la base nueva desde cero.
 4. Ejecutar `pnpm seed` si el reset se realizó sin seed.
 5. Ejecutar `pnpm dev`.
-6. Abrir `http://localhost:3008/admin/login`.
+6. Abrir `http://localhost:3008/login` y seleccionar `Administrador`.
 
 ## Recorrido de aceptación
 
@@ -20,4 +20,4 @@
 7. Reactivar el taller.
 8. Confirmar que el acceso y la suscripción aparecen activos.
 
-El acceso del técnico con las credenciales generadas corresponde al siguiente bloque de implementación.
+Las credenciales generadas permiten probar el acceso del cliente desde `/login`.

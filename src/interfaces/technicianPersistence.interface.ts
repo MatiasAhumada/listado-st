@@ -1,7 +1,6 @@
 import {
   PlanCode,
   SubscriptionStatus,
-  TechnicianRole,
   TechnicianStatus,
   WorkshopStatus,
 } from "@prisma/client";
@@ -30,7 +29,6 @@ export interface TechnicianWorkspacePersistence {
     id: string;
     displayName: string;
     email: string;
-    role: TechnicianRole;
     status: TechnicianStatus;
   }>;
 }

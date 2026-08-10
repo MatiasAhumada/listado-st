@@ -1,9 +1,6 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import {
-  CATALOG_DEFAULTS,
-  CATALOG_TEXT,
-} from "@/constants/catalog.constant";
+import { CATALOG_DEFAULTS, CATALOG_TEXT } from "@/constants/catalog.constant";
 import { requireTechnicianIdentity } from "@/server/guards/technician.guard";
 import { GlobalCatalogService } from "@/server/service/globalCatalog.service";
 import { catalogSearchSchema } from "@/server/validation/catalog.validation";

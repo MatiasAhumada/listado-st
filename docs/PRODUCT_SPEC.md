@@ -17,11 +17,22 @@ La propuesta inicial se resume en:
 
 Un técnico independiente que trabaja solo y repara celulares. Empresas, empleados, sucursales y otros dispositivos quedan fuera del MVP.
 
+## Accesos y terminología
+
+El MVP tiene únicamente dos tipos de acceso a la plataforma:
+
+- **Administrador:** opera el SaaS, crea clientes, administra planes y controla suscripciones.
+- **Cliente:** compra o prueba el SaaS. En esta primera versión es un técnico independiente con un único taller.
+
+La palabra `técnico` describe la actividad profesional del cliente y no constituye un tercer rol. Las personas que llevan celulares a reparar se modelarán como `clientes del taller`, separadas de los clientes SaaS.
+
+La navegación raíz solo resuelve autenticación: `/login` para visitantes, `/admin` para administradores y `/cliente` para clientes. Todas las herramientas compradas por el cliente se anidan debajo de `/cliente`, comenzando por `/cliente/taller`.
+
 ## Decisiones aprobadas
 
 - SaaS multitenant desde el primer día.
 - Matías opera como administrador de plataforma.
-- El administrador crea, activa y suspende técnicos manualmente.
+- El administrador crea, activa y suspende clientes manualmente.
 - Existe un único plan funcional inicial para técnicos.
 - Cada taller es un tenant aislado.
 - No se migran los datos ni el dominio de la base actual.
