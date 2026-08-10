@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { type ReactNode, useCallback, useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/hooks/useAuthStore";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -17,18 +17,26 @@ import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clien
 import { formatNumber } from "@/utils/formatters.util";
 import { motion } from "framer-motion";
 import { SERVICE_TYPE_LABELS, SERVICE_TYPES, SERVICIO_COLUMN_LABELS } from "@/constants/serviceType.constant";
+import { Servicio } from "@/interfaces/servicio.interface";
+
+interface ServicioColumn {
+  key: string;
+  label: string;
+  render?: (item: Servicio) => ReactNode;
+  className?: string;
+}
 
 export default function DashboardPage() {
   const router = useRouter();
   const { logout } = useAuthStore();
-  const { isEmpresa, isTecnico, canManageProducts } = useUserRole();
-  const [data, setData] = useState([]);
+  const { isEmpresa, isTecnico } = useUserRole();
+  const [data, setData] = useState<Servicio[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
-  const [productToEdit, setProductToEdit] = useState<any>(null);
+  const [productToEdit, setProductToEdit] = useState<Servicio>();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [productToDelete, setProductToDelete] = useState<any>(null);
+  const [productToDelete, setProductToDelete] = useState<Servicio>();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -41,7 +49,7 @@ export default function DashboardPage() {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const servicios = await getServicios({
@@ -60,39 +68,39 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [debouncedSearch, logout, router, selectedType]);
 
   useEffect(() => {
-    fetchData();
-  }, [debouncedSearch, selectedType]);
+    void fetchData();
+  }, [fetchData]);
 
   const handleDelete = async () => {
     if (!productToDelete) return;
     try {
       await deleteServicio(productToDelete.id);
       clientSuccessHandler("Servicio eliminado exitosamente");
-      fetchData();
+      await fetchData();
       setDeleteModalOpen(false);
-      setProductToDelete(null);
+      setProductToDelete(undefined);
     } catch (error) {
       clientErrorHandler(error);
     }
   };
 
   const columns = useMemo(() => {
-    const baseCols: { key: string; label: string; render?: (item: any) => any; className?: string }[] = [
+    const baseCols: ServicioColumn[] = [
       { key: "name", label: "Producto" },
       {
         key: "type",
         label: "Trabajo",
-        render: (item: any) => (
+        render: (item) => (
           <span className="text-lavender/80">{SERVICE_TYPE_LABELS[item.type as keyof typeof SERVICE_TYPE_LABELS]}</span>
         ),
       },
       {
         key: "available",
         label: "Estado",
-        render: (item: any) => (
+        render: (item) => (
           <Badge className={item.available ? "bg-lime text-dark shadow-md" : "bg-destructive text-white shadow-md"}>
             {item.available ? "Disponible" : "Sin Stock"}
           </Badge>
@@ -104,12 +112,12 @@ export default function DashboardPage() {
       baseCols.push({
         key: "costTech",
         label: SERVICIO_COLUMN_LABELS.COSTO_REPUESTO,
-        render: (item: any) => <span className="font-bold text-lavender">${formatNumber(item.costTech || 0)}</span>,
+        render: (item) => <span className="font-bold text-lavender">${formatNumber(item.costTech || 0)}</span>,
       });
       baseCols.push({
         key: "cost",
         label: SERVICIO_COLUMN_LABELS.COSTO_EMPRESA,
-        render: (item: any) => <span className="font-bold text-lime">${formatNumber(item.cost || 0)}</span>,
+        render: (item) => <span className="font-bold text-lime">${formatNumber(item.cost || 0)}</span>,
       });
     }
 
@@ -117,17 +125,17 @@ export default function DashboardPage() {
       baseCols.push({
         key: "cost",
         label: SERVICIO_COLUMN_LABELS.COSTO,
-        render: (item: any) => <span className="font-bold text-destructive">${formatNumber(item.cost)}</span>,
+        render: (item) => <span className="font-bold text-destructive">${formatNumber(item.cost)}</span>,
       });
       baseCols.push({
         key: "cash",
         label: SERVICIO_COLUMN_LABELS.EFECTIVO,
-        render: (item: any) => <span className="font-bold text-lime">${formatNumber(item.cash)}</span>,
+        render: (item) => <span className="font-bold text-lime">${formatNumber(item.cash)}</span>,
       });
       baseCols.push({
         key: "credit",
         label: SERVICIO_COLUMN_LABELS.TARJETA,
-        render: (item: any) => <span className="font-bold text-green">${formatNumber(item.credit)}</span>,
+        render: (item) => <span className="font-bold text-green">${formatNumber(item.credit)}</span>,
       });
     }
 
@@ -135,12 +143,12 @@ export default function DashboardPage() {
       baseCols.push({
         key: "cash",
         label: SERVICIO_COLUMN_LABELS.EFECTIVO,
-        render: (item: any) => <span className="font-bold text-lime">${formatNumber(item.cash || 0)}</span>,
+        render: (item) => <span className="font-bold text-lime">${formatNumber(item.cash || 0)}</span>,
       });
       baseCols.push({
         key: "credit",
         label: SERVICIO_COLUMN_LABELS.TARJETA,
-        render: (item: any) => <span className="font-bold text-green">${formatNumber(item.credit || 0)}</span>,
+        render: (item) => <span className="font-bold text-green">${formatNumber(item.credit || 0)}</span>,
       });
     }
 
@@ -149,7 +157,7 @@ export default function DashboardPage() {
         key: "actions",
         label: "Acciones",
         className: "text-center",
-        render: (item: any) => (
+        render: (item) => (
           <div className="flex gap-2 justify-center">
             <Button
               size="icon"
@@ -185,7 +193,7 @@ export default function DashboardPage() {
         key: "actions",
         label: "Acciones",
         className: "text-center",
-        render: (item: any) => (
+        render: (item) => (
           <div className="flex gap-2 justify-center">
             <Button
               size="icon"
@@ -220,7 +228,7 @@ export default function DashboardPage() {
           subtitle={isEmpresa ? "Vista administrador global" : "Catálogo disponible para venta"}
           data={data}
           columns={columns}
-          keyExtractor={(item: any) => item.id}
+          keyExtractor={(item) => item.id}
           loading={loading}
           searchPlaceholder="Buscar por nombre..."
           onSearch={setSearchTerm}
@@ -249,10 +257,10 @@ export default function DashboardPage() {
                 <>
                   <Button
                     onClick={() => {
-                      setProductToEdit(null);
+                      setProductToEdit(undefined);
                       setModalOpen(true);
                     }}
-                    className="gap-2 bg-lime hover:bg-green text-dark shadow-lg transition-all font-bold px-6"
+                    className="gap-2 bg-lime hover:bg-green text-dark shadow-lg transition-colors font-bold px-6"
                   >
                     <Plus size={18} />
                     Nuevo

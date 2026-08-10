@@ -1,4 +1,5 @@
 import clientAxios from "@/utils/clientAxios.util";
+import { ServicioPayload } from "@/interfaces/servicio.interface";
 
 export const getProductos = async (filters?: { type?: string; quality?: string; search?: string }) => {
   const params = new URLSearchParams();
@@ -10,12 +11,12 @@ export const getProductos = async (filters?: { type?: string; quality?: string; 
   return data;
 };
 
-export const createProducto = async (producto: any) => {
+export const createProducto = async (producto: ServicioPayload) => {
   const { data } = await clientAxios.post("/productos", producto);
   return data;
 };
 
-export const updateProducto = async (id: string, producto: any) => {
+export const updateProducto = async (id: string, producto: ServicioPayload) => {
   const { data } = await clientAxios.put(`/productos/${id}`, producto);
   return data;
 };
@@ -25,7 +26,7 @@ export const deleteProducto = async (id: string) => {
   return data;
 };
 
-export const bulkCreateOrUpdateProductos = async (productos: any[]) => {
+export const bulkCreateOrUpdateProductos = async (productos: ServicioPayload[]) => {
   const { data } = await clientAxios.post("/productos", { productos });
   return data;
 };

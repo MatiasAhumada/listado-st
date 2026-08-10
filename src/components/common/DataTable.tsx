@@ -1,5 +1,4 @@
-import { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
+import { type ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 

@@ -1,8 +1,8 @@
 import clientAxios from "@/utils/clientAxios.util";
+import { LoginCredentials, LoginResponse } from "@/interfaces/auth.interface";
 
-export const loginUsuario = async (credentials: any) => {
-  const { data } = await clientAxios.post("/auth/login", credentials);
-  // server returns { user, token }
+export const loginUsuario = async (credentials: LoginCredentials): Promise<LoginResponse> => {
+  const { data } = await clientAxios.post<LoginResponse>("/auth/login", credentials);
   if (data?.token) {
     clientAxios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
   }
@@ -11,7 +11,6 @@ export const loginUsuario = async (credentials: any) => {
 
 export const logoutUsuario = async () => {
   const { data } = await clientAxios.post("/auth/logout");
-  // clear authorization header when logging out
   delete clientAxios.defaults.headers.common["Authorization"];
   return data;
 };

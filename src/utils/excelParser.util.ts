@@ -21,6 +21,8 @@ export interface ServicioProcesado {
 
 export type ProductoExcelRaw = ServicioExcelRaw;
 export type ProductoProcesado = ServicioProcesado;
+type ExcelCell = string | number | boolean | Date | null | undefined;
+type ExcelRow = ExcelCell[];
 
 export function limpiarPrecio(precioStr: string | number): number {
   if (!precioStr) return 0;
@@ -28,6 +30,14 @@ export function limpiarPrecio(precioStr: string | number): number {
   const str = precioStr.toString();
   const cleaned = str.replace(/[$.]/g, "").replace(",", ".");
   return parseFloat(cleaned) || 0;
+}
+
+function leerCelda(celda: ExcelCell): string {
+  return celda?.toString().trim() ?? "";
+}
+
+function leerPrecio(celda: ExcelCell): number {
+  return limpiarPrecio(leerCelda(celda));
 }
 
 export function esVarianteRtech(descripcion: string): boolean {
@@ -92,7 +102,7 @@ export async function procesarExcelFile(file: File, productType: string = "MODUL
   const workbook = XLSX.read(buffer, { type: "array" });
   const sheetName = workbook.SheetNames[0];
   const worksheet = workbook.Sheets[sheetName];
-  const data: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+  const data = XLSX.utils.sheet_to_json<ExcelRow>(worksheet, { header: 1 });
 
   if (productType === "VIDRIOS_CAMARA" || productType === "BOTON_POWER" || productType === "BANDEJA_SIM") {
     return procesarFormatoTresColumnas(data, productType);
@@ -111,7 +121,7 @@ export async function procesarExcelFile(file: File, productType: string = "MODUL
   return procesarFormatoModulos(data, productType);
 }
 
-function procesarFormatoTresColumnas(data: any[][], productType: string): ServicioProcesado[] {
+function procesarFormatoTresColumnas(data: ExcelRow[], productType: string): ServicioProcesado[] {
   const productosProcesados: ServicioProcesado[] = [];
   const agrupados = new Map<string, number[]>();
 
@@ -122,9 +132,9 @@ function procesarFormatoTresColumnas(data: any[][], productType: string): Servic
       continue;
     }
 
-    const columna1 = fila[0]?.toString().trim() || "";
-    const columna2 = fila[1]?.toString().trim() || "";
-    const precio = limpiarPrecio(fila[2]);
+    const columna1 = leerCelda(fila[0]);
+    const columna2 = leerCelda(fila[1]);
+    const precio = leerPrecio(fila[2]);
 
     if (precio > 0 && columna1 && columna2) {
       const nombreCompleto = `${columna1} ${columna2}`.trim();
@@ -160,7 +170,7 @@ function procesarFormatoTresColumnas(data: any[][], productType: string): Servic
   return productosProcesados;
 }
 
-function procesarFormatoSimple(data: any[][], productType: string): ServicioProcesado[] {
+function procesarFormatoSimple(data: ExcelRow[], productType: string): ServicioProcesado[] {
   const productosProcesados: ServicioProcesado[] = [];
   const agrupados = new Map<string, number[]>();
 
@@ -171,8 +181,8 @@ function procesarFormatoSimple(data: any[][], productType: string): ServicioProc
       continue;
     }
 
-    const descripcion = fila[0]?.toString().trim() || "";
-    const precio = limpiarPrecio(fila[1]);
+    const descripcion = leerCelda(fila[0]);
+    const precio = leerPrecio(fila[1]);
 
     if (precio > 0 && descripcion) {
       const nombreLimpio = extraerNombreBase(descripcion);
@@ -208,7 +218,7 @@ function procesarFormatoSimple(data: any[][], productType: string): ServicioProc
   return productosProcesados;
 }
 
-function procesarFormatoModulos(data: any[][], productType: string): ServicioProcesado[] {
+function procesarFormatoModulos(data: ExcelRow[], productType: string): ServicioProcesado[] {
   const grupos: { marca: string; productos: { descripcion: string; precio: number }[] }[] = [];
   let marcaActual = "";
   let grupoActual: { descripcion: string; precio: number }[] = [];
@@ -224,7 +234,7 @@ function procesarFormatoModulos(data: any[][], productType: string): ServicioPro
       continue;
     }
 
-    const primeraColumna = fila[0]?.toString() || "";
+    const primeraColumna = leerCelda(fila[0]);
     const segundaColumna = fila[1];
 
     const marca = detectarMarca(primeraColumna);
@@ -239,7 +249,7 @@ function procesarFormatoModulos(data: any[][], productType: string): ServicioPro
 
     if (primeraColumna.includes("•") && segundaColumna) {
       const descripcion = primeraColumna.trim();
-      const precio = limpiarPrecio(segundaColumna);
+      const precio = leerPrecio(segundaColumna);
 
       if (precio > 0 && descripcion && !esVarianteRtech(descripcion)) {
         grupoActual.push({ descripcion, precio });

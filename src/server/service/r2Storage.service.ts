@@ -58,7 +58,7 @@ export const r2StorageService = {
       const url = `${process.env.R2_PUBLIC_URL}/${key}`;
 
       return { url, key };
-    } catch (error) {
+    } catch {
       throw new ApiError({
         status: httpStatus.INTERNAL_SERVER_ERROR,
         message: "Error al subir la imagen",
@@ -81,7 +81,7 @@ export const r2StorageService = {
           Key: key,
         })
       );
-    } catch (error) {
+    } catch {
       throw new ApiError({
         status: httpStatus.INTERNAL_SERVER_ERROR,
         message: "Error al eliminar la imagen",

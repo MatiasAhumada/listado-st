@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       throw new ApiError({ status: httpStatus.FORBIDDEN, message: "Solo técnicos pueden crear servicios" });
     }
 
-    const servicio = await ServicioService.create({ ...body, companyId: auth.id }, auth.role as never, auth.id);
+    const servicio = await ServicioService.create({ ...body, companyId: auth.id }, auth.role as never);
     return NextResponse.json(servicio);
   } catch (error) {
     return apiErrorHandler({

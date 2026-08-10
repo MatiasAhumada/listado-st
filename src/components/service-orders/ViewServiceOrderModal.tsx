@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useEffectEvent, useState } from "react";
 import { GenericModal } from "@/components/common/GenericModal";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -80,38 +80,46 @@ export function ViewServiceOrderModal({ open, onOpenChange, order }: ViewService
   const { canViewMargins } = useUserRole();
   const total = order.totalClientPrice ?? order.items?.reduce((sum, p) => sum + p.totalPrice, 0) ?? 0;
 
+  const handlePreviousImage = useCallback(() => {
+    if (!order.images) return;
+    const imageCount = order.images.length;
+    setSelectedImageIndex((currentIndex) => {
+      if (currentIndex == null) return currentIndex;
+      return (currentIndex - 1 + imageCount) % imageCount;
+    });
+  }, [order.images]);
+
+  const handleNextImage = useCallback(() => {
+    if (!order.images) return;
+    const imageCount = order.images.length;
+    setSelectedImageIndex((currentIndex) => {
+      if (currentIndex == null) return currentIndex;
+      return (currentIndex + 1) % imageCount;
+    });
+  }, [order.images]);
+
+  const handleCloseImageViewer = useCallback(() => {
+    setSelectedImageIndex(null);
+  }, []);
+
+  const handleKeyDown = useEffectEvent((event: KeyboardEvent) => {
+    if (selectedImageIndex === null) return;
+
+    if (event.key === "Escape") {
+      handleCloseImageViewer();
+    }
+    if (event.key === "ArrowLeft") {
+      handlePreviousImage();
+    }
+    if (event.key === "ArrowRight") {
+      handleNextImage();
+    }
+  });
+
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (selectedImageIndex === null) return;
-
-      if (e.key === "Escape") {
-        handleCloseImageViewer();
-      }
-      if (e.key === "ArrowLeft") {
-        handlePreviousImage();
-      }
-      if (e.key === "ArrowRight") {
-        handleNextImage();
-      }
-    };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedImageIndex, order.images]);
-
-  const handlePreviousImage = () => {
-    if (selectedImageIndex === null || !order.images) return;
-    setSelectedImageIndex((selectedImageIndex - 1 + order.images.length) % order.images.length);
-  };
-
-  const handleNextImage = () => {
-    if (selectedImageIndex === null || !order.images) return;
-    setSelectedImageIndex((selectedImageIndex + 1) % order.images.length);
-  };
-
-  const handleCloseImageViewer = () => {
-    setSelectedImageIndex(null);
-  };
+  }, []);
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {

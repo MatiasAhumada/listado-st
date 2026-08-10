@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +22,7 @@ import {
 import { formatNumber } from "@/utils/formatters.util";
 import { Plus, Edit, Trash2, Eye, Printer } from "lucide-react";
 import { ServiceOrderStatus, ServiceType, PaymentMethod } from "@prisma/client";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { ViewServiceOrderModal } from "@/components/service-orders/ViewServiceOrderModal";
 import { ServiceOrderReceipt } from "@/components/service-orders/ServiceOrderReceipt";
 import { WarrantyReceipt } from "@/components/service-orders/WarrantyReceipt";
@@ -88,7 +88,7 @@ export default function ServiceOrdersPage() {
   const [printOrder, setPrintOrder] = useState<ServiceOrder | null>(null);
   const [warrantyOrder, setWarrantyOrder] = useState<ServiceOrder | null>(null);
 
-  const loadOrders = async () => {
+  const loadOrders = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getServiceOrders();
@@ -98,11 +98,11 @@ export default function ServiceOrdersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadOrders();
-  }, []);
+    void loadOrders();
+  }, [loadOrders]);
 
   const handleDelete = async (id: string) => {
     if (!confirm("¿Está seguro de eliminar esta orden?")) return;
