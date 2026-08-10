@@ -5,6 +5,15 @@ import {
   UpdateWorkshopStatusPayload,
   WorkshopSummary,
 } from "@/interfaces/platformAdmin.interface";
+import {
+  CatalogAdminDashboard,
+  ReplaceCatalogPricingRulesPayload,
+} from "@/interfaces/catalog.interface";
+import {
+  CATALOG_FIELDS,
+  CATALOG_ROUTES,
+  CATALOG_STATUS,
+} from "@/constants/catalog.constant";
 import { PLATFORM_ADMIN_ROUTES } from "@/constants/platformAdmin.constant";
 import clientAxios from "@/utils/clientAxios.util";
 
@@ -33,6 +42,36 @@ export async function updatePlatformWorkshopStatus(
 ): Promise<WorkshopSummary> {
   const response = await clientAxios.patch<WorkshopSummary>(
     `${PLATFORM_ADMIN_ROUTES.workshopsApi}/${workshopId}`,
+    payload
+  );
+  return response.data;
+}
+
+export async function importPlatformCatalog(file: File): Promise<CatalogAdminDashboard> {
+  const formData = new FormData();
+  formData.append(CATALOG_FIELDS.upload, file);
+  const response = await clientAxios.post<CatalogAdminDashboard>(
+    CATALOG_ROUTES.adminImportsApi,
+    formData
+  );
+  return response.data;
+}
+
+export async function publishPlatformCatalog(
+  batchId: string
+): Promise<CatalogAdminDashboard> {
+  const response = await clientAxios.patch<CatalogAdminDashboard>(
+    `${CATALOG_ROUTES.adminImportsApi}/${batchId}`,
+    { status: CATALOG_STATUS.published }
+  );
+  return response.data;
+}
+
+export async function replacePlatformCatalogPricingRules(
+  payload: ReplaceCatalogPricingRulesPayload
+): Promise<CatalogAdminDashboard> {
+  const response = await clientAxios.put<CatalogAdminDashboard>(
+    CATALOG_ROUTES.adminPricingRulesApi,
     payload
   );
   return response.data;

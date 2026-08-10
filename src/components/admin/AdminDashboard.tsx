@@ -5,6 +5,7 @@ import {
   Activity,
   ClipboardCopy,
   LogOut,
+  PackageSearch,
   RefreshCcw,
   ShieldCheck,
   Store,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { CreateWorkshopForm } from "@/components/admin/CreateWorkshopForm";
+import { AdminCatalogManager } from "@/components/admin/AdminCatalogManager";
 import { WorkshopTable } from "@/components/admin/WorkshopTable";
 import { MetricCard } from "@/components/common/MetricCard";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +28,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CATALOG_TABS, CATALOG_TEXT } from "@/constants/catalog.constant";
 import {
   PLATFORM_ADMIN_ROUTES,
   PLATFORM_ADMIN_TEXT,
@@ -35,6 +39,7 @@ import {
   PlatformAdminIdentity,
   WorkshopSummary,
 } from "@/interfaces/platformAdmin.interface";
+import { CatalogAdminDashboard } from "@/interfaces/catalog.interface";
 import {
   getPlatformWorkshops,
   logoutPlatformAdmin,
@@ -50,9 +55,14 @@ import { buildTechnicianCredentialsMessage } from "@/utils/platformAdmin.util";
 interface AdminDashboardProps {
   admin: PlatformAdminIdentity;
   initialWorkshops: WorkshopSummary[];
+  initialCatalog: CatalogAdminDashboard;
 }
 
-export function AdminDashboard({ admin, initialWorkshops }: AdminDashboardProps) {
+export function AdminDashboard({
+  admin,
+  initialWorkshops,
+  initialCatalog,
+}: AdminDashboardProps) {
   const router = useRouter();
   const [workshops, setWorkshops] = useState(initialWorkshops);
   const [pendingWorkshopId, setPendingWorkshopId] = useState<string>();
@@ -170,76 +180,97 @@ export function AdminDashboard({ admin, initialWorkshops }: AdminDashboardProps)
           />
         </section>
 
-        <section className="grid items-start gap-6 xl:grid-cols-[minmax(320px,0.72fr)_minmax(0,1.65fr)]">
-          <div className="flex flex-col gap-6 xl:sticky xl:top-6">
-            <Card className="border-foreground/15 bg-card/95 shadow-lg">
-              <CardHeader>
-                <CardTitle className="font-display text-2xl uppercase tracking-wide">
-                  {PLATFORM_ADMIN_TEXT.createTitle}
-                </CardTitle>
-                <CardDescription>{PLATFORM_ADMIN_TEXT.createDescription}</CardDescription>
-                <CardAction>
-                  <Badge variant="outline">{PLATFORM_ADMIN_TEXT.planSoloLabel}</Badge>
-                </CardAction>
-              </CardHeader>
-              <CardContent>
-                <CreateWorkshopForm onCreated={handleCreated} />
-              </CardContent>
-            </Card>
+        <Tabs defaultValue={CATALOG_TABS.workshops}>
+          <TabsList variant="line">
+            <TabsTrigger value={CATALOG_TABS.workshops}>
+              <Store />
+              {CATALOG_TEXT.tabWorkshops}
+            </TabsTrigger>
+            <TabsTrigger value={CATALOG_TABS.catalog}>
+              <PackageSearch />
+              {CATALOG_TEXT.tabCatalog}
+            </TabsTrigger>
+          </TabsList>
 
-            {lastCreatedCredentials ? (
-              <Card className="border-secondary bg-secondary/15 shadow-lg">
+          <TabsContent value={CATALOG_TABS.workshops}>
+            <section className="grid items-start gap-6 xl:grid-cols-[minmax(320px,0.72fr)_minmax(0,1.65fr)]">
+              <div className="flex flex-col gap-6 xl:sticky xl:top-6">
+                <Card className="border-foreground/15 bg-card/95 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="font-display text-2xl uppercase tracking-wide">
+                      {PLATFORM_ADMIN_TEXT.createTitle}
+                    </CardTitle>
+                    <CardDescription>{PLATFORM_ADMIN_TEXT.createDescription}</CardDescription>
+                    <CardAction>
+                      <Badge variant="outline">{PLATFORM_ADMIN_TEXT.planSoloLabel}</Badge>
+                    </CardAction>
+                  </CardHeader>
+                  <CardContent>
+                    <CreateWorkshopForm onCreated={handleCreated} />
+                  </CardContent>
+                </Card>
+
+                {lastCreatedCredentials ? (
+                  <Card className="border-secondary bg-secondary/15 shadow-lg">
+                    <CardHeader>
+                      <CardTitle className="font-display text-2xl uppercase tracking-wide">
+                        {PLATFORM_ADMIN_TEXT.credentialsTitle}
+                      </CardTitle>
+                      <CardDescription>
+                        {PLATFORM_ADMIN_TEXT.credentialsDescription}
+                      </CardDescription>
+                      <CardAction>
+                        <ShieldCheck />
+                      </CardAction>
+                    </CardHeader>
+                    <CardContent className="flex flex-col gap-3 font-mono text-sm">
+                      <p>{lastCreatedCredentials.workshopName}</p>
+                      <p>{lastCreatedCredentials.ownerEmail}</p>
+                      <p className="rounded-md border bg-background p-3 font-semibold">
+                        {lastCreatedCredentials.ownerPassword}
+                      </p>
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="secondary" className="w-full" onClick={copyCredentials}>
+                        <ClipboardCopy data-icon="inline-start" />
+                        {PLATFORM_ADMIN_TEXT.copyCredentialsAction}
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ) : null}
+              </div>
+
+              <Card className="min-w-0 border-foreground/15 bg-card/95 shadow-lg">
                 <CardHeader>
                   <CardTitle className="font-display text-2xl uppercase tracking-wide">
-                    {PLATFORM_ADMIN_TEXT.credentialsTitle}
+                    {PLATFORM_ADMIN_TEXT.listTitle}
                   </CardTitle>
-                  <CardDescription>{PLATFORM_ADMIN_TEXT.credentialsDescription}</CardDescription>
+                  <CardDescription>{PLATFORM_ADMIN_TEXT.listDescription}</CardDescription>
                   <CardAction>
-                    <ShieldCheck />
+                    <Button variant="outline" size="sm" disabled={isRefreshing} onClick={handleRefresh}>
+                      <RefreshCcw
+                        data-icon="inline-start"
+                        className={isRefreshing ? "animate-spin" : undefined}
+                      />
+                      {isRefreshing ? PLATFORM_ADMIN_TEXT.loadingWorkshops : PLATFORM_ADMIN_TEXT.refreshAction}
+                    </Button>
                   </CardAction>
                 </CardHeader>
-                <CardContent className="flex flex-col gap-3 font-mono text-sm">
-                  <p>{lastCreatedCredentials.workshopName}</p>
-                  <p>{lastCreatedCredentials.ownerEmail}</p>
-                  <p className="rounded-md border bg-background p-3 font-semibold">
-                    {lastCreatedCredentials.ownerPassword}
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="secondary" className="w-full" onClick={copyCredentials}>
-                    <ClipboardCopy data-icon="inline-start" />
-                    {PLATFORM_ADMIN_TEXT.copyCredentialsAction}
-                  </Button>
-                </CardFooter>
-              </Card>
-            ) : null}
-          </div>
-
-          <Card className="min-w-0 border-foreground/15 bg-card/95 shadow-lg">
-            <CardHeader>
-              <CardTitle className="font-display text-2xl uppercase tracking-wide">
-                {PLATFORM_ADMIN_TEXT.listTitle}
-              </CardTitle>
-              <CardDescription>{PLATFORM_ADMIN_TEXT.listDescription}</CardDescription>
-              <CardAction>
-                <Button variant="outline" size="sm" disabled={isRefreshing} onClick={handleRefresh}>
-                  <RefreshCcw
-                    data-icon="inline-start"
-                    className={isRefreshing ? "animate-spin" : undefined}
+                <CardContent className="min-w-0">
+                  <WorkshopTable
+                    workshops={workshops}
+                    pendingWorkshopId={pendingWorkshopId}
+                    onStatusChange={handleStatusChange}
                   />
-                  {isRefreshing ? PLATFORM_ADMIN_TEXT.loadingWorkshops : PLATFORM_ADMIN_TEXT.refreshAction}
-                </Button>
-              </CardAction>
-            </CardHeader>
-            <CardContent className="min-w-0">
-              <WorkshopTable
-                workshops={workshops}
-                pendingWorkshopId={pendingWorkshopId}
-                onStatusChange={handleStatusChange}
-              />
-            </CardContent>
-          </Card>
-        </section>
+                </CardContent>
+              </Card>
+            </section>
+          </TabsContent>
+
+          <TabsContent value={CATALOG_TABS.catalog}>
+            <AdminCatalogManager initialDashboard={initialCatalog} />
+          </TabsContent>
+        </Tabs>
       </div>
     </main>
   );
