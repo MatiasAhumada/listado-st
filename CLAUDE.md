@@ -40,9 +40,13 @@ API routes call service layer → service layer calls repository layer → repos
 
 ### Auth
 
-Platform administrators and technicians use separate opaque, revocable sessions stored in secure `httpOnly` cookies. Only token hashes are persisted. No auth data is stored in `localStorage`.
+Platform administrators and clients use separate opaque, revocable sessions stored in secure `httpOnly` cookies. Only token hashes are persisted. No auth data is stored in `localStorage`.
 
-The server-resolved technician session is the only source of authority for `workshopId`.
+The MVP has exactly two platform access types: administrator and client. A client is currently an independent repair technician who owns one workshop and has a subscription. Technician is a profession, not an authorization role. Future customers who leave devices at a workshop must use a distinct workshop-customer entity.
+
+The server-resolved client session is the only source of authority for `workshopId`.
+
+`/` only resolves session state. Anonymous visitors go to `/login`, administrators to `/admin`, and clients to `/cliente`. Client product areas must be nested below `/cliente`; workshop management starts at `/cliente/taller`.
 
 ### Global catalog
 

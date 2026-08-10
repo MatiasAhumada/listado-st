@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     const payload = parseRequestPayload(technicianLoginSchema, await request.json());
     const session = await TechnicianAuthService.login(payload);
     const response = NextResponse.json(
-      { message: TECHNICIAN_TEXT.sessionCreated, technician: session.technician },
+      { message: TECHNICIAN_TEXT.sessionCreated, client: session.technician },
       { status: httpStatus.CREATED }
     );
     response.cookies.set({

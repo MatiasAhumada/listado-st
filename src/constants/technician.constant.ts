@@ -1,15 +1,18 @@
 import { AUTH_SECURITY } from "@/constants/auth.constant";
+import { ACCESS_ROUTES } from "@/constants/access.constant";
 
 export const TECHNICIAN_ROUTES = {
-  dashboard: "/taller",
-  login: "/taller/login",
-  sessionApi: "/technician/auth/session",
-  workspaceApi: "/technician/workspace",
+  dashboard: "/cliente",
+  workshop: "/cliente/taller",
+  prototype: "/cliente/taller/prototipo",
+  login: ACCESS_ROUTES.login,
+  sessionApi: "/client/auth/session",
+  workspaceApi: "/client/workspace",
 } as const;
 
 export const TECHNICIAN_SECURITY = {
   ...AUTH_SECURITY,
-  cookieName: "technician-session",
+  cookieName: "client-session",
 } as const;
 
 export const TECHNICIAN_ACCESS = {
@@ -25,16 +28,16 @@ export const TECHNICIAN_FIELDS = {
 
 export const TECHNICIAN_TEXT = {
   productName: "Service Tech",
-  loginEyebrow: "Acceso del técnico",
+  loginEyebrow: "Acceso del cliente",
   loginTitle: "Tu taller, en orden",
-  loginDescription: "Ingresá con las credenciales que recibiste al activar tu cuenta.",
+  loginDescription: "Ingresá con las credenciales de tu cuenta cliente.",
   loginPromise: "Presupuestos claros, trabajos visibles y números bajo control.",
   emailLabel: "Correo",
   passwordLabel: "Contraseña",
-  loginAction: "Entrar a mi taller",
-  loginPending: "Abriendo el taller...",
+  loginAction: "Entrar a mi cuenta",
+  loginPending: "Abriendo tu cuenta...",
   logoutAction: "Cerrar sesión",
-  dashboardEyebrow: "Espacio privado",
+  dashboardEyebrow: "Cuenta cliente",
   dashboardDescription: "Tu espacio privado y la lista de referencia ya están activos.",
   accessReadyTitle: "Tu taller está correctamente aislado",
   accessReadyDescription:
@@ -62,7 +65,7 @@ export const TECHNICIAN_TEXT = {
   subscriptionCancelled: "Suscripción cancelada",
   invalidCredentials: "Correo o contraseña incorrectos",
   accessUnavailable: "El acceso a este taller está suspendido",
-  unauthenticated: "La sesión del técnico no es válida",
+  unauthenticated: "La sesión del cliente no es válida",
   workspaceNotFound: "El taller no existe",
   invalidRequest: "Los datos enviados no son válidos",
   internalError: "Ocurrió un error interno",

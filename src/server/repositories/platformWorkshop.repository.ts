@@ -2,7 +2,6 @@ import {
   PlanCode,
   PlatformAuditAction,
   Prisma,
-  TechnicianRole,
   TechnicianStatus,
   WorkshopStatus,
 } from "@prisma/client";
@@ -22,7 +21,6 @@ export type WorkshopWithAdminRelations = Prisma.WorkshopGetPayload<{
 const workshopRelations = {
   subscription: true,
   technicians: {
-    where: { role: TechnicianRole.OWNER },
     orderBy: { createdAt: "asc" as const },
     take: 1,
   },
@@ -56,7 +54,6 @@ export class PlatformWorkshopRepository {
               email: payload.ownerEmail,
               passwordHash: payload.ownerPasswordHash,
               displayName: payload.ownerName,
-              role: TechnicianRole.OWNER,
               status: TechnicianStatus.ACTIVE,
             },
           },

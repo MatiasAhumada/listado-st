@@ -1,8 +1,9 @@
 import { AUTH_SECURITY } from "@/constants/auth.constant";
+import { ACCESS_ROUTES } from "@/constants/access.constant";
 
 export const PLATFORM_ADMIN_ROUTES = {
   dashboard: "/admin",
-  login: "/admin/login",
+  login: ACCESS_ROUTES.login,
   sessionApi: "/platform/auth/session",
   workshopsApi: "/platform/workshops",
 } as const;
@@ -19,7 +20,6 @@ export const INITIAL_SUBSCRIPTION_STATUS_OPTIONS = ["TRIAL", "ACTIVE"] as const;
 
 export const PLATFORM_ADMIN_DEFAULTS = {
   planCode: "SOLO_TECHNICIAN",
-  technicianRole: "OWNER",
   initialWorkshopStatus: "ACTIVE",
   initialTechnicianStatus: "ACTIVE",
   initialSubscriptionStatus: "TRIAL",
@@ -40,9 +40,9 @@ export const PLATFORM_ADMIN_TEXT = {
     "Alta de talleres, control de accesos y publicación de precios de referencia.",
   logoutAction: "Cerrar sesión",
   createTitle: "Vender una cuenta",
-  createDescription: "Creá el taller y las credenciales de su técnico propietario en una sola operación.",
+  createDescription: "Creá el taller y las credenciales de su cliente en una sola operación.",
   workshopNameLabel: "Nombre del taller",
-  ownerNameLabel: "Nombre del técnico",
+  ownerNameLabel: "Nombre del cliente",
   ownerEmailLabel: "Correo de acceso",
   ownerPasswordLabel: "Contraseña temporal",
   subscriptionStatusLabel: "Inicio comercial",
@@ -62,7 +62,7 @@ export const PLATFORM_ADMIN_TEXT = {
   listTitle: "Talleres administrados",
   listDescription: "Estado comercial y acceso del propietario en una sola vista.",
   workshopColumn: "Taller",
-  ownerColumn: "Técnico propietario",
+  ownerColumn: "Cliente",
   planColumn: "Plan",
   subscriptionColumn: "Suscripción",
   accessColumn: "Acceso",
@@ -88,13 +88,13 @@ export const PLATFORM_ADMIN_TEXT = {
   inactiveAdmin: "La cuenta administradora está inactiva",
   unauthenticated: "La sesión del administrador no es válida",
   workshopNotFound: "El taller no existe",
-  ownerEmailExists: "Ya existe un técnico con ese correo",
+  ownerEmailExists: "Ya existe un cliente con ese correo",
   invalidRequest: "Los datos enviados no son válidos",
   internalError: "Ocurrió un error interno",
   logoutSuccess: "Sesión cerrada",
   sessionCreated: "Sesión iniciada",
   workshopNameRequired: "Ingresá el nombre del taller",
-  ownerNameRequired: "Ingresá el nombre del técnico",
+  ownerNameRequired: "Ingresá el nombre del cliente",
   emailInvalid: "Ingresá un correo válido",
   passwordTooShort: "La contraseña debe tener al menos 10 caracteres",
   passwordTooLong: "La contraseña no puede superar 72 caracteres",

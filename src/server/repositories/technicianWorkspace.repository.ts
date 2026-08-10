@@ -36,7 +36,6 @@ export class TechnicianWorkspaceRepository {
             id: true,
             displayName: true,
             email: true,
-            role: true,
             status: true,
           },
         },
