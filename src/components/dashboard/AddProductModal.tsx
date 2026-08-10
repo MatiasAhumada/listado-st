@@ -13,12 +13,13 @@ import { CheckIcon } from "lucide-react";
 import { MARGIN_OPTIONS } from "@/constants/pricing.constant";
 import { formatNumber } from "@/utils/formatters.util";
 import { SERVICE_TYPE_LABELS, SERVICE_TYPES } from "@/constants/serviceType.constant";
+import { Servicio } from "@/interfaces/servicio.interface";
 
 interface AddProductModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
-  initialData?: any;
+  initialData?: Servicio;
   userRole?: "EMPRESA" | "TECNICO" | "VENDEDOR";
 }
 

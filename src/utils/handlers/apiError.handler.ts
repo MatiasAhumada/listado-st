@@ -10,8 +10,6 @@ interface ApiErrorOptions {
   details?: object | null;
 }
 
-const statusMessages: Record<number, string> = httpStatus as any;
-
 export class ApiError extends Error {
   public readonly stack?: string;
   public readonly status: number;
@@ -63,7 +61,7 @@ export default function apiErrorHandler({
     status = httpStatus.INTERNAL_SERVER_ERROR;
     message = fallbackMessage ?? String(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
   }
-  if (!message) message = fallbackMessage ?? statusMessages[status];
+  if (!message) message = fallbackMessage ?? String(httpStatus[status as keyof typeof httpStatus]);
 
   const errorResponse: ResponseError = {
     message,

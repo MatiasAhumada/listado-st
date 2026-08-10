@@ -27,7 +27,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     const auth = extractAuthContext(cookieStore, req.headers);
     const { id } = await params;
 
-    await ServicioService.delete(id, auth.role as never, auth.id);
+    await ServicioService.delete(id, auth.role as never);
     return NextResponse.json({ message: "Servicio eliminado exitosamente" });
   } catch (error) {
     return apiErrorHandler({

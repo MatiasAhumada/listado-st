@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useCallback, useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/common/DataTable";
@@ -23,7 +23,7 @@ import { formatNumber } from "@/utils/formatters.util";
 import { Plus, Edit, Trash2, Eye, Printer } from "lucide-react";
 import { ServiceOrderStatus, ServiceType, PaymentMethod } from "@prisma/client";
 import { motion } from "framer-motion";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { ViewServiceOrderModal } from "@/components/service-orders/ViewServiceOrderModal";
 import { ServiceOrderReceipt } from "@/components/service-orders/ServiceOrderReceipt";
 import { WarrantyReceipt } from "@/components/service-orders/WarrantyReceipt";
@@ -109,7 +109,7 @@ export default function ServiceOrdersPage() {
     canViewMargins,
   } = useUserRole();
 
-  const loadOrders = async () => {
+  const loadOrders = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getServiceOrders();
@@ -119,11 +119,11 @@ export default function ServiceOrdersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadOrders();
-  }, []);
+    void loadOrders();
+  }, [loadOrders]);
 
   const handleDelete = async () => {
     if (!orderToDelete) return;
@@ -141,16 +141,16 @@ export default function ServiceOrdersPage() {
     }
   };
 
-  const handleStatusChange = async (orderId: string, newStatus: ServiceOrderStatus) => {
+  const handleStatusChange = useCallback(async (orderId: string, newStatus: ServiceOrderStatus) => {
     try {
       const patchData: PatchServiceOrderDTO = { status: newStatus };
       await patchServiceOrder(orderId, patchData);
       clientSuccessHandler("Estado actualizado correctamente");
-      loadOrders();
+      await loadOrders();
     } catch (error) {
       clientErrorHandler(error);
     }
-  };
+  }, [loadOrders]);
 
   const handleEdit = (order: ServiceOrder) => {
     setSelectedOrder(order);
@@ -357,6 +357,7 @@ export default function ServiceOrdersPage() {
     canEditOrders,
     canDeleteOrders,
     canViewMargins,
+    handleStatusChange,
   ]);
 
   return (

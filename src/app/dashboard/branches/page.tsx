@@ -9,6 +9,7 @@ import { getBranches, deleteBranch } from "@/services/branch.service";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { Plus, Edit, Trash2, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
+import { isAxiosError } from "axios";
 
 interface Branch {
   id: string;
@@ -29,8 +30,8 @@ export default function BranchesPage() {
       setLoading(true);
       const data = await getBranches();
       setBranches(data);
-    } catch (error: any) {
-      if (error?.response?.status === 404) {
+    } catch (error) {
+      if (isAxiosError(error) && error.response?.status === 404) {
         setBranches([]);
       } else {
         clientErrorHandler(error);

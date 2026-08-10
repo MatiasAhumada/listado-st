@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
       path: "/",
     });
     return response;
-  } catch (error: any) {
+  } catch (error) {
     return apiErrorHandler({
       error: error instanceof ApiError ? error : new ApiError({ message: "Error interno" }),
       request: req,

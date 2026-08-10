@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { GenericModal } from "@/components/common/GenericModal";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { procesarExcelFile, ServicioProcesado } from "@/utils/excelParser.util";
@@ -41,7 +40,7 @@ export function BulkUploadModal({ open, onOpenChange, onSuccess }: BulkUploadMod
       const productosProcesados = await procesarExcelFile(file, selectedType);
       setProductos(productosProcesados);
       clientSuccessHandler(`${productosProcesados.length} productos detectados`);
-    } catch (error) {
+    } catch {
       clientErrorHandler("Error al procesar el archivo");
       setProductos([]);
     }

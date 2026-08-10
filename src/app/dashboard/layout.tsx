@@ -1,26 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/hooks/useAuthStore";
 import { Sidebar } from "@/components/common/Sidebar";
 
+const subscribeToHydration = (onStoreChange: () => void) =>
+  useAuthStore.persist.onFinishHydration(onStoreChange);
+const getHydrationSnapshot = () => useAuthStore.persist.hasHydrated();
+const getServerHydrationSnapshot = () => false;
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { user } = useAuthStore();
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
+  const isHydrated = useSyncExternalStore(
+    subscribeToHydration,
+    getHydrationSnapshot,
+    getServerHydrationSnapshot
+  );
 
   useEffect(() => {
     if (isHydrated && !user) {
       router.push("/");
     }
   }, [user, isHydrated, router]);
-
-  if (!isHydrated || !user) return null;
 
   if (!isHydrated || !user) return null;
 

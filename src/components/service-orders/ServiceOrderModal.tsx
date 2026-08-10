@@ -26,6 +26,7 @@ import { formatNumber } from "@/utils/formatters.util";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ServiceDetails } from "./ServiceDetails";
 import { ServiceOrderReceipt } from "./ServiceOrderReceipt";
+import { type ServiceOrderReceipt as ServiceOrderReceiptType } from "@/types/serviceOrder.types";
 
 interface ServiceOrderModalProps {
   open: boolean;
@@ -71,7 +72,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<{ id: string; url: string }[]>([]);
   const [showReceipt, setShowReceipt] = useState(false);
-  const [createdOrder, setCreatedOrder] = useState<any>(null);
+  const [createdOrder, setCreatedOrder] = useState<ServiceOrderReceiptType | null>(null);
   const [selectedItems, setSelectedItems] = useState<
     {
       itemId: string;
@@ -285,7 +286,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           setUploadingImages(true);
           try {
             await uploadServiceOrderImages(order.id, selectedFiles);
-          } catch (error) {
+          } catch {
             clientErrorHandler("Error al subir imágenes");
           } finally {
             setUploadingImages(false);
@@ -328,7 +329,7 @@ export function ServiceOrderModal({ open, onOpenChange, onSuccess, order }: Serv
           setUploadingImages(true);
           try {
             await uploadServiceOrderImages(newOrder.id, selectedFiles);
-          } catch (error) {
+          } catch {
             clientErrorHandler("Error al subir imágenes");
           } finally {
             setUploadingImages(false);

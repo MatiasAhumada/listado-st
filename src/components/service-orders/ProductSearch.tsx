@@ -4,16 +4,17 @@ import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { searchServicios } from "@/services/servicioSearch.service";
 import { Search } from "lucide-react";
+import { Servicio } from "@/interfaces/servicio.interface";
 
 interface ProductSearchProps {
   value: string;
-  onSelect: (product: any) => void;
+  onSelect: (product: Servicio) => void;
   placeholder?: string;
 }
 
 export function ProductSearch({ value, onSelect, placeholder }: ProductSearchProps) {
   const [query, setQuery] = useState(value);
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<Servicio[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -54,7 +55,7 @@ export function ProductSearch({ value, onSelect, placeholder }: ProductSearchPro
     }
   };
 
-  const handleSelect = (product: any) => {
+  const handleSelect = (product: Servicio) => {
     setQuery(product.name);
     setShowDropdown(false);
     onSelect(product);

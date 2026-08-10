@@ -31,7 +31,7 @@ export class ServicioService {
     return await ServicioRepository.findAll(userRole, companyId, filters);
   }
 
-  static async create(data: CreateServicioDTO, userRole: UserRole, companyId: string) {
+  static async create(data: CreateServicioDTO, userRole: UserRole) {
     if (userRole !== "TECNICO") {
       throw new ApiError({ status: httpStatus.FORBIDDEN, message: "Solo técnicos pueden crear servicios" });
     }
@@ -155,7 +155,7 @@ export class ServicioService {
     });
   }
 
-  static async delete(id: string, userRole: UserRole, companyId: string) {
+  static async delete(id: string, userRole: UserRole) {
     if (userRole !== "TECNICO") {
       throw new ApiError({ status: httpStatus.FORBIDDEN, message: "Solo técnicos pueden eliminar servicios" });
     }
