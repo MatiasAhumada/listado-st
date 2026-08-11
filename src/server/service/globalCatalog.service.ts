@@ -131,6 +131,14 @@ export class GlobalCatalogService {
     };
   }
 
+  static async getPublishedItemsByIds(itemIds: string[]): Promise<CatalogItemSummary[]> {
+    const [pricingRules, items] = await Promise.all([
+      this.getPricingRules(),
+      GlobalCatalogRepository.findPublishedItemsByIds(itemIds),
+    ]);
+    return items.map((item) => this.toItemSummary(item, pricingRules));
+  }
+
   private static async getPricingRules(): Promise<CatalogPricingRuleSummary[]> {
     const pricingRules = await GlobalCatalogRepository.findPricingRules();
     if (!pricingRules.length) {

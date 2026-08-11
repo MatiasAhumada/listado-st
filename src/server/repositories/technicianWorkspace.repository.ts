@@ -25,8 +25,15 @@ export class TechnicianWorkspaceRepository {
         status: true,
         subscription: {
           select: {
-            planCode: true,
             status: true,
+            plan: {
+              select: {
+                id: true,
+                code: true,
+                name: true,
+                isActive: true,
+              },
+            },
           },
         },
         technicians: {
@@ -35,7 +42,7 @@ export class TechnicianWorkspaceRepository {
           select: {
             id: true,
             displayName: true,
-            email: true,
+            username: true,
             status: true,
           },
         },

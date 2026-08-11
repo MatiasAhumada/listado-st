@@ -17,15 +17,49 @@ enum TechnicianStatus {
   SUSPENDED
 }
 
-enum PlanCode {
-  SOLO_TECHNICIAN
-}
-
 enum SubscriptionStatus {
   TRIAL
   ACTIVE
   SUSPENDED
   CANCELLED
+}
+
+enum BillingPeriod {
+  MONTHLY
+  YEARLY
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
+
+enum RepairStatus {
+  RECEIVED
+  DIAGNOSING
+  WAITING_PART
+  IN_REPAIR
+  READY_FOR_PICKUP
+  DELIVERED
+  CANCELLED
+}
+
+enum RepairPaymentKind {
+  DEPOSIT
+  PARTIAL
+  FINAL
+  ADJUSTMENT
+}
+
+enum RepairExpenseKind {
+  PART
+  SUPPLY
+  OUTSOURCED_SERVICE
+  OTHER
+  ADJUSTMENT
 }
 
 enum PlatformAuditAction {
@@ -35,6 +69,9 @@ enum PlatformAuditAction {
   CATALOG_IMPORTED
   CATALOG_PUBLISHED
   CATALOG_PRICING_UPDATED
+  PLAN_CREATED
+  PLAN_UPDATED
+  SUBSCRIPTION_PLAN_CHANGED
 }
 
 enum CatalogImportStatus {
@@ -45,7 +82,7 @@ enum CatalogImportStatus {
 
 model PlatformAdmin {
   id           String    @id @default(uuid())
-  email        String    @unique
+  username     String    @unique @db.VarChar(40)
   passwordHash String
   displayName  String
   isActive     Boolean   @default(true)
@@ -57,6 +94,8 @@ model PlatformAdmin {
   auditEvents      PlatformAuditEvent[]
   createdWorkshops Workshop[]             @relation("WorkshopCreator")
   catalogImports   CatalogImportBatch[]   @relation("CatalogImportCreator")
+  createdPlans     SaasPlan[]             @relation("PlanCreator")
+  repairAlertRules RepairAlertRule[]      @relation("RepairAlertRuleUpdater")
 
   @@map("platform_admins")
 }
@@ -86,9 +125,19 @@ model Workshop {
   createdByAdminId String
   createdByAdmin   PlatformAdmin @relation("WorkshopCreator", fields: [createdByAdminId], references: [id])
 
-  technicians  TechnicianUser[]
-  subscription WorkshopSubscription?
-  auditEvents  PlatformAuditEvent[]
+  technicians               TechnicianUser[]
+  subscription              WorkshopSubscription?
+  auditEvents               PlatformAuditEvent[]
+  customers                 WorkshopCustomer[]
+  devices                   MobileDevice[]
+  quotes                    Quote[]
+  quoteAlternatives         QuoteAlternative[]
+  quoteRevisions            QuoteRevision[]
+  quoteRevisionAlternatives QuoteRevisionAlternative[]
+  repairs                   Repair[]
+  repairStatusHistory       RepairStatusHistory[]
+  repairPayments            RepairPayment[]
+  repairExpenses            RepairExpense[]
 
   @@index([status])
   @@map("workshops")
@@ -97,7 +146,7 @@ model Workshop {
 model TechnicianUser {
   id           String           @id @default(uuid())
   workshopId   String
-  email        String           @unique
+  username     String           @unique @db.VarChar(40)
   passwordHash String
   displayName  String
   status       TechnicianStatus @default(ACTIVE)
@@ -105,8 +154,12 @@ model TechnicianUser {
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 
-  workshop Workshop            @relation(fields: [workshopId], references: [id], onDelete: Cascade)
-  sessions TechnicianSession[]
+  workshop            Workshop              @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  sessions            TechnicianSession[]
+  createdRepairs      Repair[]              @relation("RepairCreator")
+  repairStatusChanges RepairStatusHistory[] @relation("RepairStatusRecorder")
+  recordedPayments    RepairPayment[]       @relation("RepairPaymentRecorder")
+  recordedExpenses    RepairExpense[]       @relation("RepairExpenseRecorder")
 
   @@index([workshopId, status])
   @@map("technician_users")
@@ -127,18 +180,46 @@ model TechnicianSession {
 }
 
 model WorkshopSubscription {
-  id        String             @id @default(uuid())
-  planCode  PlanCode           @default(SOLO_TECHNICIAN)
-  status    SubscriptionStatus @default(TRIAL)
-  startedAt DateTime           @default(now())
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
+  id            String             @id @default(uuid())
+  status        SubscriptionStatus @default(TRIAL)
+  agreedPrice   Decimal            @db.Decimal(12, 2)
+  currency      String             @db.VarChar(3)
+  billingPeriod BillingPeriod
+  resumeStatus  SubscriptionStatus?
+  startedAt     DateTime           @default(now())
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
 
   workshopId String   @unique
   workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
 
+  planId String
+  plan   SaasPlan @relation(fields: [planId], references: [id])
+
   @@index([status])
+  @@index([planId, status])
   @@map("workshop_subscriptions")
+}
+
+model SaasPlan {
+  id            String        @id @default(uuid())
+  code          String        @unique @db.VarChar(60)
+  name          String        @unique @db.VarChar(100)
+  description   String?       @db.VarChar(240)
+  billingPrice  Decimal       @db.Decimal(12, 2)
+  currency      String        @db.VarChar(3)
+  billingPeriod BillingPeriod
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  createdByAdminId String
+  createdByAdmin   PlatformAdmin @relation("PlanCreator", fields: [createdByAdminId], references: [id])
+
+  subscriptions WorkshopSubscription[]
+
+  @@index([isActive, createdAt])
+  @@map("saas_plans")
 }
 
 model CatalogPricingRule {
@@ -187,10 +268,302 @@ model CatalogItem {
   batchId String
   batch   CatalogImportBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
 
+  quoteAlternatives QuoteAlternative[]
+
   @@unique([batchId, sourceRow])
   @@index([batchId, normalizedName])
   @@index([batchId, brand])
   @@map("catalog_items")
+}
+
+model WorkshopCustomer {
+  id        String   @id @default(uuid())
+  fullName  String   @db.VarChar(120)
+  phone     String   @db.VarChar(40)
+  email     String?  @db.VarChar(160)
+  notes     String?  @db.VarChar(500)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+  devices MobileDevice[]
+  quotes  Quote[]
+  repairs Repair[]
+
+  @@index([workshopId, fullName])
+  @@index([workshopId, phone])
+  @@map("workshop_customers")
+}
+
+model MobileDevice {
+  id        String   @id @default(uuid())
+  brand     String   @db.VarChar(80)
+  model     String   @db.VarChar(120)
+  imei      String?  @db.VarChar(30)
+  color     String?  @db.VarChar(60)
+  notes     String?  @db.VarChar(500)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+  customerId String
+  customer   WorkshopCustomer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  quotes  Quote[]
+  repairs Repair[]
+
+  @@unique([workshopId, imei])
+  @@index([workshopId, customerId])
+  @@index([workshopId, brand, model])
+  @@map("mobile_devices")
+}
+
+model Quote {
+  id            String      @id @default(uuid())
+  number        Int
+  status        QuoteStatus @default(DRAFT)
+  reportedIssue String      @db.VarChar(500)
+  validityDays  Int
+  currency      String      @db.VarChar(3)
+  acceptedAt    DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+  customerId String
+  customer   WorkshopCustomer @relation(fields: [customerId], references: [id])
+
+  deviceId String
+  device   MobileDevice @relation(fields: [deviceId], references: [id])
+
+  acceptedRevisionAlternativeId String?                   @unique
+  acceptedRevisionAlternative   QuoteRevisionAlternative? @relation("AcceptedQuoteAlternative", fields: [acceptedRevisionAlternativeId], references: [id], onDelete: SetNull)
+
+  alternatives QuoteAlternative[]
+  revisions    QuoteRevision[]
+  repair       Repair?
+
+  @@unique([workshopId, number])
+  @@index([workshopId, status, updatedAt])
+  @@index([workshopId, customerId])
+  @@index([workshopId, deviceId])
+  @@map("quotes")
+}
+
+model QuoteAlternative {
+  id             String   @id @default(uuid())
+  position       Int
+  description    String   @db.VarChar(300)
+  supplier       String   @db.VarChar(160)
+  referenceCost  Decimal? @db.Decimal(12, 2)
+  selectedCost   Decimal  @db.Decimal(12, 2)
+  suggestedPrice Decimal? @db.Decimal(12, 2)
+  finalPrice     Decimal  @db.Decimal(12, 2)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+  quoteId String
+  quote   Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  catalogItemId String?
+  catalogItem   CatalogItem? @relation(fields: [catalogItemId], references: [id], onDelete: SetNull)
+
+  revisionAlternatives QuoteRevisionAlternative[]
+
+  @@unique([quoteId, position])
+  @@index([workshopId, quoteId])
+  @@index([catalogItemId])
+  @@map("quote_alternatives")
+}
+
+model QuoteRevision {
+  id         String   @id @default(uuid())
+  number     Int
+  validUntil DateTime
+  currency   String   @db.VarChar(3)
+  sentAt     DateTime @default(now())
+
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+  quoteId String
+  quote   Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  alternatives QuoteRevisionAlternative[]
+
+  @@unique([quoteId, number])
+  @@index([workshopId, quoteId, sentAt])
+  @@map("quote_revisions")
+}
+
+model QuoteRevisionAlternative {
+  id             String   @id @default(uuid())
+  position       Int
+  description    String   @db.VarChar(300)
+  supplier       String   @db.VarChar(160)
+  referenceCost  Decimal? @db.Decimal(12, 2)
+  selectedCost   Decimal  @db.Decimal(12, 2)
+  suggestedPrice Decimal? @db.Decimal(12, 2)
+  finalPrice     Decimal  @db.Decimal(12, 2)
+  catalogItemId  String?
+
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+  revisionId String
+  revision   QuoteRevision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+
+  sourceAlternativeId String?
+  sourceAlternative   QuoteAlternative? @relation(fields: [sourceAlternativeId], references: [id], onDelete: SetNull)
+
+  acceptedByQuote Quote?  @relation("AcceptedQuoteAlternative")
+  repair          Repair?
+
+  @@unique([revisionId, position])
+  @@index([workshopId, revisionId])
+  @@index([sourceAlternativeId])
+  @@map("quote_revision_alternatives")
+}
+
+model Repair {
+  id                  String       @id @default(uuid())
+  status              RepairStatus @default(RECEIVED)
+  agreedPrice         Decimal      @db.Decimal(12, 2)
+  quotedCost          Decimal      @db.Decimal(12, 2)
+  currency            String       @db.VarChar(3)
+  physicalReceivedAt  DateTime
+  lastStatusChangedAt DateTime
+  internalNotes       String?      @db.VarChar(1000)
+  deliveredAt         DateTime?
+  cancelledAt         DateTime?
+  createdByName       String       @db.VarChar(120)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+  quoteId String @unique
+  quote   Quote  @relation(fields: [quoteId], references: [id])
+
+  customerId String
+  customer   WorkshopCustomer @relation(fields: [customerId], references: [id])
+
+  deviceId String
+  device   MobileDevice @relation(fields: [deviceId], references: [id])
+
+  acceptedRevisionAlternativeId String                   @unique
+  acceptedRevisionAlternative   QuoteRevisionAlternative @relation(fields: [acceptedRevisionAlternativeId], references: [id])
+
+  createdByUserId String?
+  createdByUser   TechnicianUser? @relation("RepairCreator", fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  statusHistory RepairStatusHistory[]
+  payments      RepairPayment[]
+  expenses      RepairExpense[]
+
+  @@index([workshopId, status, lastStatusChangedAt])
+  @@index([workshopId, customerId])
+  @@index([workshopId, deviceId])
+  @@map("repairs")
+}
+
+model RepairStatusHistory {
+  id             String       @id @default(uuid())
+  status         RepairStatus
+  note           String?      @db.VarChar(500)
+  recordedByName String       @db.VarChar(120)
+  changedAt      DateTime     @default(now())
+
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+  repairId String
+  repair   Repair @relation(fields: [repairId], references: [id], onDelete: Cascade)
+
+  recordedByUserId String?
+  recordedByUser   TechnicianUser? @relation("RepairStatusRecorder", fields: [recordedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([workshopId, repairId, changedAt])
+  @@map("repair_status_history")
+}
+
+model RepairPayment {
+  id             String            @id @default(uuid())
+  kind           RepairPaymentKind
+  amount         Decimal           @db.Decimal(12, 2)
+  note           String?           @db.VarChar(500)
+  occurredAt     DateTime
+  recordedByName String            @db.VarChar(120)
+  createdAt      DateTime          @default(now())
+
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+  repairId String
+  repair   Repair @relation(fields: [repairId], references: [id], onDelete: Cascade)
+
+  recordedByUserId String?
+  recordedByUser   TechnicianUser? @relation("RepairPaymentRecorder", fields: [recordedByUserId], references: [id], onDelete: SetNull)
+
+  adjustsPaymentId String?        @unique
+  adjustsPayment   RepairPayment? @relation("RepairPaymentAdjustment", fields: [adjustsPaymentId], references: [id])
+  adjustedBy       RepairPayment? @relation("RepairPaymentAdjustment")
+
+  @@index([workshopId, repairId, occurredAt])
+  @@map("repair_payments")
+}
+
+model RepairExpense {
+  id             String            @id @default(uuid())
+  kind           RepairExpenseKind
+  amount         Decimal           @db.Decimal(12, 2)
+  description    String            @db.VarChar(300)
+  supplier       String?           @db.VarChar(160)
+  note           String?           @db.VarChar(500)
+  occurredAt     DateTime
+  recordedByName String            @db.VarChar(120)
+  createdAt      DateTime          @default(now())
+
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+  repairId String
+  repair   Repair @relation(fields: [repairId], references: [id], onDelete: Cascade)
+
+  recordedByUserId String?
+  recordedByUser   TechnicianUser? @relation("RepairExpenseRecorder", fields: [recordedByUserId], references: [id], onDelete: SetNull)
+
+  adjustsExpenseId String?        @unique
+  adjustsExpense   RepairExpense? @relation("RepairExpenseAdjustment", fields: [adjustsExpenseId], references: [id])
+  adjustedBy       RepairExpense? @relation("RepairExpenseAdjustment")
+
+  @@index([workshopId, repairId, occurredAt])
+  @@map("repair_expenses")
+}
+
+model RepairAlertRule {
+  id         String       @id @default(uuid())
+  status     RepairStatus @unique
+  afterHours Int
+  isEnabled  Boolean      @default(true)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  updatedByAdminId String?
+  updatedByAdmin   PlatformAdmin? @relation("RepairAlertRuleUpdater", fields: [updatedByAdminId], references: [id], onDelete: SetNull)
+
+  @@index([isEnabled, status])
+  @@map("repair_alert_rules")
 }
 
 model PlatformAuditEvent {

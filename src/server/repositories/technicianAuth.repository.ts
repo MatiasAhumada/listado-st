@@ -8,25 +8,27 @@ import prisma from "@/lib/prisma";
 import { CreateTechnicianSessionPersistence } from "@/interfaces/technicianPersistence.interface";
 
 export type TechnicianWithWorkshopAccess = Prisma.TechnicianUserGetPayload<{
-  include: { workshop: { include: { subscription: true } } };
+  include: { workshop: { include: { subscription: { include: { plan: true } } } } };
 }>;
 
 export type TechnicianSessionWithAccess = Prisma.TechnicianSessionGetPayload<{
   include: {
-    technician: { include: { workshop: { include: { subscription: true } } } };
+    technician: {
+      include: { workshop: { include: { subscription: { include: { plan: true } } } } };
+    };
   };
 }>;
 
 const technicianAccessRelations = {
   workshop: {
-    include: { subscription: true },
+    include: { subscription: { include: { plan: true } } },
   },
 };
 
 export class TechnicianAuthRepository {
-  static async findByEmail(email: string): Promise<TechnicianWithWorkshopAccess | null> {
+  static async findByUsername(username: string): Promise<TechnicianWithWorkshopAccess | null> {
     return prisma.technicianUser.findUnique({
-      where: { email },
+      where: { username },
       include: technicianAccessRelations,
     });
   }

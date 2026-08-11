@@ -1,5 +1,4 @@
 import {
-  PlanCode,
   SubscriptionStatus,
   TechnicianStatus,
   WorkshopStatus,
@@ -22,13 +21,18 @@ export interface TechnicianWorkspacePersistence {
   slug: string;
   status: WorkshopStatus;
   subscription: {
-    planCode: PlanCode;
     status: SubscriptionStatus;
+    plan: {
+      id: string;
+      code: string;
+      name: string;
+      isActive: boolean;
+    };
   } | null;
   technicians: Array<{
     id: string;
     displayName: string;
-    email: string;
+    username: string;
     status: TechnicianStatus;
   }>;
 }

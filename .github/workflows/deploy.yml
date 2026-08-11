@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - main
+      - dev
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+    timeout-minutes: 70
+
     steps:
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.0
@@ -16,20 +18,38 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
+          command_timeout: 65m
           script: |
+            set -Eeuo pipefail
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-            cd listado-st/
-            git fetch origin main
-            git reset --hard origin/main
-            git clean -fd -e .next
-            corepack enable
-            corepack prepare pnpm@latest --activate
-            pnpm install
-            pnpm prisma generate
-            pnpm migrate
-            if ! pnpm build; then
-              echo "Build failed"
-              exit 1
+
+            deploy_once() {
+              cd "$HOME/listado-st"
+              local deploy_branch="${{ github.ref_name }}"
+              git fetch origin "$deploy_branch"
+              git reset --hard "origin/$deploy_branch"
+              git clean -fd -e .next -e .env
+              corepack enable
+              corepack prepare pnpm@10.33.0 --activate
+              pnpm install --frozen-lockfile
+              pnpm exec prisma generate
+              pnpm exec prisma migrate deploy
+              pnpm seed
+              pnpm build
+              pm2 restart listado-st || pm2 start "pnpm start" --name listado-st
+            }
+
+            export -f deploy_once
+            set +e
+            timeout 30m bash -Eeuo pipefail -c deploy_once
+            deploy_status=$?
+            set -e
+
+            if [ "$deploy_status" -eq 124 ]; then
+              echo "Deployment timeout detected. Retrying once..."
+              timeout 30m bash -Eeuo pipefail -c deploy_once
+              exit $?
             fi
-            pm2 restart listado-st || pm2 start "pnpm start" --name listado-st
+
+            exit "$deploy_status"

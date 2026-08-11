@@ -8,12 +8,14 @@
     "start": "next start -p 3008",
     "lint": "eslint",
     "test": "tsx --test src/server/domain/*.test.ts",
+    "smoke:admin": "tsx scripts/admin-mvp-smoke.ts",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "postinstall": "prisma generate",
     "migrate": "prisma migrate dev",
-    "reset": "prisma migrate reset",
+    "reset": "prisma migrate reset --force --skip-seed && pnpm seed",
     "studio": "prisma studio",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts",
+    "admin:rotate-password": "tsx prisma/seed.ts --rotate-password"
   },
   "dependencies": {
     "@prisma/client": "^6.13.0",

@@ -16,6 +16,8 @@ pnpm migrate      # prisma migrate dev
 pnpm reset        # prisma migrate reset
 pnpm studio       # Prisma Studio
 pnpm seed         # tsx prisma/seed.ts
+pnpm admin:rotate-password # Explicitly rotate a lost admin password
+pnpm smoke:admin  # Fullstack HTTP acceptance flow against a running app
 ```
 
 ## Architecture
@@ -40,9 +42,13 @@ API routes call service layer → service layer calls repository layer → repos
 
 ### Auth
 
-Platform administrators and clients use separate opaque, revocable sessions stored in secure `httpOnly` cookies. Only token hashes are persisted. No auth data is stored in `localStorage`.
+Platform administrators and clients enter through one unified `/login` form using username and password. The server resolves the matching account type and redirects to `/admin` or `/cliente`; the user never chooses a role in the login UI. Internally, each access type keeps its own opaque, revocable session stored in a secure `httpOnly` cookie. Only token hashes are persisted. No auth data is stored in `localStorage`.
 
-The MVP has exactly two platform access types: administrator and client. A client is currently an independent repair technician who owns one workshop and has a subscription. Technician is a profession, not an authorization role. Future customers who leave devices at a workshop must use a distinct workshop-customer entity.
+Usernames are lowercase, globally unique across platform administrators and workshop clients, and contain 3 to 40 letters, numbers, dots, hyphens or underscores.
+
+`pnpm reset` drops the configured database, applies every migration and runs the seed. The seed creates the fixed `admin` username with a cryptographically random password printed once to stdout. Admin credentials never belong in `.env` or `.env.example`.
+
+The MVP has exactly two platform access types: administrator and client. Role resolution is automatic after authentication. A client is currently an independent repair technician who owns one workshop and has a subscription. Technician is a profession, not an authorization role. Future customers who leave devices at a workshop must use a distinct workshop-customer entity.
 
 The server-resolved client session is the only source of authority for `workshopId`.
 

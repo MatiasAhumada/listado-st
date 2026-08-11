@@ -28,12 +28,28 @@ La palabra `técnico` describe la actividad profesional del cliente y no constit
 
 La navegación raíz solo resuelve autenticación: `/login` para visitantes, `/admin` para administradores y `/cliente` para clientes. Todas las herramientas compradas por el cliente se anidan debajo de `/cliente`, comenzando por `/cliente/taller`.
 
+El acceso es unificado: existe un único formulario con usuario y contraseña. La persona no selecciona si es administrador o cliente; el servidor reconoce el tipo de cuenta y la dirige a la vista correspondiente.
+
+## Alcance prioritario del MVP
+
+La primera entrega operativa se concentra en la administración de la plataforma:
+
+- Ingreso unificado por nombre de usuario y contraseña.
+- Creación y edición de planes de venta.
+- Alta de clientes SaaS con rol de taller.
+- Asignación obligatoria de un plan al crear cada taller.
+- Conservación del importe pactado para saber cuánto cobrar posteriormente.
+- Suspensión, reactivación y cambio explícito de plan.
+
+La experiencia completa del cliente se trabaja después de estabilizar este circuito administrativo.
+
 ## Decisiones aprobadas
 
 - SaaS multitenant desde el primer día.
 - Matías opera como administrador de plataforma.
 - El administrador crea, activa y suspende clientes manualmente.
-- Existe un único plan funcional inicial para técnicos.
+- El administrador define el nombre de usuario inicial de cada cliente.
+- El MVP comienza con un plan funcional para técnicos, administrable como dato comercial y no como valor fijo de código.
 - Cada taller es un tenant aislado.
 - No se migran los datos ni el dominio de la base actual.
 - Se conserva Next.js, React, Prisma y PostgreSQL.

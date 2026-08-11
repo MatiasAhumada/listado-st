@@ -1,5 +1,7 @@
 import {
+  BillingPeriod,
   PlatformAuditAction,
+  Prisma,
   SubscriptionStatus,
   TechnicianStatus,
   WorkshopStatus,
@@ -16,8 +18,12 @@ export interface CreateWorkshopPersistence {
   workshopName: string;
   workshopSlug: string;
   ownerName: string;
-  ownerEmail: string;
+  ownerUsername: string;
   ownerPasswordHash: string;
+  planId: string;
+  agreedPrice: Prisma.Decimal;
+  currency: string;
+  billingPeriod: BillingPeriod;
   subscriptionStatus: SubscriptionStatus;
 }
 
@@ -29,4 +35,15 @@ export interface UpdateWorkshopLifecyclePersistence {
   subscriptionStatus: SubscriptionStatus;
   auditAction: PlatformAuditAction;
   revokeTechnicianSessions: boolean;
+  resumeStatus: SubscriptionStatus | null;
+}
+
+export interface UpdateWorkshopPlanPersistence {
+  workshopId: string;
+  adminId: string;
+  previousPlanId: string;
+  planId: string;
+  agreedPrice: Prisma.Decimal;
+  currency: string;
+  billingPeriod: BillingPeriod;
 }

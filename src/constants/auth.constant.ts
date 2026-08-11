@@ -11,5 +11,7 @@ export const AUTH_SECURITY = {
   passwordSaltRounds: 12,
   minimumPasswordLength: 10,
   maximumPasswordLength: 72,
-  maximumEmailLength: 160,
+  minimumUsernameLength: 3,
+  maximumUsernameLength: 40,
+  usernamePattern: /^[a-z0-9._-]+$/,
 } as const;

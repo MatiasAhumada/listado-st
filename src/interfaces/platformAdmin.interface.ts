@@ -1,20 +1,21 @@
 import {
+  BillingPeriodCode,
   InitialSubscriptionStatusCode,
-  PlanCode,
   PlatformAuditActionCode,
   SubscriptionStatusCode,
   TechnicianStatusCode,
   WorkshopStatusCode,
 } from "@/types/platformAdmin.types";
+import { SaasPlanReference } from "@/interfaces/saasPlan.interface";
 
 export interface PlatformAdminIdentity {
   id: string;
-  email: string;
+  username: string;
   displayName: string;
 }
 
 export interface PlatformAdminLoginPayload {
-  email: string;
+  username: string;
   password: string;
 }
 
@@ -27,7 +28,7 @@ export interface PlatformAdminSessionResult {
 export interface WorkshopOwnerSummary {
   id: string;
   displayName: string;
-  email: string;
+  username: string;
   status: TechnicianStatusCode;
 }
 
@@ -36,8 +37,11 @@ export interface WorkshopSummary {
   name: string;
   slug: string;
   status: WorkshopStatusCode;
-  planCode: PlanCode;
+  plan: SaasPlanReference;
   subscriptionStatus: SubscriptionStatusCode;
+  agreedPrice: string;
+  currency: string;
+  billingPeriod: BillingPeriodCode;
   createdAt: string;
   owner: WorkshopOwnerSummary;
 }
@@ -45,13 +49,20 @@ export interface WorkshopSummary {
 export interface CreateWorkshopPayload {
   workshopName: string;
   ownerName: string;
-  ownerEmail: string;
+  ownerUsername: string;
   ownerPassword: string;
+  planId: string;
+  agreedPrice: string;
   subscriptionStatus: InitialSubscriptionStatusCode;
 }
 
 export interface UpdateWorkshopStatusPayload {
   status: WorkshopStatusCode;
+}
+
+export interface UpdateWorkshopPlanPayload {
+  planId: string;
+  agreedPrice: string;
 }
 
 export interface WorkshopLifecycleUpdate {
@@ -60,11 +71,12 @@ export interface WorkshopLifecycleUpdate {
   subscriptionStatus: SubscriptionStatusCode;
   auditAction: PlatformAuditActionCode;
   revokeTechnicianSessions: boolean;
+  resumeStatus: SubscriptionStatusCode | null;
 }
 
 export interface CreatedWorkshopCredentials {
   workshopName: string;
-  ownerEmail: string;
+  ownerUsername: string;
   ownerPassword: string;
 }
 

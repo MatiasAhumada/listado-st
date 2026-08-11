@@ -63,11 +63,6 @@ export const CATALOG_FIELDS = {
   pricingMarkupPrefix: "pricing-markup",
 } as const;
 
-export const CATALOG_TABS = {
-  workshops: "workshops",
-  catalog: "catalog",
-} as const;
-
 export const CATALOG_STATUS = {
   draft: "DRAFT",
   published: "PUBLISHED",
@@ -82,8 +77,6 @@ export const CATALOG_ROW_STATUS = {
 } as const;
 
 export const CATALOG_TEXT = {
-  tabWorkshops: "Talleres",
-  tabCatalog: "Catálogo global",
   adminTitle: "Lista maestra de módulos",
   adminDescription:
     "Importá el Excel del proveedor, revisá únicamente los repuestos disponibles y publicá una versión estable.",
