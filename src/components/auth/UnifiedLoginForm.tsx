@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { ACCESS_FIELDS, ACCESS_TEXT } from "@/constants/access.constant";
 import { AUTH_SECURITY } from "@/constants/auth.constant";
 import { loginAccess } from "@/services/access.service";
@@ -56,10 +57,9 @@ export function UnifiedLoginForm() {
           <FieldLabel htmlFor={ACCESS_FIELDS.password}>{ACCESS_TEXT.passwordLabel}</FieldLabel>
           <div className="relative">
             <KeyRound className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
+            <PasswordInput
               id={ACCESS_FIELDS.password}
               className="pl-10"
-              type="password"
               autoComplete="current-password"
               minLength={AUTH_SECURITY.minimumPasswordLength}
               maxLength={AUTH_SECURITY.maximumPasswordLength}

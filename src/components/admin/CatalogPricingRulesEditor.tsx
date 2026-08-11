@@ -3,55 +3,33 @@
 import { useState } from "react";
 import { LoaderCircle, Plus, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { Separator } from "@/components/ui/separator";
-import {
-  CATALOG_DEFAULTS,
-  CATALOG_FIELDS,
-  CATALOG_LIMITS,
-  CATALOG_TEXT,
-} from "@/constants/catalog.constant";
-import {
-  CatalogAdminDashboard,
-  CatalogPricingRuleInput,
-} from "@/interfaces/catalog.interface";
+import { CATALOG_DEFAULTS, CATALOG_FIELDS, CATALOG_LIMITS, CATALOG_TEXT } from "@/constants/catalog.constant";
+import { CatalogAdminDashboard, CatalogPricingRuleInput } from "@/interfaces/catalog.interface";
 import { replacePlatformCatalogPricingRules } from "@/services/platformAdmin.service";
-import {
-  clientErrorHandler,
-  clientSuccessHandler,
-} from "@/utils/handlers/clientError.handler";
+import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 
 interface CatalogPricingRulesEditorProps {
   initialRules: CatalogPricingRuleInput[];
   onUpdated: (dashboard: CatalogAdminDashboard) => void;
 }
 
-export function CatalogPricingRulesEditor({
-  initialRules,
-  onUpdated,
-}: CatalogPricingRulesEditorProps) {
+export function CatalogPricingRulesEditor({ initialRules, onUpdated }: CatalogPricingRulesEditorProps) {
   const [rules, setRules] = useState<CatalogPricingRuleInput[]>(initialRules);
   const [isSaving, setIsSaving] = useState(false);
 
   const updateMaximumCost = (position: number, maximumCost: number) => {
     setRules((currentRules) =>
-      currentRules.map((rule, rulePosition) =>
-        rulePosition === position ? { ...rule, maximumCost } : rule
-      )
+      currentRules.map((rule, rulePosition) => (rulePosition === position ? { ...rule, maximumCost } : rule))
     );
   };
 
   const updateMarkup = (position: number, markupPercentage: number) => {
     setRules((currentRules) =>
-      currentRules.map((rule, rulePosition) =>
-        rulePosition === position ? { ...rule, markupPercentage } : rule
-      )
+      currentRules.map((rule, rulePosition) => (rulePosition === position ? { ...rule, markupPercentage } : rule))
     );
   };
 
@@ -68,9 +46,7 @@ export function CatalogPricingRulesEditor({
   };
 
   const removeRule = (position: number) => {
-    setRules((currentRules) =>
-      currentRules.filter((_, rulePosition) => rulePosition !== position)
-    );
+    setRules((currentRules) => currentRules.filter((_, rulePosition) => rulePosition !== position));
   };
 
   const handleSave = async () => {
@@ -97,27 +73,15 @@ export function CatalogPricingRulesEditor({
           <Field key={maximumFieldId}>
             <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,0.72fr)_auto] sm:items-end">
               <Field>
-                <FieldLabel htmlFor={maximumFieldId}>
-                  {CATALOG_TEXT.maximumCostLabel}
-                </FieldLabel>
+                <FieldLabel htmlFor={maximumFieldId}>{CATALOG_TEXT.maximumCostLabel}</FieldLabel>
                 {isFinalRule ? (
-                  <Input
-                    id={maximumFieldId}
-                    value={CATALOG_TEXT.unlimitedCostLabel}
-                    disabled
-                  />
+                  <Input id={maximumFieldId} value={CATALOG_TEXT.unlimitedCostLabel} disabled />
                 ) : (
-                  <Input
+                  <MoneyInput
                     id={maximumFieldId}
-                    type="number"
-                    min={CATALOG_LIMITS.minimumMaximumCost}
-                    max={CATALOG_LIMITS.maximumCost}
-                    step={CATALOG_LIMITS.moneyInputStep}
                     value={rule.maximumCost ?? CATALOG_DEFAULTS.emptyMetric}
                     required
-                    onChange={(event) =>
-                      updateMaximumCost(position, Number(event.target.value))
-                    }
+                    onValueChange={(value) => updateMaximumCost(position, Number(value))}
                   />
                 )}
               </Field>
@@ -134,9 +98,7 @@ export function CatalogPricingRulesEditor({
                     required
                     onChange={(event) => updateMarkup(position, Number(event.target.value))}
                   />
-                  <span className="font-mono text-sm text-muted-foreground">
-                    {CATALOG_TEXT.percentageSuffix}
-                  </span>
+                  <span className="font-mono text-sm text-muted-foreground">{CATALOG_TEXT.percentageSuffix}</span>
                 </div>
               </Field>
               <Button
