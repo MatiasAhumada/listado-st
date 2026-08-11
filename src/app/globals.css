@@ -5,11 +5,11 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --color-dark: #151815;
-  --color-charcoal: #252b27;
-  --color-lavender: #f7f3e8;
-  --color-lime: #f56a2c;
-  --color-green: #bf4b18;
+  --color-dark: #0b140d;
+  --color-charcoal: #223d27;
+  --color-lavender: #fcfaf5;
+  --color-lime: #a7c957;
+  --color-green: #386641;
 
   --font-sans: var(--font-workbench-body);
   --font-display: var(--font-workbench-display);
@@ -36,46 +36,46 @@
 }
 
 :root {
-  --radius: 0.45rem;
-  --background: #f1eee4;
-  --foreground: #171a17;
-  --card: #fbf9f2;
-  --card-foreground: #171a17;
-  --popover: #fbf9f2;
-  --popover-foreground: #171a17;
-  --primary: #e35f26;
+  --radius: 0.75rem;
+  --background: #fcfaf5;
+  --foreground: #0b140d;
+  --card: #ffffff;
+  --card-foreground: #0b140d;
+  --popover: #ffffff;
+  --popover-foreground: #0b140d;
+  --primary: #6a994e;
   --primary-foreground: #ffffff;
-  --secondary: #d7df34;
-  --secondary-foreground: #171a17;
-  --muted: #e6e1d4;
-  --muted-foreground: #5e645f;
-  --accent: #f2d055;
-  --accent-foreground: #171a17;
-  --destructive: #dc2626;
-  --border: #cbc5b7;
-  --input: #bdb6a7;
-  --ring: #e35f26;
+  --secondary: #a7c957;
+  --secondary-foreground: #0b140d;
+  --muted: #e1ecda;
+  --muted-foreground: #3f5b2f;
+  --accent: #a7c957;
+  --accent-foreground: #0b140d;
+  --destructive: #bc4749;
+  --border: #c2d9b5;
+  --input: #c2d9b5;
+  --ring: #6a994e;
 }
 
 .dark {
-  --background: #151815;
-  --foreground: #f7f3e8;
-  --card: #202520;
-  --card-foreground: #f7f3e8;
-  --popover: #202520;
-  --popover-foreground: #f7f3e8;
-  --primary: #f2763f;
-  --primary-foreground: #151815;
-  --secondary: #d7df34;
-  --secondary-foreground: #151815;
-  --muted: #2d332e;
-  --muted-foreground: #adb5ae;
-  --accent: #f2d055;
-  --accent-foreground: #151815;
-  --destructive: #ef4444;
-  --border: #394039;
-  --input: #454d46;
-  --ring: #f2763f;
+  --background: #0b140d;
+  --foreground: #edf4dd;
+  --card: #16291a;
+  --card-foreground: #edf4dd;
+  --popover: #16291a;
+  --popover-foreground: #edf4dd;
+  --primary: #85b36b;
+  --primary-foreground: #0b140d;
+  --secondary: #a7c957;
+  --secondary-foreground: #0b140d;
+  --muted: #223d27;
+  --muted-foreground: #a4cdac;
+  --accent: #77b483;
+  --accent-foreground: #0b140d;
+  --destructive: #ca6c6e;
+  --border: #2d5234;
+  --input: #386641;
+  --ring: #85b36b;
 }
 
 @layer base {
@@ -118,6 +118,14 @@
       linear-gradient(90deg, color-mix(in srgb, var(--foreground) 5%, transparent) 1px, transparent 1px);
     background-size: auto, 32px 32px, 32px 32px;
   }
+  .access-grid {
+    background-image:
+      radial-gradient(circle at 16% 18%, color-mix(in srgb, var(--primary) 22%, transparent), transparent 28rem),
+      radial-gradient(circle at 88% 82%, color-mix(in srgb, var(--secondary) 16%, transparent), transparent 24rem),
+      linear-gradient(color-mix(in srgb, var(--primary) 7%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--primary) 7%, transparent) 1px, transparent 1px);
+    background-size: auto, auto, 36px 36px, 36px 36px;
+  }
   .technician-workspace-grid {
     background-image:
       radial-gradient(circle at 86% 12%, color-mix(in srgb, var(--primary) 14%, transparent), transparent 24rem),
@@ -134,6 +142,9 @@
       var(--secondary) 22px,
       var(--secondary) 44px
     );
+  }
+  .green-rule {
+    background: linear-gradient(90deg, var(--primary), var(--secondary), var(--primary));
   }
   .prototype-enter {
     animation: prototype-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) both;

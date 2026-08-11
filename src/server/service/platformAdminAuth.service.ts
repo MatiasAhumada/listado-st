@@ -16,7 +16,7 @@ import {
 
 export class PlatformAdminAuthService {
   static async login(payload: PlatformAdminLoginPayload): Promise<PlatformAdminSessionResult> {
-    const admin = await PlatformAdminRepository.findByEmail(payload.email);
+    const admin = await PlatformAdminRepository.findByUsername(payload.username);
 
     if (!admin) {
       throw new ApiError({ status: httpStatus.UNAUTHORIZED, message: PLATFORM_ADMIN_TEXT.invalidCredentials });
@@ -43,7 +43,7 @@ export class PlatformAdminAuthService {
       expiresAt,
       admin: {
         id: admin.id,
-        email: admin.email,
+        username: admin.username,
         displayName: admin.displayName,
       },
     };
@@ -60,7 +60,7 @@ export class PlatformAdminAuthService {
 
     return {
       id: session.admin.id,
-      email: session.admin.email,
+      username: session.admin.username,
       displayName: session.admin.displayName,
     };
   }

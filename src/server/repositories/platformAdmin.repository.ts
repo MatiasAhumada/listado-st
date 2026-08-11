@@ -7,8 +7,8 @@ export type PlatformSessionWithAdmin = Prisma.PlatformAdminSessionGetPayload<{
 }>;
 
 export class PlatformAdminRepository {
-  static async findByEmail(email: string) {
-    return prisma.platformAdmin.findUnique({ where: { email } });
+  static async findByUsername(username: string) {
+    return prisma.platformAdmin.findUnique({ where: { username } });
   }
 
   static async createSession(payload: CreatePlatformSessionPersistence) {

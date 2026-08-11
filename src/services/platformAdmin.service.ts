@@ -1,7 +1,6 @@
 import {
   CreateWorkshopPayload,
-  PlatformAdminLoginPayload,
-  PlatformApiMessage,
+  UpdateWorkshopPlanPayload,
   UpdateWorkshopStatusPayload,
   WorkshopSummary,
 } from "@/interfaces/platformAdmin.interface";
@@ -9,22 +8,15 @@ import {
   CatalogAdminDashboard,
   ReplaceCatalogPricingRulesPayload,
 } from "@/interfaces/catalog.interface";
+import { SaasPlanSummary, SaveSaasPlanPayload } from "@/interfaces/saasPlan.interface";
 import {
   CATALOG_FIELDS,
   CATALOG_ROUTES,
   CATALOG_STATUS,
 } from "@/constants/catalog.constant";
 import { PLATFORM_ADMIN_ROUTES } from "@/constants/platformAdmin.constant";
+import { SAAS_PLAN_ROUTES } from "@/constants/saasPlan.constant";
 import clientAxios from "@/utils/clientAxios.util";
-
-export async function loginPlatformAdmin(payload: PlatformAdminLoginPayload): Promise<void> {
-  await clientAxios.post(PLATFORM_ADMIN_ROUTES.sessionApi, payload);
-}
-
-export async function logoutPlatformAdmin(): Promise<PlatformApiMessage> {
-  const response = await clientAxios.delete<PlatformApiMessage>(PLATFORM_ADMIN_ROUTES.sessionApi);
-  return response.data;
-}
 
 export async function getPlatformWorkshops(): Promise<WorkshopSummary[]> {
   const response = await clientAxios.get<WorkshopSummary[]>(PLATFORM_ADMIN_ROUTES.workshopsApi);
@@ -42,6 +34,38 @@ export async function updatePlatformWorkshopStatus(
 ): Promise<WorkshopSummary> {
   const response = await clientAxios.patch<WorkshopSummary>(
     `${PLATFORM_ADMIN_ROUTES.workshopsApi}/${workshopId}`,
+    payload
+  );
+  return response.data;
+}
+
+export async function updatePlatformWorkshopPlan(
+  workshopId: string,
+  payload: UpdateWorkshopPlanPayload
+): Promise<WorkshopSummary> {
+  const response = await clientAxios.patch<WorkshopSummary>(
+    `${PLATFORM_ADMIN_ROUTES.workshopsApi}/${workshopId}/subscription`,
+    payload
+  );
+  return response.data;
+}
+
+export async function getSaasPlans(): Promise<SaasPlanSummary[]> {
+  const response = await clientAxios.get<SaasPlanSummary[]>(SAAS_PLAN_ROUTES.adminApi);
+  return response.data;
+}
+
+export async function createSaasPlan(payload: SaveSaasPlanPayload): Promise<SaasPlanSummary> {
+  const response = await clientAxios.post<SaasPlanSummary>(SAAS_PLAN_ROUTES.adminApi, payload);
+  return response.data;
+}
+
+export async function updateSaasPlan(
+  planId: string,
+  payload: SaveSaasPlanPayload
+): Promise<SaasPlanSummary> {
+  const response = await clientAxios.put<SaasPlanSummary>(
+    `${SAAS_PLAN_ROUTES.adminApi}/${planId}`,
     payload
   );
   return response.data;

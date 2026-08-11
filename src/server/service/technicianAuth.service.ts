@@ -20,7 +20,7 @@ import {
 
 export class TechnicianAuthService {
   static async login(payload: TechnicianLoginPayload): Promise<TechnicianSessionResult> {
-    const technician = await TechnicianAuthRepository.findByEmail(payload.email);
+    const technician = await TechnicianAuthRepository.findByUsername(payload.username);
     if (!technician) {
       throw new ApiError({
         status: httpStatus.UNAUTHORIZED,
@@ -101,11 +101,16 @@ export class TechnicianAuthService {
     return {
       id: technician.id,
       workshopId: technician.workshopId,
-      email: technician.email,
+      username: technician.username,
       displayName: technician.displayName,
       workshopName: technician.workshop.name,
       workshopSlug: technician.workshop.slug,
-      planCode: subscription.planCode,
+      plan: {
+        id: subscription.plan.id,
+        code: subscription.plan.code,
+        name: subscription.plan.name,
+        isActive: subscription.plan.isActive,
+      },
       subscriptionStatus: subscription.status,
     };
   }

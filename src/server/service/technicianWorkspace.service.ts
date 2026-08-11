@@ -44,7 +44,7 @@ export class TechnicianWorkspaceService {
       name: workspace.name,
       slug: workspace.slug,
       status: workspace.status,
-      planCode: workspace.subscription.planCode,
+      plan: workspace.subscription.plan,
       subscriptionStatus: workspace.subscription.status,
       technician,
     };

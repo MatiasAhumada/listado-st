@@ -148,4 +148,17 @@ export class GlobalCatalogRepository {
     ]);
     return { publishedAt: batch.publishedAt ?? undefined, total, items };
   }
+
+  static async findPublishedItemsByIds(itemIds: string[]) {
+    if (!itemIds.length) return [];
+    const batch = await prisma.catalogImportBatch.findFirst({
+      where: { status: CatalogImportStatus.PUBLISHED },
+      orderBy: { publishedAt: "desc" },
+      select: { id: true },
+    });
+    if (!batch) return [];
+    return prisma.catalogItem.findMany({
+      where: { id: { in: itemIds }, batchId: batch.id },
+    });
+  }
 }

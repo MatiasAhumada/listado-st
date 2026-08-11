@@ -1,23 +1,23 @@
 import {
-  PlanCode,
   SubscriptionStatusCode,
   TechnicianStatusCode,
   WorkshopStatusCode,
 } from "@/types/platformAdmin.types";
+import { SaasPlanReference } from "@/interfaces/saasPlan.interface";
 
 export interface TechnicianIdentity {
   id: string;
   workshopId: string;
-  email: string;
+  username: string;
   displayName: string;
   workshopName: string;
   workshopSlug: string;
-  planCode: PlanCode;
+  plan: SaasPlanReference;
   subscriptionStatus: SubscriptionStatusCode;
 }
 
 export interface TechnicianLoginPayload {
-  email: string;
+  username: string;
   password: string;
 }
 
@@ -32,12 +32,12 @@ export interface TechnicianWorkspaceSummary {
   name: string;
   slug: string;
   status: WorkshopStatusCode;
-  planCode: PlanCode;
+  plan: SaasPlanReference;
   subscriptionStatus: SubscriptionStatusCode;
   technician: {
     id: string;
     displayName: string;
-    email: string;
+    username: string;
     status: TechnicianStatusCode;
   };
 }

@@ -3,9 +3,9 @@
 import { useMemo, useState } from "react";
 import {
   Activity,
+  BadgeDollarSign,
   ClipboardCopy,
   LogOut,
-  PackageSearch,
   RefreshCcw,
   ShieldCheck,
   Store,
@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { CreateWorkshopForm } from "@/components/admin/CreateWorkshopForm";
-import { AdminCatalogManager } from "@/components/admin/AdminCatalogManager";
+import { SaasPlanManager } from "@/components/admin/SaasPlanManager";
 import { WorkshopTable } from "@/components/admin/WorkshopTable";
 import { MetricCard } from "@/components/common/MetricCard";
 import { Badge } from "@/components/ui/badge";
@@ -29,46 +29,40 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CATALOG_TABS, CATALOG_TEXT } from "@/constants/catalog.constant";
-import {
-  PLATFORM_ADMIN_ROUTES,
-  PLATFORM_ADMIN_TEXT,
-} from "@/constants/platformAdmin.constant";
+import { PLATFORM_ADMIN_ROUTES, PLATFORM_ADMIN_TABS, PLATFORM_ADMIN_TEXT } from "@/constants/platformAdmin.constant";
+import { SAAS_PLAN_TEXT } from "@/constants/saasPlan.constant";
 import {
   CreatedWorkshopCredentials,
   PlatformAdminIdentity,
   WorkshopSummary,
 } from "@/interfaces/platformAdmin.interface";
-import { CatalogAdminDashboard } from "@/interfaces/catalog.interface";
+import { SaasPlanSummary } from "@/interfaces/saasPlan.interface";
 import {
   getPlatformWorkshops,
-  logoutPlatformAdmin,
   updatePlatformWorkshopStatus,
 } from "@/services/platformAdmin.service";
+import { logoutAccess } from "@/services/access.service";
 import { WorkshopStatusCode } from "@/types/platformAdmin.types";
-import {
-  clientErrorHandler,
-  clientSuccessHandler,
-} from "@/utils/handlers/clientError.handler";
+import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { buildTechnicianCredentialsMessage } from "@/utils/platformAdmin.util";
 
 interface AdminDashboardProps {
   admin: PlatformAdminIdentity;
   initialWorkshops: WorkshopSummary[];
-  initialCatalog: CatalogAdminDashboard;
+  initialPlans: SaasPlanSummary[];
 }
 
 export function AdminDashboard({
   admin,
   initialWorkshops,
-  initialCatalog,
+  initialPlans,
 }: AdminDashboardProps) {
   const router = useRouter();
   const [workshops, setWorkshops] = useState(initialWorkshops);
+  const [plans, setPlans] = useState(initialPlans);
   const [pendingWorkshopId, setPendingWorkshopId] = useState<string>();
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [lastCreatedCredentials, setLastCreatedCredentials] =
-    useState<CreatedWorkshopCredentials>();
+  const [lastCreatedCredentials, setLastCreatedCredentials] = useState<CreatedWorkshopCredentials>();
 
   const metrics = useMemo(
     () => ({
@@ -80,11 +74,13 @@ export function AdminDashboard({
     [workshops]
   );
 
-  const handleCreated = (
-    workshop: WorkshopSummary,
-    credentials: CreatedWorkshopCredentials
-  ) => {
+  const handleCreated = (workshop: WorkshopSummary, credentials: CreatedWorkshopCredentials) => {
     setWorkshops((currentWorkshops) => [workshop, ...currentWorkshops]);
+    setPlans((currentPlans) =>
+      currentPlans.map((plan) =>
+        plan.id === workshop.plan.id ? { ...plan, subscriptionCount: plan.subscriptionCount + 1 } : plan
+      )
+    );
     setLastCreatedCredentials(credentials);
   };
 
@@ -93,19 +89,58 @@ export function AdminDashboard({
     try {
       const updatedWorkshop = await updatePlatformWorkshopStatus(workshopId, { status });
       setWorkshops((currentWorkshops) =>
-        currentWorkshops.map((workshop) =>
-          workshop.id === updatedWorkshop.id ? updatedWorkshop : workshop
-        )
+        currentWorkshops.map((workshop) => (workshop.id === updatedWorkshop.id ? updatedWorkshop : workshop))
       );
       clientSuccessHandler(
-        status === "ACTIVE"
-          ? PLATFORM_ADMIN_TEXT.workshopActivated
-          : PLATFORM_ADMIN_TEXT.workshopSuspended
+        status === "ACTIVE" ? PLATFORM_ADMIN_TEXT.workshopActivated : PLATFORM_ADMIN_TEXT.workshopSuspended
       );
     } catch (error) {
       clientErrorHandler(error);
     } finally {
       setPendingWorkshopId(undefined);
+    }
+  };
+
+  const handlePlanCreated = (plan: SaasPlanSummary) => {
+    setPlans((currentPlans) => [...currentPlans, plan]);
+  };
+
+  const handlePlanUpdated = (plan: SaasPlanSummary) => {
+    setPlans((currentPlans) => currentPlans.map((currentPlan) => (currentPlan.id === plan.id ? plan : currentPlan)));
+    setWorkshops((currentWorkshops) =>
+      currentWorkshops.map((workshop) =>
+        workshop.plan.id === plan.id
+          ? {
+              ...workshop,
+              plan: {
+                id: plan.id,
+                code: plan.code,
+                name: plan.name,
+                isActive: plan.isActive,
+              },
+            }
+          : workshop
+      )
+    );
+  };
+
+  const handleWorkshopPlanUpdated = (workshop: WorkshopSummary) => {
+    const previousWorkshop = workshops.find((currentWorkshop) => currentWorkshop.id === workshop.id);
+    setWorkshops((currentWorkshops) =>
+      currentWorkshops.map((currentWorkshop) => (currentWorkshop.id === workshop.id ? workshop : currentWorkshop))
+    );
+    if (previousWorkshop && previousWorkshop.plan.id !== workshop.plan.id) {
+      setPlans((currentPlans) =>
+        currentPlans.map((plan) => {
+          if (plan.id === previousWorkshop.plan.id) {
+            return { ...plan, subscriptionCount: Math.max(0, plan.subscriptionCount - 1) };
+          }
+          if (plan.id === workshop.plan.id) {
+            return { ...plan, subscriptionCount: plan.subscriptionCount + 1 };
+          }
+          return plan;
+        })
+      );
     }
   };
 
@@ -122,7 +157,7 @@ export function AdminDashboard({
 
   const handleLogout = async () => {
     try {
-      await logoutPlatformAdmin();
+      await logoutAccess();
       router.replace(PLATFORM_ADMIN_ROUTES.login);
       router.refresh();
     } catch (error) {
@@ -151,15 +186,13 @@ export function AdminDashboard({
                 <h1 className="font-display text-5xl font-bold uppercase leading-none sm:text-6xl">
                   {PLATFORM_ADMIN_TEXT.dashboardTitle}
                 </h1>
-                <p className="mt-3 max-w-2xl text-background/65">
-                  {PLATFORM_ADMIN_TEXT.dashboardDescription}
-                </p>
+                <p className="mt-3 max-w-2xl text-background/65">{PLATFORM_ADMIN_TEXT.dashboardDescription}</p>
               </div>
             </div>
             <div className="flex flex-col items-start gap-3 lg:items-end">
               <div className="text-left lg:text-right">
                 <p className="font-semibold">{admin.displayName}</p>
-                <p className="font-mono text-xs text-background/55">{admin.email}</p>
+                <p className="font-mono text-xs text-background/55">@{admin.username}</p>
               </div>
               <Button variant="secondary" size="sm" onClick={handleLogout}>
                 <LogOut data-icon="inline-start" />
@@ -180,19 +213,19 @@ export function AdminDashboard({
           />
         </section>
 
-        <Tabs defaultValue={CATALOG_TABS.workshops}>
+        <Tabs defaultValue={PLATFORM_ADMIN_TABS.workshops}>
           <TabsList variant="line">
-            <TabsTrigger value={CATALOG_TABS.workshops}>
+            <TabsTrigger value={PLATFORM_ADMIN_TABS.workshops}>
               <Store />
-              {CATALOG_TEXT.tabWorkshops}
+              {PLATFORM_ADMIN_TEXT.workshopsTab}
             </TabsTrigger>
-            <TabsTrigger value={CATALOG_TABS.catalog}>
-              <PackageSearch />
-              {CATALOG_TEXT.tabCatalog}
+            <TabsTrigger value={PLATFORM_ADMIN_TABS.plans}>
+              <BadgeDollarSign />
+              {SAAS_PLAN_TEXT.tabLabel}
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value={CATALOG_TABS.workshops}>
+          <TabsContent value={PLATFORM_ADMIN_TABS.workshops}>
             <section className="grid items-start gap-6 xl:grid-cols-[minmax(320px,0.72fr)_minmax(0,1.65fr)]">
               <div className="flex flex-col gap-6 xl:sticky xl:top-6">
                 <Card className="border-foreground/15 bg-card/95 shadow-lg">
@@ -201,12 +234,9 @@ export function AdminDashboard({
                       {PLATFORM_ADMIN_TEXT.createTitle}
                     </CardTitle>
                     <CardDescription>{PLATFORM_ADMIN_TEXT.createDescription}</CardDescription>
-                    <CardAction>
-                      <Badge variant="outline">{PLATFORM_ADMIN_TEXT.planSoloLabel}</Badge>
-                    </CardAction>
                   </CardHeader>
                   <CardContent>
-                    <CreateWorkshopForm onCreated={handleCreated} />
+                    <CreateWorkshopForm plans={plans} onCreated={handleCreated} />
                   </CardContent>
                 </Card>
 
@@ -216,16 +246,14 @@ export function AdminDashboard({
                       <CardTitle className="font-display text-2xl uppercase tracking-wide">
                         {PLATFORM_ADMIN_TEXT.credentialsTitle}
                       </CardTitle>
-                      <CardDescription>
-                        {PLATFORM_ADMIN_TEXT.credentialsDescription}
-                      </CardDescription>
+                      <CardDescription>{PLATFORM_ADMIN_TEXT.credentialsDescription}</CardDescription>
                       <CardAction>
                         <ShieldCheck />
                       </CardAction>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-3 font-mono text-sm">
                       <p>{lastCreatedCredentials.workshopName}</p>
-                      <p>{lastCreatedCredentials.ownerEmail}</p>
+                      <p>@{lastCreatedCredentials.ownerUsername}</p>
                       <p className="rounded-md border bg-background p-3 font-semibold">
                         {lastCreatedCredentials.ownerPassword}
                       </p>
@@ -248,10 +276,7 @@ export function AdminDashboard({
                   <CardDescription>{PLATFORM_ADMIN_TEXT.listDescription}</CardDescription>
                   <CardAction>
                     <Button variant="outline" size="sm" disabled={isRefreshing} onClick={handleRefresh}>
-                      <RefreshCcw
-                        data-icon="inline-start"
-                        className={isRefreshing ? "animate-spin" : undefined}
-                      />
+                      <RefreshCcw data-icon="inline-start" className={isRefreshing ? "animate-spin" : undefined} />
                       {isRefreshing ? PLATFORM_ADMIN_TEXT.loadingWorkshops : PLATFORM_ADMIN_TEXT.refreshAction}
                     </Button>
                   </CardAction>
@@ -259,17 +284,20 @@ export function AdminDashboard({
                 <CardContent className="min-w-0">
                   <WorkshopTable
                     workshops={workshops}
+                    plans={plans}
                     pendingWorkshopId={pendingWorkshopId}
                     onStatusChange={handleStatusChange}
+                    onPlanUpdated={handleWorkshopPlanUpdated}
                   />
                 </CardContent>
               </Card>
             </section>
           </TabsContent>
 
-          <TabsContent value={CATALOG_TABS.catalog}>
-            <AdminCatalogManager initialDashboard={initialCatalog} />
+          <TabsContent value={PLATFORM_ADMIN_TABS.plans}>
+            <SaasPlanManager plans={plans} onCreated={handlePlanCreated} onUpdated={handlePlanUpdated} />
           </TabsContent>
+
         </Tabs>
       </div>
     </main>

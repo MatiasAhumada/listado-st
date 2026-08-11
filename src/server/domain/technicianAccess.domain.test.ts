@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  PlanCode,
   SubscriptionStatus,
   TechnicianStatus,
   WorkshopStatus,
@@ -20,11 +19,16 @@ import { ApiError } from "@/utils/handlers/apiError.handler";
 const technicianIdentity: TechnicianIdentity = {
   id: "technician-a",
   workshopId: "workshop-a",
-  email: "matias@example.com",
+  username: "matias",
   displayName: "Matías",
   workshopName: "Taller A",
   workshopSlug: "taller-a",
-  planCode: "SOLO_TECHNICIAN",
+  plan: {
+    id: "plan-a",
+    code: "TECNICO_INDEPENDIENTE",
+    name: "Técnico independiente",
+    isActive: true,
+  },
   subscriptionStatus: "ACTIVE",
 };
 
@@ -38,14 +42,19 @@ function buildWorkspace(
     slug: workshopId,
     status: WorkshopStatus.ACTIVE,
     subscription: {
-      planCode: PlanCode.SOLO_TECHNICIAN,
       status: SubscriptionStatus.ACTIVE,
+      plan: {
+        id: "plan-a",
+        code: "TECNICO_INDEPENDIENTE",
+        name: "Técnico independiente",
+        isActive: true,
+      },
     },
     technicians: [
       {
         id: technicianId,
         displayName: technicianId,
-        email: `${technicianId}@example.com`,
+        username: technicianId,
         status: TechnicianStatus.ACTIVE,
       },
     ],

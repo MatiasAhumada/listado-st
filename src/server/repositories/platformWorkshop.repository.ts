@@ -1,5 +1,4 @@
 import {
-  PlanCode,
   PlatformAuditAction,
   Prisma,
   TechnicianStatus,
@@ -9,17 +8,18 @@ import prisma from "@/lib/prisma";
 import {
   CreateWorkshopPersistence,
   UpdateWorkshopLifecyclePersistence,
+  UpdateWorkshopPlanPersistence,
 } from "@/interfaces/platformPersistence.interface";
 
 export type WorkshopWithAdminRelations = Prisma.WorkshopGetPayload<{
   include: {
-    subscription: true;
+    subscription: { include: { plan: true } };
     technicians: true;
   };
 }>;
 
 const workshopRelations = {
-  subscription: true,
+  subscription: { include: { plan: true } },
   technicians: {
     orderBy: { createdAt: "asc" as const },
     take: 1,
@@ -51,7 +51,7 @@ export class PlatformWorkshopRepository {
           createdByAdminId: payload.adminId,
           technicians: {
             create: {
-              email: payload.ownerEmail,
+              username: payload.ownerUsername,
               passwordHash: payload.ownerPasswordHash,
               displayName: payload.ownerName,
               status: TechnicianStatus.ACTIVE,
@@ -59,7 +59,10 @@ export class PlatformWorkshopRepository {
           },
           subscription: {
             create: {
-              planCode: PlanCode.SOLO_TECHNICIAN,
+              planId: payload.planId,
+              agreedPrice: payload.agreedPrice,
+              currency: payload.currency,
+              billingPeriod: payload.billingPeriod,
               status: payload.subscriptionStatus,
             },
           },
@@ -67,7 +70,7 @@ export class PlatformWorkshopRepository {
             create: {
               adminId: payload.adminId,
               action: PlatformAuditAction.WORKSHOP_CREATED,
-              metadata: { ownerEmail: payload.ownerEmail },
+              metadata: { ownerUsername: payload.ownerUsername },
             },
           },
         },
@@ -96,7 +99,10 @@ export class PlatformWorkshopRepository {
       }
       await transaction.workshopSubscription.update({
         where: { workshopId: payload.workshopId },
-        data: { status: payload.subscriptionStatus },
+        data: {
+          status: payload.subscriptionStatus,
+          resumeStatus: payload.resumeStatus,
+        },
       });
       await transaction.platformAuditEvent.create({
         data: {
@@ -106,6 +112,40 @@ export class PlatformWorkshopRepository {
         },
       });
 
+      return transaction.workshop.findUniqueOrThrow({
+        where: { id: payload.workshopId },
+        include: workshopRelations,
+      });
+    });
+  }
+
+  static async updatePlan(
+    payload: UpdateWorkshopPlanPersistence
+  ): Promise<WorkshopWithAdminRelations> {
+    return prisma.$transaction(async (transaction) => {
+      await transaction.workshopSubscription.update({
+        where: { workshopId: payload.workshopId },
+        data: {
+          planId: payload.planId,
+          agreedPrice: payload.agreedPrice,
+          currency: payload.currency,
+          billingPeriod: payload.billingPeriod,
+        },
+      });
+      await transaction.platformAuditEvent.create({
+        data: {
+          adminId: payload.adminId,
+          workshopId: payload.workshopId,
+          action: PlatformAuditAction.SUBSCRIPTION_PLAN_CHANGED,
+          metadata: {
+            previousPlanId: payload.previousPlanId,
+            planId: payload.planId,
+            agreedPrice: payload.agreedPrice.toFixed(2),
+            currency: payload.currency,
+            billingPeriod: payload.billingPeriod,
+          },
+        },
+      });
       return transaction.workshop.findUniqueOrThrow({
         where: { id: payload.workshopId },
         include: workshopRelations,

@@ -6,7 +6,6 @@ export const TECHNICIAN_ROUTES = {
   workshop: "/cliente/taller",
   prototype: "/cliente/taller/prototipo",
   login: ACCESS_ROUTES.login,
-  sessionApi: "/client/auth/session",
   workspaceApi: "/client/workspace",
 } as const;
 
@@ -22,7 +21,7 @@ export const TECHNICIAN_ACCESS = {
 } as const;
 
 export const TECHNICIAN_FIELDS = {
-  loginEmail: "technician-email",
+  loginUsername: "technician-username",
   loginPassword: "technician-password",
 } as const;
 
@@ -32,7 +31,7 @@ export const TECHNICIAN_TEXT = {
   loginTitle: "Tu taller, en orden",
   loginDescription: "Ingresá con las credenciales de tu cuenta cliente.",
   loginPromise: "Presupuestos claros, trabajos visibles y números bajo control.",
-  emailLabel: "Correo",
+  usernameLabel: "Usuario",
   passwordLabel: "Contraseña",
   loginAction: "Entrar a mi cuenta",
   loginPending: "Abriendo tu cuenta...",
@@ -58,12 +57,11 @@ export const TECHNICIAN_TEXT = {
   repairsTitle: "Reparaciones",
   repairsDescription: "Ingreso físico, estados, gastos, cobros y ganancia.",
   nextBlockBadge: "Próximo: clientes y presupuestos",
-  planLabel: "Plan técnico independiente",
   subscriptionTrial: "Prueba activa",
   subscriptionActive: "Suscripción activa",
   subscriptionSuspended: "Suscripción suspendida",
   subscriptionCancelled: "Suscripción cancelada",
-  invalidCredentials: "Correo o contraseña incorrectos",
+  invalidCredentials: "Usuario o contraseña incorrectos",
   accessUnavailable: "El acceso a este taller está suspendido",
   unauthenticated: "La sesión del cliente no es válida",
   workspaceNotFound: "El taller no existe",
@@ -71,7 +69,7 @@ export const TECHNICIAN_TEXT = {
   internalError: "Ocurrió un error interno",
   logoutSuccess: "Sesión cerrada",
   sessionCreated: "Sesión iniciada",
-  emailInvalid: "Ingresá un correo válido",
+  usernameInvalid: "Usá entre 3 y 40 caracteres: letras, números, punto, guion o guion bajo",
   passwordTooShort: "La contraseña debe tener al menos 10 caracteres",
   passwordTooLong: "La contraseña no puede superar 72 caracteres",
 } as const;

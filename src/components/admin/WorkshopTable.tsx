@@ -1,6 +1,7 @@
 "use client";
 
 import { LoaderCircle, Power, PowerOff } from "lucide-react";
+import { WorkshopPlanAssignment } from "@/components/admin/WorkshopPlanAssignment";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,13 +19,18 @@ import {
   WORKSHOP_STATUS_LABELS,
 } from "@/constants/platformAdmin.constant";
 import { WorkshopSummary } from "@/interfaces/platformAdmin.interface";
+import { SaasPlanSummary } from "@/interfaces/saasPlan.interface";
 import { WorkshopStatusCode } from "@/types/platformAdmin.types";
 import { formatPlatformAdminDate } from "@/utils/platformAdmin.util";
+import { formatSaasPlanPrice } from "@/utils/saasPlan.util";
+import { SAAS_PLAN_BILLING_LABELS } from "@/constants/saasPlan.constant";
 
 interface WorkshopTableProps {
   workshops: WorkshopSummary[];
+  plans: SaasPlanSummary[];
   pendingWorkshopId?: string;
   onStatusChange: (workshopId: string, status: WorkshopStatusCode) => void;
+  onPlanUpdated: (workshop: WorkshopSummary) => void;
 }
 
 function getSubscriptionBadgeVariant(status: WorkshopSummary["subscriptionStatus"]) {
@@ -36,8 +42,10 @@ function getSubscriptionBadgeVariant(status: WorkshopSummary["subscriptionStatus
 
 export function WorkshopTable({
   workshops,
+  plans,
   pendingWorkshopId,
   onStatusChange,
+  onPlanUpdated,
 }: WorkshopTableProps) {
   return (
     <Table>
@@ -49,6 +57,7 @@ export function WorkshopTable({
           <TableHead>{PLATFORM_ADMIN_TEXT.workshopColumn}</TableHead>
           <TableHead>{PLATFORM_ADMIN_TEXT.ownerColumn}</TableHead>
           <TableHead>{PLATFORM_ADMIN_TEXT.planColumn}</TableHead>
+          <TableHead>{PLATFORM_ADMIN_TEXT.agreedPriceColumn}</TableHead>
           <TableHead>{PLATFORM_ADMIN_TEXT.subscriptionColumn}</TableHead>
           <TableHead>{PLATFORM_ADMIN_TEXT.accessColumn}</TableHead>
           <TableHead>{PLATFORM_ADMIN_TEXT.createdColumn}</TableHead>
@@ -72,10 +81,25 @@ export function WorkshopTable({
               <TableCell>
                 <div className="flex min-w-48 flex-col gap-1">
                   <span>{workshop.owner.displayName}</span>
-                  <span className="text-xs text-muted-foreground">{workshop.owner.email}</span>
+                  <span className="font-mono text-xs text-muted-foreground">@{workshop.owner.username}</span>
                 </div>
               </TableCell>
-              <TableCell>{PLATFORM_ADMIN_TEXT.planSoloLabel}</TableCell>
+              <TableCell>
+                <WorkshopPlanAssignment
+                  key={`${workshop.plan.id}-${workshop.agreedPrice}`}
+                  workshop={workshop}
+                  plans={plans}
+                  onUpdated={onPlanUpdated}
+                />
+              </TableCell>
+              <TableCell>
+                <div className="flex min-w-40 flex-col gap-1">
+                  <strong>{formatSaasPlanPrice(workshop.agreedPrice, workshop.currency)}</strong>
+                  <span className="text-xs text-muted-foreground">
+                    {SAAS_PLAN_BILLING_LABELS[workshop.billingPeriod]}
+                  </span>
+                </div>
+              </TableCell>
               <TableCell>
                 <Badge variant={getSubscriptionBadgeVariant(workshop.subscriptionStatus)}>
                   {SUBSCRIPTION_STATUS_LABELS[workshop.subscriptionStatus]}
