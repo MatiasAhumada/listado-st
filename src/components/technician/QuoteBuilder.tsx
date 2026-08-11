@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -366,14 +367,11 @@ export function QuoteBuilder({ customers, initialCatalog, quote, onSaved, onCanc
                       <FieldLabel htmlFor={`quote-alternative-cost-${alternative.localId}`}>
                         {WORKSHOP_OPERATIONS_TEXT.selectedCostLabel}
                       </FieldLabel>
-                      <Input
+                      <MoneyInput
                         id={`quote-alternative-cost-${alternative.localId}`}
-                        type="number"
-                        min="0"
-                        step={WORKSHOP_OPERATIONS_LIMITS.moneyInputStep}
                         value={alternative.selectedCost}
                         required
-                        onChange={(event) => updateAlternative(alternative.localId, "selectedCost", event.target.value)}
+                        onValueChange={(value) => updateAlternative(alternative.localId, "selectedCost", value)}
                       />
                     </Field>
                     <Field>
@@ -388,14 +386,11 @@ export function QuoteBuilder({ customers, initialCatalog, quote, onSaved, onCanc
                       <FieldLabel htmlFor={`quote-alternative-final-${alternative.localId}`}>
                         {WORKSHOP_OPERATIONS_TEXT.finalPriceLabel}
                       </FieldLabel>
-                      <Input
+                      <MoneyInput
                         id={`quote-alternative-final-${alternative.localId}`}
-                        type="number"
-                        min={WORKSHOP_OPERATIONS_LIMITS.moneyInputStep}
-                        step={WORKSHOP_OPERATIONS_LIMITS.moneyInputStep}
                         value={alternative.finalPrice}
                         required
-                        onChange={(event) => updateAlternative(alternative.localId, "finalPrice", event.target.value)}
+                        onValueChange={(value) => updateAlternative(alternative.localId, "finalPrice", value)}
                       />
                     </Field>
                   </FieldGroup>

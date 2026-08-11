@@ -50,6 +50,7 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { Separator } from "@/components/ui/separator";
 
 function createAlternative(catalogItem: PrototypeCatalogItem): PrototypeQuoteAlternative {
@@ -337,14 +338,13 @@ export function QuoteValidationPrototype() {
                         </Field>
                         <Field>
                           <FieldLabel htmlFor={`cost-${alternative.id}`}>{PROTOTYPE_TEXT.selectedCost}</FieldLabel>
-                          <Input
+                          <MoneyInput
                             id={`cost-${alternative.id}`}
-                            type="number"
                             value={alternative.selectedCost}
                             disabled={!isDraft}
                             className="font-mono"
-                            onChange={(event) =>
-                              updateAlternativeCost(alternative.id, parsePrototypeAmount(event.target.value))
+                            onValueChange={(value) =>
+                              updateAlternativeCost(alternative.id, parsePrototypeAmount(value))
                             }
                           />
                         </Field>
@@ -356,14 +356,13 @@ export function QuoteValidationPrototype() {
                         </Field>
                         <Field>
                           <FieldLabel htmlFor={`final-price-${alternative.id}`}>{PROTOTYPE_TEXT.finalPrice}</FieldLabel>
-                          <Input
+                          <MoneyInput
                             id={`final-price-${alternative.id}`}
-                            type="number"
                             value={alternative.finalPrice}
                             disabled={!isDraft}
                             className="font-mono font-semibold"
-                            onChange={(event) =>
-                              updateAlternativeFinalPrice(alternative.id, parsePrototypeAmount(event.target.value))
+                            onValueChange={(value) =>
+                              updateAlternativeFinalPrice(alternative.id, parsePrototypeAmount(value))
                             }
                           />
                         </Field>

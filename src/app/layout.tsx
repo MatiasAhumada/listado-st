@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Barlow_Condensed, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { PRODUCT_METADATA } from "@/constants/product.constant";
 import "./globals.css";
 
@@ -35,8 +37,11 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={`${workbenchBody.variable} ${workbenchDisplay.variable} ${workbenchMono.variable} antialiased`}>
-        {children}
-        <Toaster richColors position="top-right" />
+        <ThemeProvider>
+          {children}
+          <ThemeToggle />
+          <Toaster richColors position="top-right" />
+        </ThemeProvider>
       </body>
     </html>
   );

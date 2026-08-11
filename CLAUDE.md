@@ -141,6 +141,8 @@ Descriptive, semantic names. No `i`, `x`, `temp`, `data`.
 
 **Never** include `Co-Authored-By: Claude` or any AI authorship line in commit messages. Commits must only reflect the human author.
 
+After every implementation, run the relevant type, lint, test and production-build checks. When every required check passes and the working tree contains only the intended changes, commit the implementation and push it to `dev` automatically. Never commit or push an implementation with failing checks; report the failure instead. An explicit user instruction can override the target branch or request no commit or push.
+
 ### Pre-delivery checklist
 
 Before every response verify:

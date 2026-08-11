@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import {
   PLATFORM_ADMIN_DEFAULTS,
@@ -15,17 +17,11 @@ import {
   PLATFORM_ADMIN_TEXT,
 } from "@/constants/platformAdmin.constant";
 import { SAAS_PLAN_BILLING_LABELS, SAAS_PLAN_TEXT } from "@/constants/saasPlan.constant";
-import {
-  CreatedWorkshopCredentials,
-  WorkshopSummary,
-} from "@/interfaces/platformAdmin.interface";
+import { CreatedWorkshopCredentials, WorkshopSummary } from "@/interfaces/platformAdmin.interface";
 import { SaasPlanSummary } from "@/interfaces/saasPlan.interface";
 import { InitialSubscriptionStatusCode } from "@/types/platformAdmin.types";
 import { createPlatformWorkshop } from "@/services/platformAdmin.service";
-import {
-  clientErrorHandler,
-  clientSuccessHandler,
-} from "@/utils/handlers/clientError.handler";
+import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 import { formatSaasPlanPrice } from "@/utils/saasPlan.util";
 
 interface CreateWorkshopFormProps {
@@ -57,9 +53,7 @@ export function CreateWorkshopForm({ plans, onCreated }: CreateWorkshopFormProps
   const activePlans = plans.filter((plan) => plan.isActive);
   const [form, setForm] = useState(() => createInitialFormState(activePlans[0]));
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const selectedPlanId = activePlans.some((plan) => plan.id === form.planId)
-    ? form.planId
-    : (activePlans[0]?.id ?? "");
+  const selectedPlanId = activePlans.some((plan) => plan.id === form.planId) ? form.planId : (activePlans[0]?.id ?? "");
 
   const resetForm = () => {
     setForm(createInitialFormState(activePlans[0]));
@@ -97,9 +91,7 @@ export function CreateWorkshopForm({ plans, onCreated }: CreateWorkshopFormProps
     <form onSubmit={handleSubmit}>
       <FieldGroup>
         <Field>
-          <FieldLabel htmlFor={PLATFORM_ADMIN_FIELDS.workshopName}>
-            {PLATFORM_ADMIN_TEXT.workshopNameLabel}
-          </FieldLabel>
+          <FieldLabel htmlFor={PLATFORM_ADMIN_FIELDS.workshopName}>{PLATFORM_ADMIN_TEXT.workshopNameLabel}</FieldLabel>
           <Input
             id={PLATFORM_ADMIN_FIELDS.workshopName}
             value={form.workshopName}
@@ -114,17 +106,13 @@ export function CreateWorkshopForm({ plans, onCreated }: CreateWorkshopFormProps
           />
         </Field>
         <Field>
-          <FieldLabel htmlFor={PLATFORM_ADMIN_FIELDS.ownerName}>
-            {PLATFORM_ADMIN_TEXT.ownerNameLabel}
-          </FieldLabel>
+          <FieldLabel htmlFor={PLATFORM_ADMIN_FIELDS.ownerName}>{PLATFORM_ADMIN_TEXT.ownerNameLabel}</FieldLabel>
           <Input
             id={PLATFORM_ADMIN_FIELDS.ownerName}
             value={form.ownerName}
             maxLength={PLATFORM_ADMIN_SECURITY.maximumNameLength}
             required
-            onChange={(event) =>
-              setForm((currentForm) => ({ ...currentForm, ownerName: event.target.value }))
-            }
+            onChange={(event) => setForm((currentForm) => ({ ...currentForm, ownerName: event.target.value }))}
           />
         </Field>
         <Field>
@@ -138,18 +126,15 @@ export function CreateWorkshopForm({ plans, onCreated }: CreateWorkshopFormProps
             minLength={PLATFORM_ADMIN_SECURITY.minimumUsernameLength}
             maxLength={PLATFORM_ADMIN_SECURITY.maximumUsernameLength}
             required
-            onChange={(event) =>
-              setForm((currentForm) => ({ ...currentForm, ownerUsername: event.target.value }))
-            }
+            onChange={(event) => setForm((currentForm) => ({ ...currentForm, ownerUsername: event.target.value }))}
           />
         </Field>
         <Field>
           <FieldLabel htmlFor={PLATFORM_ADMIN_FIELDS.ownerPassword}>
             {PLATFORM_ADMIN_TEXT.ownerPasswordLabel}
           </FieldLabel>
-          <Input
+          <PasswordInput
             id={PLATFORM_ADMIN_FIELDS.ownerPassword}
-            type="password"
             autoComplete="new-password"
             value={form.ownerPassword}
             minLength={PLATFORM_ADMIN_SECURITY.minimumPasswordLength}
@@ -165,9 +150,7 @@ export function CreateWorkshopForm({ plans, onCreated }: CreateWorkshopFormProps
           <FieldDescription>{PLATFORM_ADMIN_TEXT.passwordTooShort}</FieldDescription>
         </Field>
         <Field>
-          <FieldLabel htmlFor={PLATFORM_ADMIN_FIELDS.planId}>
-            {PLATFORM_ADMIN_TEXT.planLabel}
-          </FieldLabel>
+          <FieldLabel htmlFor={PLATFORM_ADMIN_FIELDS.planId}>{PLATFORM_ADMIN_TEXT.planLabel}</FieldLabel>
           <NativeSelect
             id={PLATFORM_ADMIN_FIELDS.planId}
             className="w-full"
@@ -198,20 +181,12 @@ export function CreateWorkshopForm({ plans, onCreated }: CreateWorkshopFormProps
           </Alert>
         ) : null}
         <Field>
-          <FieldLabel htmlFor={PLATFORM_ADMIN_FIELDS.agreedPrice}>
-            {PLATFORM_ADMIN_TEXT.agreedPriceLabel}
-          </FieldLabel>
-          <Input
+          <FieldLabel htmlFor={PLATFORM_ADMIN_FIELDS.agreedPrice}>{PLATFORM_ADMIN_TEXT.agreedPriceLabel}</FieldLabel>
+          <MoneyInput
             id={PLATFORM_ADMIN_FIELDS.agreedPrice}
-            type="number"
-            inputMode="decimal"
-            min="0.01"
-            step="0.01"
             value={form.agreedPrice}
             required
-            onChange={(event) =>
-              setForm((currentForm) => ({ ...currentForm, agreedPrice: event.target.value }))
-            }
+            onValueChange={(value) => setForm((currentForm) => ({ ...currentForm, agreedPrice: value }))}
           />
           <FieldDescription>{PLATFORM_ADMIN_TEXT.agreedPriceDescription}</FieldDescription>
         </Field>

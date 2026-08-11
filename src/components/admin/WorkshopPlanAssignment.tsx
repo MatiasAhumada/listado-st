@@ -3,16 +3,13 @@
 import { useState } from "react";
 import { LoaderCircle, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { SAAS_PLAN_TEXT } from "@/constants/saasPlan.constant";
 import { WorkshopSummary } from "@/interfaces/platformAdmin.interface";
 import { SaasPlanSummary } from "@/interfaces/saasPlan.interface";
 import { updatePlatformWorkshopPlan } from "@/services/platformAdmin.service";
-import {
-  clientErrorHandler,
-  clientSuccessHandler,
-} from "@/utils/handlers/clientError.handler";
+import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 
 interface WorkshopPlanAssignmentProps {
   workshop: WorkshopSummary;
@@ -20,11 +17,7 @@ interface WorkshopPlanAssignmentProps {
   onUpdated: (workshop: WorkshopSummary) => void;
 }
 
-export function WorkshopPlanAssignment({
-  workshop,
-  plans,
-  onUpdated,
-}: WorkshopPlanAssignmentProps) {
+export function WorkshopPlanAssignment({ workshop, plans, onUpdated }: WorkshopPlanAssignmentProps) {
   const activePlans = plans.filter((plan) => plan.isActive);
   const [planId, setPlanId] = useState(workshop.plan.id);
   const [agreedPrice, setAgreedPrice] = useState(workshop.agreedPrice);
@@ -68,16 +61,12 @@ export function WorkshopPlanAssignment({
           </NativeSelectOption>
         ))}
       </NativeSelect>
-      <Input
+      <MoneyInput
         className="h-8"
-        type="number"
-        inputMode="decimal"
-        min="0.01"
-        step="0.01"
         value={agreedPrice}
         disabled={isSubmitting}
         aria-label={SAAS_PLAN_TEXT.assignedPriceLabel}
-        onChange={(event) => setAgreedPrice(event.target.value)}
+        onValueChange={setAgreedPrice}
       />
       <Button
         size="sm"

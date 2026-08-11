@@ -5,6 +5,7 @@ import { Banknote, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -90,15 +91,11 @@ export function RepairPaymentForm({ repair, onUpdated }: RepairPaymentFormProps)
         </Field>
         <Field>
           <FieldLabel htmlFor={REPAIR_FIELDS.paymentAmount}>{REPAIR_TEXT.amountLabel}</FieldLabel>
-          <Input
+          <MoneyInput
             id={REPAIR_FIELDS.paymentAmount}
-            type="number"
-            min={REPAIR_LIMITS.moneyInputStep}
-            max={repair.totals.balance}
-            step={REPAIR_LIMITS.moneyInputStep}
             value={form.amount}
             required
-            onChange={(event) => setForm((currentForm) => ({ ...currentForm, amount: event.target.value }))}
+            onValueChange={(value) => setForm((currentForm) => ({ ...currentForm, amount: value }))}
           />
         </Field>
         <Field>

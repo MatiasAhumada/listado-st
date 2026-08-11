@@ -15,3 +15,8 @@ export const AUTH_SECURITY = {
   maximumUsernameLength: 40,
   usernamePattern: /^[a-z0-9._-]+$/,
 } as const;
+
+export const AUTH_TEXT = {
+  showPassword: "Mostrar contraseña",
+  hidePassword: "Ocultar contraseña",
+} as const;

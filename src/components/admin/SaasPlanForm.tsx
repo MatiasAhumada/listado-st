@@ -4,14 +4,9 @@ import { FormEvent, useState } from "react";
 import { LoaderCircle, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import {
   SAAS_PLAN_BILLING_LABELS,
@@ -24,10 +19,7 @@ import {
 import { SaasPlanSummary } from "@/interfaces/saasPlan.interface";
 import { createSaasPlan, updateSaasPlan } from "@/services/platformAdmin.service";
 import { BillingPeriodCode } from "@/types/platformAdmin.types";
-import {
-  clientErrorHandler,
-  clientSuccessHandler,
-} from "@/utils/handlers/clientError.handler";
+import { clientErrorHandler, clientSuccessHandler } from "@/utils/handlers/clientError.handler";
 
 interface SaasPlanFormProps {
   plan?: SaasPlanSummary;
@@ -37,12 +29,8 @@ interface SaasPlanFormProps {
 
 export function SaasPlanForm({ plan, onSaved, onCancel }: SaasPlanFormProps) {
   const [name, setName] = useState(plan?.name ?? "");
-  const [description, setDescription] = useState(
-    plan?.description ?? SAAS_PLAN_DEFAULTS.emptyDescription
-  );
-  const [billingPrice, setBillingPrice] = useState(
-    plan?.billingPrice ?? SAAS_PLAN_DEFAULTS.emptyPrice
-  );
+  const [description, setDescription] = useState(plan?.description ?? SAAS_PLAN_DEFAULTS.emptyDescription);
+  const [billingPrice, setBillingPrice] = useState(plan?.billingPrice ?? SAAS_PLAN_DEFAULTS.emptyPrice);
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriodCode>(
     plan?.billingPeriod ?? SAAS_PLAN_DEFAULTS.billingPeriod
   );
@@ -60,9 +48,7 @@ export function SaasPlanForm({ plan, onSaved, onCancel }: SaasPlanFormProps) {
         billingPeriod,
         isActive,
       };
-      const savedPlan = plan
-        ? await updateSaasPlan(plan.id, payload)
-        : await createSaasPlan(payload);
+      const savedPlan = plan ? await updateSaasPlan(plan.id, payload) : await createSaasPlan(payload);
       onSaved(savedPlan);
       if (!plan) {
         setName("");
@@ -71,9 +57,7 @@ export function SaasPlanForm({ plan, onSaved, onCancel }: SaasPlanFormProps) {
         setBillingPeriod(SAAS_PLAN_DEFAULTS.billingPeriod);
         setIsActive(SAAS_PLAN_DEFAULTS.isActive);
       }
-      clientSuccessHandler(
-        plan ? SAAS_PLAN_TEXT.updatedSuccess : SAAS_PLAN_TEXT.createdSuccess
-      );
+      clientSuccessHandler(plan ? SAAS_PLAN_TEXT.updatedSuccess : SAAS_PLAN_TEXT.createdSuccess);
     } catch (error) {
       clientErrorHandler(error);
     } finally {
@@ -95,9 +79,7 @@ export function SaasPlanForm({ plan, onSaved, onCancel }: SaasPlanFormProps) {
           />
         </Field>
         <Field>
-          <FieldLabel htmlFor={SAAS_PLAN_FIELDS.description}>
-            {SAAS_PLAN_TEXT.descriptionLabel}
-          </FieldLabel>
+          <FieldLabel htmlFor={SAAS_PLAN_FIELDS.description}>{SAAS_PLAN_TEXT.descriptionLabel}</FieldLabel>
           <Input
             id={SAAS_PLAN_FIELDS.description}
             value={description}
@@ -109,20 +91,15 @@ export function SaasPlanForm({ plan, onSaved, onCancel }: SaasPlanFormProps) {
           <FieldLabel htmlFor={SAAS_PLAN_FIELDS.billingPrice}>
             {SAAS_PLAN_TEXT.priceLabel} ({SAAS_PLAN_DEFAULTS.currency})
           </FieldLabel>
-          <Input
+          <MoneyInput
             id={SAAS_PLAN_FIELDS.billingPrice}
-            type="number"
-            min={SAAS_PLAN_LIMITS.moneyInputStep}
-            step={SAAS_PLAN_LIMITS.moneyInputStep}
             value={billingPrice}
             required
-            onChange={(event) => setBillingPrice(event.target.value)}
+            onValueChange={setBillingPrice}
           />
         </Field>
         <Field>
-          <FieldLabel htmlFor={SAAS_PLAN_FIELDS.billingPeriod}>
-            {SAAS_PLAN_TEXT.periodLabel}
-          </FieldLabel>
+          <FieldLabel htmlFor={SAAS_PLAN_FIELDS.billingPeriod}>{SAAS_PLAN_TEXT.periodLabel}</FieldLabel>
           <NativeSelect
             id={SAAS_PLAN_FIELDS.billingPeriod}
             className="w-full"
@@ -143,9 +120,7 @@ export function SaasPlanForm({ plan, onSaved, onCancel }: SaasPlanFormProps) {
             onCheckedChange={(checked) => setIsActive(checked === true)}
           />
           <FieldContent>
-            <FieldLabel htmlFor={SAAS_PLAN_FIELDS.isActive}>
-              {SAAS_PLAN_TEXT.activeLabel}
-            </FieldLabel>
+            <FieldLabel htmlFor={SAAS_PLAN_FIELDS.isActive}>{SAAS_PLAN_TEXT.activeLabel}</FieldLabel>
             <FieldDescription>{SAAS_PLAN_TEXT.activeDescription}</FieldDescription>
           </FieldContent>
         </Field>
