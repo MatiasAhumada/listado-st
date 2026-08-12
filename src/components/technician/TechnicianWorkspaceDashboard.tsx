@@ -133,7 +133,7 @@ export function TechnicianWorkspaceDashboard({
   return (
     <main className="technician-workspace-grid min-h-screen bg-background text-foreground">
       <div className="mx-auto flex w-full max-w-[1540px] flex-col gap-6 px-4 py-5 sm:px-6 lg:px-10 lg:py-8">
-        <header className="overflow-hidden rounded-2xl border bg-foreground text-background shadow-xl">
+        <header className="overflow-hidden rounded-2xl border bg-inverse text-inverse-foreground shadow-xl">
           <div className="safety-rule h-2" />
           <div className="flex flex-col gap-6 p-6 lg:flex-row lg:items-end lg:justify-between lg:p-8">
             <div className="flex max-w-4xl flex-col gap-3">
@@ -143,8 +143,8 @@ export function TechnicianWorkspaceDashboard({
               </Badge>
               <div>
                 <h1 className="font-display text-5xl font-bold uppercase leading-none sm:text-6xl">{workspace.name}</h1>
-                <p className="mt-3 max-w-2xl text-background/65">{WORKSHOP_OPERATIONS_TEXT.overviewDescription}</p>
-                <p className="mt-2 font-mono text-xs text-background/45">{workspace.slug}</p>
+                <p className="mt-3 max-w-2xl text-inverse-foreground/65">{WORKSHOP_OPERATIONS_TEXT.overviewDescription}</p>
+                <p className="mt-2 font-mono text-xs text-inverse-foreground/45">{workspace.slug}</p>
               </div>
             </div>
             <div className="flex flex-col items-start gap-3 lg:items-end">
@@ -154,7 +154,7 @@ export function TechnicianWorkspaceDashboard({
               </div>
               <div className="text-left lg:text-right">
                 <p className="font-semibold">{workspace.technician.displayName}</p>
-                <p className="font-mono text-xs text-background/55">@{workspace.technician.username}</p>
+                <p className="font-mono text-xs text-inverse-foreground/55">@{workspace.technician.username}</p>
               </div>
               <Button variant="secondary" size="sm" onClick={handleLogout}>
                 <LogOut data-icon="inline-start" />
@@ -202,7 +202,7 @@ export function TechnicianWorkspaceDashboard({
           </TabsList>
 
           <TabsContent value={WORKSHOP_OPERATIONS_TABS.overview}>
-            <Card className="border-foreground/15 bg-card/95 shadow-lg">
+            <Card variant="elevated">
               <CardHeader>
                 <CardTitle className="font-display text-3xl uppercase tracking-wide">
                   {WORKSHOP_OPERATIONS_TEXT.latestActivityTitle}

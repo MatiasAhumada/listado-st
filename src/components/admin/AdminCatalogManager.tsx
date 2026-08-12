@@ -135,7 +135,7 @@ export function AdminCatalogManager({ initialDashboard }: AdminCatalogManagerPro
   return (
     <div className="flex flex-col gap-6">
       <section className="grid items-start gap-6 xl:grid-cols-2">
-        <Card className="border-foreground/15 bg-card/95 shadow-lg">
+        <Card variant="elevated">
           <CardHeader>
             <CardTitle className="font-display text-2xl uppercase tracking-wide">
               {CATALOG_TEXT.uploadTitle}
@@ -174,7 +174,7 @@ export function AdminCatalogManager({ initialDashboard }: AdminCatalogManagerPro
           </CardContent>
         </Card>
 
-        <Card className="border-foreground/15 bg-card/95 shadow-lg">
+        <Card variant="elevated">
           <CardHeader>
             <CardTitle className="font-display text-2xl uppercase tracking-wide">
               {CATALOG_TEXT.pricingTitle}
@@ -194,7 +194,7 @@ export function AdminCatalogManager({ initialDashboard }: AdminCatalogManagerPro
       </section>
 
       {dashboard.publishedBatch ? (
-        <Alert className="border-secondary bg-secondary/15">
+        <Alert className="border-primary/30 bg-accent/70">
           <PackageCheck />
           <AlertTitle>{CATALOG_TEXT.publishedTitle}</AlertTitle>
           <AlertDescription>
@@ -212,7 +212,7 @@ export function AdminCatalogManager({ initialDashboard }: AdminCatalogManagerPro
       )}
 
       {dashboard.draftBatch ? (
-        <Card className="min-w-0 border-foreground/15 bg-card/95 shadow-xl">
+        <Card variant="elevated" className="min-w-0">
           <CardHeader>
             <CardTitle className="font-display text-3xl uppercase tracking-wide">
               {CATALOG_TEXT.draftTitle}
@@ -263,7 +263,7 @@ export function AdminCatalogManager({ initialDashboard }: AdminCatalogManagerPro
           </CardFooter>
         </Card>
       ) : (
-        <Card className="border-foreground/15 bg-card/95 shadow-lg">
+        <Card variant="elevated">
           <CardContent>
             <Empty>
               <EmptyHeader>

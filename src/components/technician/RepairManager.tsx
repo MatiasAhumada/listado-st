@@ -58,7 +58,7 @@ export function RepairManager({ quotes, repairs, onCreated, onUpdated }: RepairM
   return (
     <section className="grid items-start gap-6 2xl:grid-cols-[minmax(320px,0.72fr)_minmax(0,1.65fr)]">
       <div className="flex flex-col gap-6 2xl:sticky 2xl:top-6">
-        <Card className="border-foreground/15 bg-card/95 shadow-lg">
+        <Card variant="elevated">
           <CardHeader>
             <CardTitle className="font-display text-2xl uppercase tracking-wide">{REPAIR_TEXT.createTitle}</CardTitle>
             <CardDescription>{REPAIR_TEXT.createDescription}</CardDescription>
@@ -68,7 +68,7 @@ export function RepairManager({ quotes, repairs, onCreated, onUpdated }: RepairM
           </CardContent>
         </Card>
 
-        <Card className="border-foreground/15 bg-card/95 shadow-lg">
+        <Card variant="elevated">
           <CardHeader>
             <CardTitle className="font-display text-2xl uppercase tracking-wide">{REPAIR_TEXT.listTitle}</CardTitle>
             <CardDescription>{REPAIR_TEXT.listDescription}</CardDescription>
@@ -110,7 +110,7 @@ export function RepairManager({ quotes, repairs, onCreated, onUpdated }: RepairM
       </div>
 
       {selectedRepair ? (
-        <Card className="min-w-0 border-foreground/15 bg-card/95 shadow-lg">
+        <Card variant="elevated" className="min-w-0">
           <CardHeader>
             <CardTitle className="font-display text-3xl uppercase tracking-wide">
               {selectedRepair.customer.fullName}

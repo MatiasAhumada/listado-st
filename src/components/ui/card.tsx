@@ -2,11 +2,24 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-function Card({ className, ...props }: React.ComponentProps<"div">) {
+type CardVariant = "default" | "elevated" | "subtle" | "highlight" | "inverse";
+
+function Card({ className, variant = "default", ...props }: React.ComponentProps<"div"> & { variant?: CardVariant }) {
   return (
     <div
       data-slot="card"
-      className={cn("bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm", className)}
+      data-variant={variant}
+      className={cn(
+        "text-card-foreground flex flex-col gap-6 rounded-xl border py-6 transition-colors",
+        {
+          "bg-card border-border shadow-sm": variant === "default",
+          "bg-card border-border shadow-lg": variant === "elevated",
+          "bg-muted/70 border-border/80 shadow-none": variant === "subtle",
+          "bg-accent/70 border-primary/30 shadow-sm": variant === "highlight",
+          "bg-inverse text-inverse-foreground border-inverse shadow-xl": variant === "inverse",
+        },
+        className
+      )}
       {...props}
     />
   );

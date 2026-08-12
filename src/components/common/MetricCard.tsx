@@ -9,13 +9,15 @@ interface MetricCardProps {
 
 export function MetricCard({ label, value, icon: Icon }: MetricCardProps) {
   return (
-    <Card className="gap-3 bg-card/90 py-4 shadow-none">
+    <Card className="gap-3 py-4 shadow-none">
       <CardHeader>
         <CardTitle className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
           {label}
         </CardTitle>
         <CardAction>
-          <Icon />
+          <span className="grid size-9 place-items-center rounded-lg bg-accent text-primary">
+            <Icon />
+          </span>
         </CardAction>
       </CardHeader>
       <CardContent>

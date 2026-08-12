@@ -33,7 +33,7 @@ export function WorkshopCustomerManager({ customers, onCreated, onUpdated }: Wor
   return (
     <section className="grid items-start gap-6 xl:grid-cols-[minmax(320px,0.72fr)_minmax(0,1.65fr)]">
       <div className="flex flex-col gap-6 xl:sticky xl:top-6">
-        <Card className="border-foreground/15 bg-card/95 shadow-lg">
+        <Card variant="elevated">
           <CardHeader>
             <CardTitle className="font-display text-2xl uppercase tracking-wide">
               {editingCustomer
@@ -53,7 +53,7 @@ export function WorkshopCustomerManager({ customers, onCreated, onUpdated }: Wor
         </Card>
 
         {customers.length ? (
-          <Card className="border-foreground/15 bg-card/95 shadow-lg">
+        <Card variant="elevated">
             <CardHeader>
               <CardTitle className="font-display text-2xl uppercase tracking-wide">
                 {WORKSHOP_OPERATIONS_TEXT.addDeviceTitle}
@@ -67,7 +67,7 @@ export function WorkshopCustomerManager({ customers, onCreated, onUpdated }: Wor
         ) : null}
       </div>
 
-      <Card className="min-w-0 border-foreground/15 bg-card/95 shadow-lg">
+      <Card variant="elevated" className="min-w-0">
         <CardHeader>
           <CardTitle className="font-display text-2xl uppercase tracking-wide">
             {WORKSHOP_OPERATIONS_TEXT.customersListTitle}

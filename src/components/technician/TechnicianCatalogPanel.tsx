@@ -72,7 +72,7 @@ export function TechnicianCatalogPanel({
   };
 
   return (
-    <Card className="min-w-0 border-foreground/15 bg-card/95 shadow-xl">
+    <Card variant="elevated" className="min-w-0">
       <CardHeader>
         <CardTitle className="font-display text-3xl uppercase tracking-wide">
           {CATALOG_TEXT.technicianTitle}
@@ -85,7 +85,7 @@ export function TechnicianCatalogPanel({
         </CardAction>
       </CardHeader>
       <CardContent className="flex min-w-0 flex-col gap-5">
-        <Alert className="border-secondary bg-secondary/15">
+        <Alert className="border-primary/30 bg-accent/70">
           <ShieldQuestion />
           <AlertTitle>{CATALOG_TEXT.technicianReferenceAlertTitle}</AlertTitle>
           <AlertDescription>
