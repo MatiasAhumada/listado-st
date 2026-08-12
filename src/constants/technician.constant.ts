@@ -4,7 +4,6 @@ import { ACCESS_ROUTES } from "@/constants/access.constant";
 export const TECHNICIAN_ROUTES = {
   dashboard: "/cliente",
   workshop: "/cliente/taller",
-  prototype: "/cliente/taller/prototipo",
   login: ACCESS_ROUTES.login,
   workspaceApi: "/client/workspace",
 } as const;

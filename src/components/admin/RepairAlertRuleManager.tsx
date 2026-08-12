@@ -42,7 +42,7 @@ export function RepairAlertRuleManager({ initialRules }: RepairAlertRuleManagerP
   };
 
   return (
-    <Card className="border-foreground/15 bg-card/95 shadow-lg">
+    <Card variant="elevated">
       <CardHeader>
         <CardTitle className="font-display text-3xl uppercase tracking-wide">{REPAIR_TEXT.alertRulesTitle}</CardTitle>
         <CardDescription>{REPAIR_TEXT.alertRulesDescription}</CardDescription>

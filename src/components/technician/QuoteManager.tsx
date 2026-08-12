@@ -96,7 +96,7 @@ export function QuoteManager({ customers, quotes, initialCatalog, onCreated, onU
         onCancel={editingQuote ? () => setEditingQuote(undefined) : undefined}
       />
 
-      <Card className="min-w-0 border-foreground/15 bg-card/95 shadow-lg">
+      <Card variant="elevated" className="min-w-0">
         <CardHeader>
           <CardTitle className="font-display text-2xl uppercase tracking-wide">
             {WORKSHOP_OPERATIONS_TEXT.quotesListTitle}

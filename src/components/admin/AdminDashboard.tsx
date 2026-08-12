@@ -174,7 +174,7 @@ export function AdminDashboard({
   return (
     <main className="admin-console-grid min-h-screen bg-background text-foreground">
       <div className="mx-auto flex w-full max-w-[1680px] flex-col gap-6 px-4 py-5 sm:px-6 lg:px-10 lg:py-8">
-        <header className="overflow-hidden rounded-2xl border bg-foreground text-background shadow-xl">
+        <header className="overflow-hidden rounded-2xl border bg-inverse text-inverse-foreground shadow-xl">
           <div className="safety-rule h-2" />
           <div className="flex flex-col gap-6 p-6 lg:flex-row lg:items-end lg:justify-between lg:p-8">
             <div className="flex max-w-4xl flex-col gap-3">
@@ -186,13 +186,13 @@ export function AdminDashboard({
                 <h1 className="font-display text-5xl font-bold uppercase leading-none sm:text-6xl">
                   {PLATFORM_ADMIN_TEXT.dashboardTitle}
                 </h1>
-                <p className="mt-3 max-w-2xl text-background/65">{PLATFORM_ADMIN_TEXT.dashboardDescription}</p>
+                <p className="mt-3 max-w-2xl text-inverse-foreground/65">{PLATFORM_ADMIN_TEXT.dashboardDescription}</p>
               </div>
             </div>
             <div className="flex flex-col items-start gap-3 lg:items-end">
               <div className="text-left lg:text-right">
                 <p className="font-semibold">{admin.displayName}</p>
-                <p className="font-mono text-xs text-background/55">@{admin.username}</p>
+                <p className="font-mono text-xs text-inverse-foreground/55">@{admin.username}</p>
               </div>
               <Button variant="secondary" size="sm" onClick={handleLogout}>
                 <LogOut data-icon="inline-start" />
@@ -228,7 +228,7 @@ export function AdminDashboard({
           <TabsContent value={PLATFORM_ADMIN_TABS.workshops}>
             <section className="grid items-start gap-6 xl:grid-cols-[minmax(320px,0.72fr)_minmax(0,1.65fr)]">
               <div className="flex flex-col gap-6 xl:sticky xl:top-6">
-                <Card className="border-foreground/15 bg-card/95 shadow-lg">
+                <Card variant="elevated">
                   <CardHeader>
                     <CardTitle className="font-display text-2xl uppercase tracking-wide">
                       {PLATFORM_ADMIN_TEXT.createTitle}
@@ -241,7 +241,7 @@ export function AdminDashboard({
                 </Card>
 
                 {lastCreatedCredentials ? (
-                  <Card className="border-secondary bg-secondary/15 shadow-lg">
+                  <Card variant="highlight">
                     <CardHeader>
                       <CardTitle className="font-display text-2xl uppercase tracking-wide">
                         {PLATFORM_ADMIN_TEXT.credentialsTitle}
@@ -268,7 +268,7 @@ export function AdminDashboard({
                 ) : null}
               </div>
 
-              <Card className="min-w-0 border-foreground/15 bg-card/95 shadow-lg">
+              <Card variant="elevated" className="min-w-0">
                 <CardHeader>
                   <CardTitle className="font-display text-2xl uppercase tracking-wide">
                     {PLATFORM_ADMIN_TEXT.listTitle}

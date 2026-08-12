@@ -190,7 +190,7 @@ export function QuoteBuilder({ customers, initialCatalog, quote, onSaved, onCanc
 
   return (
     <form className="flex min-w-0 flex-col gap-6" onSubmit={handleSubmit}>
-      <Card className="border-foreground/15 bg-card/95 shadow-lg">
+      <Card variant="elevated">
         <CardHeader>
           <CardTitle className="font-display text-2xl uppercase tracking-wide">
             {quote ? WORKSHOP_OPERATIONS_TEXT.quoteEditorTitle : WORKSHOP_OPERATIONS_TEXT.quoteBuilderTitle}
@@ -288,7 +288,7 @@ export function QuoteBuilder({ customers, initialCatalog, quote, onSaved, onCanc
         </CardContent>
       </Card>
 
-      <Card className="border-foreground/15 bg-card/95 shadow-lg">
+      <Card variant="elevated">
         <CardHeader>
           <CardTitle className="font-display text-2xl uppercase tracking-wide">
             {WORKSHOP_OPERATIONS_TEXT.alternativesTitle}
@@ -416,7 +416,7 @@ export function QuoteBuilder({ customers, initialCatalog, quote, onSaved, onCanc
         </CardContent>
       </Card>
 
-      <Card className="border-foreground/15 bg-card/95 shadow-lg">
+      <Card variant="elevated">
         <CardHeader>
           <CardTitle className="font-display text-2xl uppercase tracking-wide">
             {WORKSHOP_OPERATIONS_TEXT.catalogTitle}
@@ -488,7 +488,7 @@ export function QuoteBuilder({ customers, initialCatalog, quote, onSaved, onCanc
         </CardContent>
       </Card>
 
-      <Card className="border-foreground/15 bg-card/95 shadow-lg">
+      <Card variant="elevated">
         <CardHeader>
           <CardTitle className="font-display text-2xl uppercase tracking-wide">
             {WORKSHOP_OPERATIONS_TEXT.saveQuoteTitle}

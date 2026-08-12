@@ -54,7 +54,7 @@ export function SaasPlanManager({ plans, onCreated, onUpdated }: SaasPlanManager
 
   return (
     <section className="grid items-start gap-6 xl:grid-cols-[minmax(320px,0.72fr)_minmax(0,1.65fr)]">
-      <Card className="border-foreground/15 bg-card/95 shadow-lg xl:sticky xl:top-6">
+      <Card variant="elevated" className="xl:sticky xl:top-6">
         <CardHeader>
           <CardTitle className="font-display text-2xl uppercase tracking-wide">
             {editingPlan ? SAAS_PLAN_TEXT.editTitle : SAAS_PLAN_TEXT.createTitle}
@@ -75,7 +75,7 @@ export function SaasPlanManager({ plans, onCreated, onUpdated }: SaasPlanManager
         </CardContent>
       </Card>
 
-      <Card className="min-w-0 border-foreground/15 bg-card/95 shadow-lg">
+      <Card variant="elevated" className="min-w-0">
         <CardHeader>
           <CardTitle className="font-display text-2xl uppercase tracking-wide">
             {SAAS_PLAN_TEXT.listTitle}

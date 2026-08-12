@@ -28,8 +28,8 @@ export default async function LoginPage() {
 
   return (
     <main className="access-grid grid min-h-screen place-items-center bg-background px-4 py-8 sm:px-6">
-      <div className="prototype-enter grid w-full max-w-6xl overflow-hidden rounded-3xl border border-primary/20 bg-foreground shadow-2xl shadow-primary/10 lg:grid-cols-[1.08fr_0.92fr]">
-        <section className="relative hidden min-h-[680px] overflow-hidden p-10 text-background lg:flex lg:flex-col lg:justify-between">
+      <div className="page-enter grid w-full max-w-6xl overflow-hidden rounded-3xl border border-primary/20 bg-inverse shadow-2xl shadow-primary/10 lg:grid-cols-[1.08fr_0.92fr]">
+        <section className="relative hidden min-h-[680px] overflow-hidden p-10 text-inverse-foreground lg:flex lg:flex-col lg:justify-between">
           <div className="green-rule absolute inset-x-0 top-0 h-2" />
           <div className="absolute -right-24 top-20 size-80 rounded-full border border-secondary/20" />
           <div className="absolute -right-8 top-36 size-56 rounded-full border border-secondary/15" />
@@ -42,7 +42,7 @@ export default async function LoginPage() {
             <p className="font-display text-7xl font-bold uppercase leading-[0.86] tracking-tight">
               {ACCESS_TEXT.title}
             </p>
-            <p className="mt-7 max-w-md text-lg text-background/60">
+            <p className="mt-7 max-w-md text-lg text-inverse-foreground/60">
               {ACCESS_TEXT.description}
             </p>
             <div className="mt-10 flex items-center gap-3 font-mono text-xs uppercase tracking-[0.16em] text-secondary">
@@ -53,7 +53,7 @@ export default async function LoginPage() {
               <span>{ACCESS_TEXT.workshopsFlowLabel}</span>
             </div>
           </div>
-          <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.16em] text-background/45">
+          <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.16em] text-inverse-foreground/45">
             <KeyRound />
             <span>{ACCESS_TEXT.securityNote}</span>
           </div>
